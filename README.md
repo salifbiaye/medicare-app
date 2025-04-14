@@ -1,150 +1,106 @@
 # Shadow Fit App
 
-A modern workout and fitness tracking application, designed to help users achieve their fitness goals.
+Une application moderne de suivi d'entraînement et de fitness, conçue pour aider les utilisateurs à atteindre leurs objectifs de remise en forme.
 
-## 🎯 Theme and Objectives
+## 🎯 Objectifs
 
-Shadow Fit is a comprehensive fitness application that allows users to:
-- Track their workout sessions
-- Manage their muscle progression
-- Plan their exercise routines
-- Visualize their performance statistics
+Shadow Fit est une application complète qui permet aux utilisateurs de :
+- Suivre leurs séances d'entraînement
+- Gérer leur progression musculaire
+- Planifier leurs routines d'exercices
+- Visualiser leurs statistiques de performance
+- Suivre leur progression au fil du temps
 
-## 🏗️ Project Architecture
+## 🏗️ Architecture du Projet
 
-The project follows a modular and maintainable architecture, organized as follows:
+Le projet suit une architecture modulaire et maintenable, organisée comme suit :
 
 ```
 src/
-├── _tests_/                   # Global tests (middleware, utils)
+├── _tests_/                   # Tests globaux (middleware, utils)
 │   ├── middleware.test.ts
 │   └── lib/
-├── app/                       # Application pages and routes
-├── actions/                   # Next.js server actions
+├── app/                       # Pages et routes de l'application
+├── actions/                   # Actions serveur Next.js
 │   └── training/
 │       ├── startTraining.ts
 │       └── startTraining.test.ts
-├── components/                # Reusable React components
+├── components/                # Composants React réutilisables
 │   ├── MuscleCard.tsx
 │   └── MuscleCard.test.tsx
-├── hooks/                     # Custom hooks
+├── hooks/                     # Hooks personnalisés
 │   ├── useMuscleTracker.ts
 │   └── useMuscleTracker.test.ts
-├── lib/                       # Utilities and configurations
+├── lib/                       # Utilitaires et configurations
 │   └── prisma.ts
-├── repository/                # Data access layer
+├── repository/                # Couche d'accès aux données
 │   ├── training.repository.ts
 │   └── training.repository.test.ts
-├── services/                  # Business logic
+├── services/                  # Logique métier
 │   ├── training.service.ts
 │   └── training.service.test.ts
-├── utils/                     # Utility functions
-├── types/                     # TypeScript definitions
-└── constants/                 # Application constants
-
-tests/                         # Tests organized by type
-├── unit/                      # Unit tests
-│   └── training.service.test.ts
-├── integration/               # Integration tests
-│   └── startTrainingFlow.test.ts
-└── e2e/                       # End-to-end tests
-    └── userCanTrainFlow.spec.ts
+├── utils/                     # Fonctions utilitaires
+├── types/                     # Définitions TypeScript
+└── constants/                 # Constantes de l'application
 ```
 
-### Application Layers
+## 🛠️ Technologies Utilisées
 
-1. **Presentation (Components)**
-   - Reusable React components
-   - Component tests with React Testing Library
+- **Framework Frontend** : Next.js
+- **Langage** : TypeScript
+- **Base de données** : Prisma
+- **Styling** : Tailwind CSS
+- **Tests** : 
+  - Jest pour les tests unitaires
+  - React Testing Library pour les tests de composants
+  - Playwright pour les tests e2e
 
-2. **Business Logic (Services)**
-   - Services containing business logic
-   - Unit tests for services
+## 🚀 Démarrage
 
-3. **Data Access (Repository)**
-   - Abstraction layer for data access
-   - Repository tests
-
-4. **Server Actions (Actions)**
-   - Next.js server actions
-   - Integration tests for flows
-
-## 🛠️ Technologies Used
-
-- **Frontend Framework**: Next.js
-- **Language**: TypeScript
-- **Database**: Prisma
-- **Styling**: Tailwind CSS
-- **Testing**: 
-  - Jest for unit tests
-  - React Testing Library for component tests
-  - Playwright for e2e tests
-
-## 🚀 Getting Started
-
-1. Install dependencies:
+1. Installer les dépendances :
 ```bash
 npm install
 ```
 
-2. Configure the database:
+2. Configurer la base de données :
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-3. Start the development server:
+3. Démarrer le serveur de développement :
 ```bash
 npm run dev
 ```
 
 ## 📊 Tests
 
-- Unit tests: `npm run test:unit`
-- Integration tests: `npm run test:integration`
-- E2E tests: `npm run test:e2e`
-- All tests: `npm run test`
+- Tests unitaires : `npm run test:unit`
+- Tests d'intégration : `npm run test:integration`
+- Tests e2e : `npm run test:e2e`
+- Tous les tests : `npm run test`
 
-## 📝 Best Practices
+## 📝 Bonnes Pratiques
 
-- TypeScript for type safety
-- Automated tests at all levels
-- Modular and maintainable architecture
-- Clear separation of responsibilities
-- Code documentation
-- Systematic code review
+- TypeScript pour la sécurité des types
+- Tests automatisés à tous les niveaux
+- Architecture modulaire et maintenable
+- Séparation claire des responsabilités
+- Documentation du code
+- Revue systématique du code
 
-## Getting Started
+## 🔍 Fonctionnalités Principales
 
-First, run the development server:
+- Suivi des séances d'entraînement en temps réel
+- Visualisation de la progression musculaire
+- Planification des routines d'exercices
+- Statistiques détaillées de performance
+- Interface utilisateur intuitive et responsive
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 📱 Support
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Pour toute question ou problème, veuillez ouvrir une issue sur le repository GitHub.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📄 Licence
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
