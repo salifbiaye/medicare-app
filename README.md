@@ -1,118 +1,118 @@
 # Shadow Fit App
 
-Une application moderne de suivi d'entraînement et de fitness, conçue pour aider les utilisateurs à atteindre leurs objectifs de remise en forme.
+A modern workout and fitness tracking application, designed to help users achieve their fitness goals.
 
-## 🎯 Thème et Objectifs
+## 🎯 Theme and Objectives
 
-Shadow Fit est une application de fitness complète qui permet aux utilisateurs de :
-- Suivre leurs séances d'entraînement
-- Gérer leur progression musculaire
-- Planifier leurs routines d'exercices
-- Visualiser leurs statistiques de performance
+Shadow Fit is a comprehensive fitness application that allows users to:
+- Track their workout sessions
+- Manage their muscle progression
+- Plan their exercise routines
+- Visualize their performance statistics
 
-## 🏗️ Architecture du Projet
+## 🏗️ Project Architecture
 
-Le projet suit une architecture modulaire et maintenable, organisée comme suit :
+The project follows a modular and maintainable architecture, organized as follows:
 
 ```
 src/
-├── _tests_/                   # Tests globaux (middleware, utils)
+├── _tests_/                   # Global tests (middleware, utils)
 │   ├── middleware.test.ts
 │   └── lib/
-├── app/                       # Pages et routes de l'application
-├── actions/                   # Actions serveur Next.js
+├── app/                       # Application pages and routes
+├── actions/                   # Next.js server actions
 │   └── training/
 │       ├── startTraining.ts
 │       └── startTraining.test.ts
-├── components/                # Composants React réutilisables
+├── components/                # Reusable React components
 │   ├── MuscleCard.tsx
 │   └── MuscleCard.test.tsx
-├── hooks/                     # Hooks personnalisés
+├── hooks/                     # Custom hooks
 │   ├── useMuscleTracker.ts
 │   └── useMuscleTracker.test.ts
-├── lib/                       # Utilitaires et configurations
+├── lib/                       # Utilities and configurations
 │   └── prisma.ts
-├── repository/                # Couche d'accès aux données
+├── repository/                # Data access layer
 │   ├── training.repository.ts
 │   └── training.repository.test.ts
-├── services/                  # Logique métier
+├── services/                  # Business logic
 │   ├── training.service.ts
 │   └── training.service.test.ts
-├── utils/                     # Fonctions utilitaires
-├── types/                     # Définitions TypeScript
-└── constants/                 # Constantes de l'application
+├── utils/                     # Utility functions
+├── types/                     # TypeScript definitions
+└── constants/                 # Application constants
 
-tests/                         # Tests organisés par type
-├── unit/                      # Tests unitaires
+tests/                         # Tests organized by type
+├── unit/                      # Unit tests
 │   └── training.service.test.ts
-├── integration/               # Tests d'intégration
+├── integration/               # Integration tests
 │   └── startTrainingFlow.test.ts
-└── e2e/                       # Tests end-to-end
+└── e2e/                       # End-to-end tests
     └── userCanTrainFlow.spec.ts
 ```
 
-### Couches de l'Application
+### Application Layers
 
-1. **Présentation (Components)**
-   - Composants React réutilisables
-   - Tests de composants avec React Testing Library
+1. **Presentation (Components)**
+   - Reusable React components
+   - Component tests with React Testing Library
 
-2. **Logique Métier (Services)**
-   - Services contenant la logique métier
-   - Tests unitaires des services
+2. **Business Logic (Services)**
+   - Services containing business logic
+   - Unit tests for services
 
-3. **Accès aux Données (Repository)**
-   - Couche d'abstraction pour l'accès aux données
-   - Tests de repository
+3. **Data Access (Repository)**
+   - Abstraction layer for data access
+   - Repository tests
 
-4. **Actions Serveur (Actions)**
-   - Actions Next.js pour les opérations serveur
-   - Tests d'intégration des flux
+4. **Server Actions (Actions)**
+   - Next.js server actions
+   - Integration tests for flows
 
-## 🛠️ Technologies Utilisées
+## 🛠️ Technologies Used
 
-- **Framework Frontend**: Next.js
-- **Langage**: TypeScript
-- **Base de Données**: Prisma
+- **Frontend Framework**: Next.js
+- **Language**: TypeScript
+- **Database**: Prisma
 - **Styling**: Tailwind CSS
-- **Tests**: 
-  - Jest pour les tests unitaires
-  - React Testing Library pour les tests de composants
-  - Playwright pour les tests e2e
+- **Testing**: 
+  - Jest for unit tests
+  - React Testing Library for component tests
+  - Playwright for e2e tests
 
-## 🚀 Démarrage
+## 🚀 Getting Started
 
-1. Installer les dépendances :
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Configurer la base de données :
+2. Configure the database:
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-3. Démarrer l'application en mode développement :
+3. Start the development server:
 ```bash
 npm run dev
 ```
 
 ## 📊 Tests
 
-- Tests unitaires : `npm run test:unit`
-- Tests d'intégration : `npm run test:integration`
-- Tests e2e : `npm run test:e2e`
-- Tous les tests : `npm run test`
+- Unit tests: `npm run test:unit`
+- Integration tests: `npm run test:integration`
+- E2E tests: `npm run test:e2e`
+- All tests: `npm run test`
 
-## 📝 Bonnes Pratiques
+## 📝 Best Practices
 
-- Utilisation de TypeScript pour la sécurité du typage
-- Tests automatisés à tous les niveaux
-- Architecture modulaire et maintenable
-- Séparation claire des responsabilités
-- Documentation du code
-- Revue de code systématique
+- TypeScript for type safety
+- Automated tests at all levels
+- Modular and maintainable architecture
+- Clear separation of responsibilities
+- Code documentation
+- Systematic code review
 
 ## Getting Started
 

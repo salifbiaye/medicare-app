@@ -1,15 +1,103 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // adapte si besoin
   url      = env("DATABASE_URL")
+}
+
+enum MuscleGroup {
+  PECTORALS
+  BICEPS
+  TRICEPS
+  ABDOMINALS
+  LEGS
+  BACK
+  SHOULDERS
+  CALVES
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model User {
+  id            String            @id @default(cuid())
+  email         String            @unique
+  password      String
+  name          String
+  gender        String?
+  goals         String?
+  musculature   Musculature?      @relation(fields: [musculatureId], references: [id])
+  musculatureId String?           @unique
+  trainings     TrainingSession[]
+  program       Program?
+  achievements  Achievement[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model Musculature {
+  id         String @id @default(cuid())
+  user       User?  @relation
+  PECTORALS  Int    @default(0)
+  BICEPS     Int    @default(0)
+  TRICEPS    Int    @default(0)
+  ABDOMINALS Int    @default(0)
+  LEGS       Int    @default(0)
+  BACK       Int    @default(0)
+  SHOULDERS  Int    @default(0)
+  CALVES     Int    @default(0)
+}
+
+model TrainingSession {
+  id        String     @id @default(cuid())
+  date      DateTime   @default(now())
+  exercises Exercise[] @relation("SessionExercises")
+  user      User       @relation(fields: [userId], references: [id])
+  userId    String     @unique
+  notes     String?
+}
+
+model Exercise {
+  id           String            @id @default(cuid())
+  name         String
+  description  String?
+  muscleGroups MuscleGroup[]
+  intensity    Int               @default(1) // 1 = faible, 3 = intense
+  type         String // "matériel", "sans matériel"
+  sessions     TrainingSession[] @relation("SessionExercises")
+}
+
+model Program {
+  id        String       @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String       @unique
+  days      ProgramDay[]
+}
+
+model ProgramDay {
+  id            String        @id @default(cuid())
+  dayOfWeek     DayOfWeek // Enum: LUNDI, MARDI, etc.
+  muscleTargets MuscleGroup[]
+  program       Program       @relation(fields: [programId], references: [id])
+  programId     String
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  earnedAt    DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
 }
