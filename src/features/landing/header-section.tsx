@@ -1,16 +1,15 @@
 'use client'
 import Link from 'next/link'
 import {Dumbbell, Menu, X} from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import React from 'react'
 import { cn } from '@/lib/utils'
+import {Button} from "@/components/ui/button";
 
 const menuItems = [
-    { name: 'Hero', href: '#link' },
-    { name: 'Features', href: '#link' },
-    { name: 'Why us', href: '#link' },
-    { name: 'Pricing', href: '#link' },
-
+    { name: 'Hero', href: '#hero' },
+    { name: 'Features', href: '#features' },
+    { name: 'Why us', href: '#why-us' },
+    { name: 'Pricing', href: '#pricing' },
 ]
 
 export const HeaderSection = () => {
@@ -24,6 +23,26 @@ export const HeaderSection = () => {
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
+    const handleSmoothScroll = (e: React.MouseEvent, href: string) => {
+        e.preventDefault()
+        setMenuState(false) // Ferme le menu mobile si ouvert
+        const targetId = href.replace('#', '')
+        const targetElement = document.getElementById(targetId)
+
+        if (targetElement) {
+            window.scrollTo({
+                top: targetElement.offsetTop - 80, // Ajustez ce décalage selon votre header
+                behavior: 'smooth'
+            })
+
+            // Mise à jour de l'URL sans rechargement
+            if (href) {
+                window.history.pushState({}, '', href)
+            }
+        }
+    }
+
     return (
         <header>
             <nav
@@ -37,14 +56,14 @@ export const HeaderSection = () => {
                                 aria-label="home"
                                 className="flex items-center space-x-2">
                                 <div className="flex items-center gap-2 font-bold text-xl">
-                                    <Dumbbell className="h-6 w-6 text-gray-500"/>
+                                    <Dumbbell className="h-6 w-6 text-foreground"/>
                                     <span>ShadowFit</span>
                                 </div>
                             </Link>
 
                             <button
                                 onClick={() => setMenuState(!menuState)}
-                                aria-label={menuState == true ? 'Close Menu' : 'Open Menu'}
+                                aria-label={menuState ? 'Close Menu' : 'Open Menu'}
                                 className="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 lg:hidden">
                                 <Menu className="in-data-[state=active]:rotate-180 in-data-[state=active]:scale-0 in-data-[state=active]:opacity-0 m-auto size-6 duration-200" />
                                 <X className="in-data-[state=active]:rotate-0 in-data-[state=active]:scale-100 in-data-[state=active]:opacity-100 absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200" />
@@ -57,6 +76,7 @@ export const HeaderSection = () => {
                                     <li key={index}>
                                         <Link
                                             href={item.href}
+                                            onClick={(e) => handleSmoothScroll(e, item.href)}
                                             className="text-muted-foreground hover:text-accent-foreground block duration-150">
                                             <span>{item.name}</span>
                                         </Link>
@@ -72,6 +92,7 @@ export const HeaderSection = () => {
                                         <li key={index}>
                                             <Link
                                                 href={item.href}
+                                                onClick={(e) => handleSmoothScroll(e, item.href)}
                                                 className="text-muted-foreground hover:text-accent-foreground block duration-150">
                                                 <span>{item.name}</span>
                                             </Link>
@@ -84,7 +105,7 @@ export const HeaderSection = () => {
                                     asChild
                                     variant="outline"
                                     size="sm"
-                                    className={cn(isScrolled && 'lg:hidden'," hover:bg-gray-900")}>
+                                    className={cn(isScrolled && 'lg:hidden'," hover:bg-primary")}>
                                     <Link href="/login">
                                         <span>Login</span>
                                     </Link>
@@ -93,7 +114,7 @@ export const HeaderSection = () => {
                                     asChild
                                     variant={"default"}
                                     size="sm"
-                                    className={cn(isScrolled && 'lg:hidden ',"bg-gray-800 hover:bg-gray-900")}>
+                                    className={cn(isScrolled && 'lg:hidden ',"bg-primary hover:bg-primary")}>
                                     <Link href="/register">
                                         <span>Sign Up</span>
                                     </Link>
@@ -101,7 +122,7 @@ export const HeaderSection = () => {
                                 <Button
                                     asChild
                                     size="sm"
-                                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden',"bg-gray-800 hover:bg-gray-900")}>
+                                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden',"bg-primary hover:bg-primary")}>
                                     <Link href="#">
                                         <span>Get Started</span>
                                     </Link>

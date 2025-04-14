@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import {Dumbbell} from "lucide-react";
 import React from "react";
@@ -5,26 +6,43 @@ import React from "react";
 const links = [
     {
         title: 'Hero',
-        href: '#',
+        href: '#hero',
     },
     {
         title: 'Feature',
-        href: '#',
+        href: '#features',
     },
     {
         title: 'Why us',
-        href: '#',
+        href: '#why-us',
     },
     {
         title: 'Pricing',
-        href: '#',
+        href: '#pricing',
     }
-
 ]
 
 export default function FooterSection() {
+    const handleSmoothScroll = (e: React.MouseEvent, href: string) => {
+        e.preventDefault()
+        const targetId = href.replace('#', '')
+        const targetElement = document.getElementById(targetId)
+
+        if (targetElement) {
+            window.scrollTo({
+                top: targetElement.offsetTop - 80, // Ajustez ce décalage selon votre header
+                behavior: 'smooth'
+            })
+
+            // Mise à jour de l'URL sans rechargement
+            if (href) {
+                window.history.pushState({}, '', href)
+            }
+        }
+    }
+
     return (
-        <footer className="py-16 md:py-32">
+        <footer id={"footer"} className="py-16 md:py-32">
             <div className="mx-auto max-w-5xl px-6">
                 <Link href="/shadowfit-app/public" aria-label="go home" className="mx-auto block size-fit">
                     <div className="flex items-center gap-2 font-bold text-xl text-white">
@@ -35,7 +53,12 @@ export default function FooterSection() {
 
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
                     {links.map((link, index) => (
-                        <Link key={index} href={link.href} className="text-muted-foreground hover:text-primary block duration-150">
+                        <Link
+                            key={index}
+                            href={link.href}
+                            onClick={(e) => handleSmoothScroll(e, link.href)}
+                            className="text-muted-foreground hover:text-primary block duration-150"
+                        >
                             <span>{link.title}</span>
                         </Link>
                     ))}

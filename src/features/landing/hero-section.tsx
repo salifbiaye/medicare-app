@@ -2,10 +2,10 @@ import Link from "next/link"
 import { ArrowRight, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { TextEffect } from "@/components/text-effect"
-import { AnimatedGroup } from "@/components/animated-group"
-import Particles from "@/components/particles"
-import { FloatingCards } from "@/components/floating-card"
+import { TextEffect } from "@/components/ui/text-effect"
+import { AnimatedGroup } from "@/components/ui/animated-group"
+import Particles from "@/components/ui/particles"
+import { FloatingCards } from "@/components/ui/floating-card"
 
 const transitionVariants = {
     item: {
@@ -30,7 +30,7 @@ const transitionVariants = {
 export default function HeroSection() {
     return (
         <>
-            <main className="overflow-hidden">
+            <main id={"hero"} className="overflow-hidden">
                 <div aria-hidden className="absolute inset-0 isolate hidden opacity-65 contain-strict lg:block">
                     <div className="w-140 h-320 -translate-y-87.5 absolute left-0 top-0 -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(210,100%,85%,.08)_0,hsla(210,100%,55%,.02)_50%,hsla(210,100%,45%,0)_80%)]" />
                     <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(210,100%,85%,.06)_0,hsla(210,100%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
@@ -63,15 +63,14 @@ export default function HeroSection() {
                                     },
                                 },
                             }}
-                            className="absolute inset-0 -z-20"
-                        >
-                            <Image
-                                src="https://res.cloudinary.com/dg4jhba5c/image/upload/v1741605538/night-background_ni3vqb.jpg"
-                                alt="background"
-                                className="absolute inset-x-0 top-56 -z-20 hidden lg:top-32 dark:block"
-                                width="3276"
-                                height="4095"
-                            />
+                            className="absolute inset-0 -z-20"  >
+                            {/*<Image*/}
+                            {/*    src="/landing/hero.jpg"*/}
+                            {/*    alt="background"*/}
+                            {/*    className="absolute inset-x-0 top-56 -z-20 hidden lg:top-32 dark:block"*/}
+                            {/*    width="3276"*/}
+                            {/*    height="4095"*/}
+                            {/*/>*/}
                         </AnimatedGroup>
                         <div className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--color-background)_75%)]"></div>
                         <div className="mx-auto max-w-7xl px-6">
@@ -81,7 +80,7 @@ export default function HeroSection() {
                                         href="#link"
                                         className="hover:bg-background dark:hover:border-t-border bg-muted group mx-auto flex w-fit items-center gap-4 rounded-full border p-1 pl-4 shadow-md shadow-zinc-950/5 transition-colors duration-300 dark:border-t-white/5 dark:shadow-zinc-950"
                                     >
-                                        <span className="text-foreground text-sm">Nouveau programme d&apos;entraînement</span>
+                                        <span className="text-foreground text-sm">New training program</span>
                                         <span className="dark:border-background block h-4 w-0.5 border-l bg-white dark:bg-zinc-700"></span>
 
                                         <div className="bg-background group-hover:bg-muted size-6 overflow-hidden rounded-full duration-500">
@@ -103,7 +102,7 @@ export default function HeroSection() {
                                     as="h1"
                                     className="mt-8 text-balance text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]"
                                 >
-                                    Transformez Votre Corps, Libérez Votre Potentiel
+                                    Transform Your Body, Unleash Your Potential
                                 </TextEffect>
                                 <TextEffect
                                     per="line"
@@ -113,8 +112,7 @@ export default function HeroSection() {
                                     as="p"
                                     className="mx-auto mt-8 max-w-2xl text-balance text-lg"
                                 >
-                                    Des programmes d&apos;entraînement personnalisés, des suivis nutritionnels et une communauté motivante pour
-                                    atteindre vos objectifs fitness.
+                                    Personalized training programs, nutritional tracking, and a motivating community to help you reach your fitness goals.
                                 </TextEffect>
 
                                 <AnimatedGroup
@@ -132,15 +130,15 @@ export default function HeroSection() {
                                     className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row"
                                 >
                                     <div key={1} className="rounded-[calc(var(--radius-xl)+0.125rem)] p-0.5">
-                                        <Button asChild size="lg" className="rounded-xl px-5 text-base bg-gray-800 hover:bg-gray-900">
-                                            <Link href="#link">
-                                                <span className="text-nowrap">Commencer Maintenant</span>
+                                        <Button asChild size="lg" className="rounded-xl px-5 text-base bg-primary/80 hover:bg-primary">
+                                            <Link href="/login">
+                                                <span className="text-nowrap">Get Started Now</span>
                                             </Link>
                                         </Button>
                                     </div>
-                                    <Button key={2} asChild size="lg" variant="ghost" className="rounded-xl px-5 hover:bg-gray-900">
-                                        <Link href="#link">
-                                            <span className="text-nowrap">Découvrir les programmes</span>
+                                    <Button key={2} asChild size="lg" variant="ghost" className="rounded-xl px-5 hover:bg-primary">
+                                        <Link href="/login">
+                                            <span className="text-nowrap">Discover Programs</span>
                                         </Link>
                                     </Button>
                                 </AnimatedGroup>
@@ -166,12 +164,12 @@ export default function HeroSection() {
                                     className="bg-linear-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
                                 />
                                 <div className="inset-shadow-2xs ring-background dark:inset-shadow-white/20 bg-background relative mx-auto max-w-6xl overflow-hidden rounded-2xl border p-4 shadow-lg shadow-zinc-950/15 ring-1">
-                                    {/* Conteneur pour l'image, les particules et les cartes flottantes */}
+                                    {/* Container for image, particles and floating cards */}
                                     <div className="relative aspect-16/9">
                                         <Image
                                             className=" relative rounded-2xl z-10"
                                             src="/landing/hero.jpg"
-                                            alt="Athlète faisant des tractions"
+                                            alt="Athlete doing pull-ups"
                                             width={1200}
                                             height={675}
                                         />
@@ -191,7 +189,7 @@ export default function HeroSection() {
                     <div className="group relative m-auto max-w-5xl px-6">
                         <div className="absolute inset-0 z-10 flex scale-95 items-center justify-center opacity-0 duration-500 group-hover:scale-100 group-hover:opacity-100">
                             <Link href="/shadowfit-app/public" className="block text-sm duration-150 hover:opacity-75">
-                                <span>Nos Partenaires</span>
+                                <span>Our Partners</span>
 
                                 <ChevronRight className="ml-1 inline-block size-3" />
                             </Link>
