@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 type CustomInputProps<T extends FieldValues> = {
     name: Path<T>;
     control: Control<T>;
-    label?: string;
+    labelText?: string;
     placeholder?: string;
     icon?: ReactNode;
     disabled?: boolean,
@@ -15,7 +15,7 @@ type CustomInputProps<T extends FieldValues> = {
 export function CustomFormText<T extends FieldValues>({
                                                            name,
                                                            control,
-                                                           label,
+                                                          labelText,
                                                            placeholder,
                                                            icon,
                                                            disabled,
@@ -27,7 +27,7 @@ export function CustomFormText<T extends FieldValues>({
             render={({ field }) => (
                 <FormItem>
                     {/* Affiche le label si fourni */}
-                    {label && <FormLabel className="capitalize">{label}</FormLabel>}
+                     <FormLabel className="capitalize">{labelText  || name}</FormLabel>
                     <FormControl>
                         <div className="space-y-2">
                             <div className="flex rounded-lg relative shadow-sm shadow-black/5">
