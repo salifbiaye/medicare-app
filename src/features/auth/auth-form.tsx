@@ -13,6 +13,7 @@ import {CustomFormMail} from "@/components/input-component/mail-input"
 import {CustomFormPassword} from "@/components/input-component/password-input"
 import {CustomFormText} from "@/components/input-component/text-input"
 import {CustomFormOtp} from "@/components/input-component/otp-input";
+import {authClient} from "@/lib/authClient";
 
 // Type utilitaire
 type InferFormValues<T extends ZodType<any, any, any>> = z.infer<T>
@@ -85,6 +86,12 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                 return field.type
         }
     }
+    const signInProvider = async (provider: 'google' | 'github') => {
+        await authClient.signIn.social({
+            provider,
+            callbackURL: `/dashboard`,
+        });
+    }
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
@@ -139,6 +146,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                                 variant="outline"
                                 type="button"
                                 className="w-full border-zinc-800 hover:bg-zinc-900 transition-all duration-300 h-12 rounded-lg group"
+                                onClick={() => signInProvider('google')}
                             >
                                 <svg
                                     className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110"
@@ -167,7 +175,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                                 variant="outline"
                                 type="button"
                                 className="w-full border-zinc-800 hover:bg-zinc-900 transition-all duration-300 h-12 rounded-lg group"
-                            >
+                                onClick={() => signInProvider('github')} >
                                 <svg
                                     className="mr-2 h-5 w-5"
                                     viewBox="0 0 24 24"
