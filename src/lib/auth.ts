@@ -14,6 +14,7 @@ export const auth = betterAuth({
     }),
     emailAndPassword: {
         enabled: true,
+        autoSignIn: false ,
         password: {
             hash: async (password: string): Promise<string> => {
                 const salt = await bcrypt.genSalt(10);

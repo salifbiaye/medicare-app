@@ -11,7 +11,7 @@ export const AuthService = {
         const session = await auth.api.getSession({ headers: headersValue })
 
         if (!session?.user || session.user.email !== email) {
-            throw new Error("Utilisateur non authentifié")
+            return { error: "Utilisateur non authentifié" }
         }
 
         return await UserRepository.updateUser(session.user.id, {
@@ -20,19 +20,14 @@ export const AuthService = {
     },
 
     async verifyEmail(email: string) {
-        const headersValue = await headers()
-        const session = await auth.api.getSession({ headers: headersValue })
 
-        if (!session?.user || session.user.email !== email) {
-            throw new Error("Utilisateur non authentifié")
-        }
 
         const user = await UserRepository.getUserByEmail(email)
         if (!user) {
-            throw new Error("Utilisateur non trouvé")
+           return { error: "Utilisateur non trouvé" }
         }
         if (!user.emailVerified) {
-            throw new Error("Email non vérifié")
+           return { error: "Email non vérifié" }
         }
     },
 
@@ -41,7 +36,7 @@ export const AuthService = {
         const session = await auth.api.getSession({ headers: headersValue })
 
         if (!session?.user ) {
-            throw new Error("Utilisateur non authentifié")
+            return { error: "Utilisateur non authentifié" }
         }
 
 

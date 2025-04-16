@@ -21,11 +21,10 @@ export async function verifyEmailAction(email: string) {
     try {
         await AuthService.verifyEmail(email)
         return { success: true }
-    } catch (error) {
+    } catch  {
         return {
-            error: error instanceof Error
-                ? error.message
-                : "Échec de la vérification de l'email"
+
+            error :"Échec de la vérification de l'email"
         }
     }
 }

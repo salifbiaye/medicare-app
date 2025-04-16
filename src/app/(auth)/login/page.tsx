@@ -79,20 +79,6 @@ export default function LoginPage() {
       email: email,
       type: "email-verification",
     })
-    if (error) {
-      toastAlert.error({
-        title: "Erreur de vérification",
-        description: error.message || "Une erreur s'est produite lors de la vérification de votre adresse email.",
-        duration: 3000,
-      });
-    } else {
-
-      toastAlert.success({
-        title: "Vérification réussie",
-        description: "Votre adresse email a été vérifiée avec succès !",
-        duration: 3000,
-      });
-    }
 
     // Redirect to the email verification page or show a success message
     redirect("/verify-email?email=" + email + "&type=email-verification" + "&message=Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception." + "&error=" + error?.message || "")
@@ -107,7 +93,17 @@ export default function LoginPage() {
       description: "Veuillez patienter pendant que nous vérifions vos identifiants.",
       duration: Infinity,
     });
-
+    const result = await verifyEmailAction(email)
+    if (result.error) {
+      toastAlert.error({
+        title: "Erreur de vérification",
+        description: "Une erreur s'est produite lors de la vérification de votre adresse email.",
+        duration: 5000,
+      })
+      verifyEmail(email)
+      setIsLoading(false)
+      return
+    }
 
 
     await authClient.signIn.email({
@@ -122,26 +118,13 @@ export default function LoginPage() {
         // Supprimer le toast de chargement à la réussite
         toast.dismiss(loadingToastId);
 
-
-
-        const result = await verifyEmailAction(email)
-        if (result.error) {
-          toastAlert.error({
-            title: "Erreur de vérification",
-            description: result.error || "Une erreur s'est produite lors de la vérification de votre adresse email.",
-            duration: 5000,
-          })
-          verifyEmail(email)
-          setIsLoading(false);
-          return;
-        }else {
           toastAlert.success({
             title: "Connexion réussie",
             description: "Vous êtes maintenant connecté à votre compte.",
             duration: 4000,
           });
           redirect("/dashboard");
-        }
+
       },
       onError: (ctx) => {
         // Supprimer le toast de chargement en cas d'erreur
