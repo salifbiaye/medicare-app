@@ -1,13 +1,17 @@
 // LoginPage.tsx
 "use client"
 
-import { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
+
 import { z } from "zod"
 import { Dumbbell } from "lucide-react"
 import SideImageForm from "@/features/auth/side-image-form"
 import { AuthForm } from "@/features/auth/auth-form"
 import {toastAlert} from "@/components/ui/sonner-v2";
+import {authClient} from "@/lib/authClient";
+import {toast} from "sonner";
+import {verifyEmailAction} from "@/actions/auth.action";
+import {redirect} from "next/navigation";
 
 // Schéma Zod pour le formulaire de connexion
 const loginSchema = z.object({
@@ -21,8 +25,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [currentQuote] = useState(0)
-  const router = useRouter()
-  const particlesRef = useRef<HTMLCanvasElement>(null)
+
 
   const motivationalQuotes = [
     {
@@ -71,26 +74,103 @@ export default function LoginPage() {
     },
   ]
 
-  const handleSubmit = (values: LoginFormValues) => {
-    setIsLoading(true)
-    console.log("Submitting:", values)
-    toastAlert.success({
-      title: "Opération réussie",
-      description: "Votre profil a été mis à jour avec succès",
-      duration: 4000,
+  const verifyEmail = async (email: string ) => {
+    const {  error } = await authClient.emailOtp.sendVerificationOtp({
+      email: email,
+      type: "email-verification",
     })
+    if (error) {
+      toastAlert.error({
+        title: "Erreur de vérification",
+        description: error.message || "Une erreur s'est produite lors de la vérification de votre adresse email.",
+        duration: 3000,
+      });
+    } else {
 
-    setTimeout(() => {
-      setIsLoading(false)
-      // router.push("/dashboard")
-    }, 1500)
+      toastAlert.success({
+        title: "Vérification réussie",
+        description: "Votre adresse email a été vérifiée avec succès !",
+        duration: 3000,
+      });
+    }
+
+    // Redirect to the email verification page or show a success message
+    redirect("/verify-email?email=" + email + "&type=email-verification" + "&message=Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception." + "&error=" + error?.message || "")
+  }
+  const handleSubmit = async (values: LoginFormValues) => {
+    setIsLoading(true);
+    const { email, password } = values;
+
+    // Affiche le toast de chargement
+    const loadingToastId = toastAlert.loading({
+      title: "Connexion en cours...",
+      description: "Veuillez patienter pendant que nous vérifions vos identifiants.",
+      duration: Infinity,
+    });
+
+
+
+    await authClient.signIn.email({
+      email: email,
+      password: password,
+    }, {
+      onRequest: () => {
+        // Ne pas supprimer le toast de chargement ici
+        // Retirer cette ligne: toast.dismiss(loadingToastId);
+      },
+      onSuccess: async () => {
+        // Supprimer le toast de chargement à la réussite
+        toast.dismiss(loadingToastId);
+
+
+
+        const result = await verifyEmailAction(email)
+        if (result.error) {
+          toastAlert.error({
+            title: "Erreur de vérification",
+            description: result.error || "Une erreur s'est produite lors de la vérification de votre adresse email.",
+            duration: 5000,
+          })
+          verifyEmail(email)
+          setIsLoading(false);
+          return;
+        }else {
+          toastAlert.success({
+            title: "Connexion réussie",
+            description: "Vous êtes maintenant connecté à votre compte.",
+            duration: 4000,
+          });
+          redirect("/dashboard");
+        }
+      },
+      onError: (ctx) => {
+        // Supprimer le toast de chargement en cas d'erreur
+        toast.dismiss(loadingToastId);
+
+        if(ctx.error.message === "Invalid email or password") {
+          toastAlert.error({
+            title: "Erreur de connexion",
+            description: "Adresse email ou mot de passe incorrect.",
+            duration: 3000,
+          });
+        } else {
+          toast.dismiss(loadingToastId)
+          toastAlert.error({
+            title: "Erreur de connexion",
+            description: "Une erreur est survenue lors de la connexion. Veuillez réessayer.",
+            duration: 3000,
+          });
+        }
+      },
+    });
+
+    setIsLoading(false);
   }
 
   return (
       <div className="login-container flex min-h-screen bg-black overflow-hidden">
         {/* Partie image (côté droit) */}
         <SideImageForm
-            particlesRef={particlesRef}
             backgroundImage={'url("/auth/login.png")'}
             motivationalQuotes={motivationalQuotes}
             currentQuote={currentQuote}

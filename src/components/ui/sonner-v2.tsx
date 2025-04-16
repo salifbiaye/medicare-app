@@ -179,7 +179,7 @@ export const toastAlert = {
     },
     loading: (props: Omit<ToastAlertProps, "type">) => {
         return toast.custom(() => <CustomToastAlert type="loading" {...props} />, {
-            duration: props.duration || 10000,
+            duration: props.duration || 4000,
         });
     },
     payment: (props: Omit<ToastAlertProps, "type">) => {

@@ -12,12 +12,13 @@ import Link from "next/link"
 import {CustomFormMail} from "@/components/input-component/mail-input"
 import {CustomFormPassword} from "@/components/input-component/password-input"
 import {CustomFormText} from "@/components/input-component/text-input"
+import {CustomFormOtp} from "@/components/input-component/otp-input";
 
 // Type utilitaire
 type InferFormValues<T extends ZodType<any, any, any>> = z.infer<T>
 
 interface FieldConfig<T extends FieldValues> {
-    type: "email" | "password" | "text"
+    type: "email" | "password" | "text" | "otp"
     name: Path<T>
     label: string
     placeholder: string
@@ -60,6 +61,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
 
     const handleSubmit = form.handleSubmit((values) => {
         onSubmit(values)
+        form.reset()
     })
 
     const renderField = (field: FieldConfig<FormValues>) => {
@@ -77,6 +79,8 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                 return <CustomFormPassword {...commonProps} />
             case "text":
                 return <CustomFormText {...commonProps} />
+            case "otp":
+                return <CustomFormOtp {...commonProps} />
             default:
                 return field.type
         }

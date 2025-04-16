@@ -1,12 +1,15 @@
 // RegisterPage.tsx
 "use client"
 
-import { useState, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { z } from "zod"
 import { Dumbbell } from "lucide-react"
 import SideImageForm from "@/features/auth/side-image-form"
 import { AuthForm } from "@/features/auth/auth-form"
+import {authClient} from "@/lib/authClient";
+import {toastAlert} from "@/components/ui/sonner-v2";
+import {toast} from "sonner";
+import {redirect} from "next/navigation";
 
 // Schéma Zod pour le formulaire d'inscription
 const registerSchema = z.object({
@@ -21,8 +24,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [currentQuote] = useState(0)
-  const router = useRouter()
-  const particlesRef = useRef<HTMLCanvasElement>(null)
+
 
   const motivationalQuotes = [
     {
@@ -78,22 +80,64 @@ export default function RegisterPage() {
     },
 
   ]
+  const verifyEmail = async (email: string) => {
+    const {  error } = await authClient.emailOtp.sendVerificationOtp({
+      email: email,
+      type: "email-verification",
+    })
 
-  const handleSubmit = (values: RegisterFormValues) => {
+    // Redirect to the email verification page or show a success message
+    redirect("/verify-email?email=" + email + "&type=email-verification" + "&message=Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception." + "&error=" + error?.message || "")
+  }
+  const handleSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true)
-    console.log("Submitting:", values)
+    const loadingToastId =     toastAlert.loading({
+      title: "Inscription en cours...",
+      description: "Veuillez patienter pendant que nous traitons votre inscription.",
+      duration: Infinity,
+    })
+    const { email, password, fullName } = values;
+    await authClient.signUp.email({
+      email: email,
+      password: password,
+      name: fullName,
+      callbackURL: "/login",
+    },{
+      onRequest: () => {
 
-    setTimeout(() => {
-      setIsLoading(false)
-      router.push("/dashboard")
-    }, 1500)
+      },
+      onSuccess: () => {
+        toast.dismiss(loadingToastId);
+        toastAlert.success({
+            title: "Inscription réussie",
+            description: "Votre compte a été créé avec succès !",
+            duration: 3000,
+        });
+        //handleClick();
+        verifyEmail(email)
+      },
+      onError: (ctx) => {
+        if (ctx.error.message === "Email already exists") {
+          toastAlert.error({
+            title: "Erreur d'inscription",
+            description: "Cet email est déjà utilisé.",
+            duration: 3000,
+          });
+
+          // form.setError("email", {
+          //   type: "manual",
+          //   message: ctx.error.message,
+          // })
+        }
+      },
+    });
+    setIsLoading(false)
   }
 
   return (
       <div className="register-container flex min-h-screen bg-black overflow-hidden">
         {/* Partie image (côté droit) */}
         <SideImageForm
-            particlesRef={particlesRef}
             backgroundImage={'url("/auth/register.png")'}
             motivationalQuotes={motivationalQuotes}
             currentQuote={currentQuote}

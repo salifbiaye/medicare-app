@@ -10,7 +10,7 @@ export default async function middleware(request: NextRequest) {
 
     // Récupérer la session
     const session = getSessionCookie(request);
-    console.log("--------------session--------------", session); // Debugging line
+
     if (session) {
         const response = await fetch(`${request.nextUrl.origin}/api/session?token=${session.split(".")[0]}`);
         if (response.ok) {
@@ -59,11 +59,16 @@ export default async function middleware(request: NextRequest) {
     }
 
     // Définir les routes publiques
-    const publicRoutes = ['/login', '/404', '/', '/reset-password', '/forgot-password'];
+    const publicRoutes = ['/login', '/404', '/', '/reset-password', '/forgot-password','/verify-email', '/register'];
     const isPublicRoute = publicRoutes.some(route => pathname === route);
+    const authPages = [
+        '/login',
+        '/forgot-password',
+        '/verify-email',
+        '/reset-password'
+    ];
 
-    // Si l'utilisateur est sur la page de login mais est déjà connecté, rediriger vers le dashboard
-    if (pathname === '/login' && session) {
+    if (authPages.includes(pathname) && session) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
@@ -93,5 +98,15 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|assets).*)'],
+    matcher: [
+        /*
+         * Match all paths except for:
+         * - API routes (api/)
+         * - Next.js static files (_next/static/)
+         * - Next.js image optimization (_next/image/)
+         * - Favicon (favicon.ico)
+         * - Files with common extensions
+         */
+        '/((?!api|_next/static|_next/image|favicon\\.ico|.*\\..+$).*)'
+    ],
 };

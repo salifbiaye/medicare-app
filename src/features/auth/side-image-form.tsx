@@ -1,13 +1,13 @@
 import {Dumbbell} from "lucide-react";
 import type React from "react";
+import Particles from "@/components/ui/particles";
 
-export default function SideImageForm( {  particlesRef, backgroundImage , motivationalQuotes, currentQuote } : { particlesRef: React.RefObject<HTMLCanvasElement  | null>, backgroundImage: string , motivationalQuotes: { text: string, author: string }[], currentQuote: number }) {
+export default function SideImageForm( {   backgroundImage , motivationalQuotes, currentQuote } : {  backgroundImage: string , motivationalQuotes: { text: string, author: string }[], currentQuote: number }) {
 
     return (
         <div
             className="hidden rounded-tr-[40px] rounded-br-[40px] lg:block lg:w-1/2 relative bg-zinc-900 overflow-hidden">
-            {/* Effet de particules */}
-            <canvas ref={particlesRef} className="absolute inset-0 z-10 opacity-40 w-full h-full"></canvas>
+
 
             {/* Motif de grille */}
             <div className="absolute inset-0 grid-pattern opacity-10 z-0"></div>
@@ -17,6 +17,7 @@ export default function SideImageForm( {  particlesRef, backgroundImage , motiva
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out"
                 style={{backgroundImage: backgroundImage}}
             >
+                <Particles/>
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90 z-0"></div>
             </div>
