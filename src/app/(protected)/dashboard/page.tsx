@@ -5,7 +5,7 @@ const HomePage = () => {
     return (
         <div>
             <h1>Bienvenue sur la page d'accueil</h1>
-            <p>Ceci est le contenu principal.</p>
+            <p>Training</p>
         </div>
     );
 };

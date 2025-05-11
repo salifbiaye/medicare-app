@@ -1,195 +1,119 @@
-"use client"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { ChevronRight } from "lucide-react"
+import Link from "next/link"
 
-import { motion } from "framer-motion"
-import { Pacifico } from "next/font/google"
-import { cn } from "@/lib/utils"
-import {Dumbbell} from "lucide-react";
-import React from "react";
-
-const pacifico = Pacifico({
-    subsets: ["latin"],
-    weight: ["400"],
-    variable: "--font-pacifico",
-})
-
-function ElegantShape({
-                          className,
-                          delay = 0,
-                          width = 400,
-                          height = 100,
-                          rotate = 0,
-                          gradient = "from-white/[0.08]",
-                      }: {
-    className?: string
-    delay?: number
-    width?: number
-    height?: number
-    rotate?: number
-    gradient?: string
-}) {
-    return (
-        <motion.div
-            initial={{
-                opacity: 0,
-                y: -150,
-                rotate: rotate - 15,
-            }}
-            animate={{
-                opacity: 1,
-                y: 0,
-                rotate: rotate,
-            }}
-            transition={{
-                duration: 2.4,
-                delay,
-                ease: [0.23, 0.86, 0.39, 0.96],
-                opacity: { duration: 1.2 },
-            }}
-            className={cn("absolute", className)}
-        >
-            <motion.div
-                animate={{
-                    y: [0, 15, 0],
-                }}
-                transition={{
-                    duration: 12,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "easeInOut",
-                }}
-                style={{
-                    width,
-                    height,
-                }}
-                className="relative"
-            >
-                <div
-                    className={cn(
-                        "absolute inset-0 rounded-full",
-                        "bg-gradient-to-r to-transparent",
-                        gradient,
-                        "backdrop-blur-[2px] border-2 border-white/[0.15]",
-                        "shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]",
-                        "after:absolute after:inset-0 after:rounded-full",
-                        "after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]",
-                    )}
-                />
-            </motion.div>
-        </motion.div>
-    )
-}
-
-export default function CTASection({
-                                          badge = "ShadowFit",
-                                          title1 = "Ready to shape",
-                                          title2 = "your vision",
-                                      }: {
-    badge?: string
-    title1?: string
-    title2?: string
-}) {
-    const fadeUpVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: (i: number) => ({
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 1,
-                delay: 0.5 + i * 0.2,
-                ease: [0.25, 0.4, 0.25, 1],
-            },
-        }),
-    }
-
-    return (
-        <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#030303]">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.05] via-transparent to-rose-500/[0.05] blur-3xl" />
-
-            <div className="absolute inset-0 overflow-hidden">
-                <ElegantShape
-                    delay={0.3}
-                    width={600}
-                    height={140}
-                    rotate={12}
-                    gradient="from-indigo-500/[0.15]"
-                    className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
-                />
-
-                <ElegantShape
-                    delay={0.5}
-                    width={500}
-                    height={120}
-                    rotate={-15}
-                    gradient="from-rose-500/[0.15]"
-                    className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
-                />
-
-                <ElegantShape
-                    delay={0.4}
-                    width={300}
-                    height={80}
-                    rotate={-8}
-                    gradient="from-violet-500/[0.15]"
-                    className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
-                />
-
-                <ElegantShape
-                    delay={0.6}
-                    width={200}
-                    height={60}
-                    rotate={20}
-                    gradient="from-amber-500/[0.15]"
-                    className="right-[15%] md:right-[20%] top-[10%] md:top-[15%]"
-                />
-
-                <ElegantShape
-                    delay={0.7}
-                    width={150}
-                    height={40}
-                    rotate={-25}
-                    gradient="from-cyan-500/[0.15]"
-                    className="left-[20%] md:left-[25%] top-[5%] md:top-[10%]"
-                />
-            </div>
-
-            <div className="relative z-10 container mx-auto px-4 md:px-6">
-                <div className="max-w-3xl mx-auto text-center">
-                    <motion.div
-                        custom={0}
-                        variants={fadeUpVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12"
-                    >
-                        <Dumbbell className="h-6 w-6 text-gray-500"/>
-                        <span className="text-sm text-white/60 tracking-wide">{badge}</span>
-                    </motion.div>
-
-                    <motion.div custom={1} variants={fadeUpVariants} initial="hidden" animate="visible">
-                        <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
-                            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">{title1}</span>
-                            <br />
-                            <span
-                                className={cn(
-                                    "bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300 ",
-                                    pacifico.className,
-                                )}
-                            >
-                {title2}
-              </span>
-                        </h1>
-                    </motion.div>
-
-                    <motion.div custom={2} variants={fadeUpVariants} initial="hidden" animate="visible">
-                        <p className="text-white/50 text-md sm:text-lg md:text-xl leading-relaxed font-light">
-                            Join us on a journey where design meets innovation — and your digital identity takes flight.
-                        </p>
-                    </motion.div>
+export function CtaSection() {
+  return (
+    <section id="contact" className="py-20">
+      <div className="container">
+        <div className="grid gap-12 lg:grid-cols-2 items-center">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl mb-6">
+              Ready to Transform Healthcare in Your Facility?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join the growing network of healthcare providers using our platform to deliver better care to patients
+              across Senegal. Contact us to schedule a demo or learn more about implementation.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 text-primary">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                    />
+                  </svg>
                 </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Email Us</h3>
+                  <p className="text-muted-foreground mb-2">For general inquiries and support</p>
+                  <Link href="mailto:contact@medicare.sn" className="text-primary hover:underline">
+                    contact@medicare.sn
+                  </Link>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-accent/20 text-accent-foreground">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Call Us</h3>
+                  <p className="text-muted-foreground mb-2">Mon-Fri, 8am-6pm GMT</p>
+                  <Link href="tel:+221338765432" className="text-primary hover:underline">
+                    +221 33 876 54 32
+                  </Link>
+                </div>
+              </div>
             </div>
-
-
-            <div
-                className="absolute inset-0 bg-gradient-to-t from-[#030303] via-transparent to-[#030303]/80 pointer-events-none"/>
+          </div>
+          <div className="bg-card rounded-2xl shadow-xl p-8">
+            <h3 className="text-2xl font-bold mb-6">Request a Demo</h3>
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium">
+                    Full Name
+                  </label>
+                  <Input id="name" placeholder="Dr. John Doe" />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </label>
+                  <Input id="email" type="email" placeholder="john.doe@hospital.sn" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="facility" className="text-sm font-medium">
+                  Healthcare Facility
+                </label>
+                <Input id="facility" placeholder="Dakar General Hospital" />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="message" className="text-sm font-medium">
+                  Message
+                </label>
+                <Textarea id="message" placeholder="Tell us about your facility and needs..." rows={4} />
+              </div>
+              <Button type="submit" className="w-full">
+                Request Demo
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                By submitting this form, you agree to our{" "}
+                <Link href="#" className="underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+                .
+              </p>
+            </form>
+          </div>
         </div>
-    )
+      </div>
+    </section>
+  )
 }
