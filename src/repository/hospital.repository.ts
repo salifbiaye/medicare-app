@@ -125,4 +125,54 @@ export class HospitalRepository {
             where: { id },
         })
     }
+
+    static async getHospitalStats() {
+        const totalHospitals = await prisma.hospital.count();
+        return {
+            totalHospitals
+        };
+    }
+
+    static async getLatestHospitals(limit: number = 5) {
+        return await prisma.hospital.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                address: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true,
+            }
+        });
+    }
+
+    static async getHospitalsByDateRange(params: {
+        startDate: Date;
+        endDate: Date;
+    }) {
+        const { startDate, endDate } = params;
+
+        const hospitals = await prisma.hospital.findMany({
+            where: {
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            orderBy: {
+                createdAt: 'asc'
+            },
+            select: {
+                id: true,
+                createdAt: true,
+            }
+        });
+
+        return hospitals;
+    }
 } 

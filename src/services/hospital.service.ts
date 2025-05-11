@@ -218,4 +218,88 @@ export class HospitalService {
         const user = await HospitalRepository.getUserById(userId)
         return user && user.role === "ADMIN"
     }
+
+    static async getHospitalStats() {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const stats = await HospitalRepository.getHospitalStats()
+            return {
+                success: true,
+                data: stats
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des statistiques:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des statistiques"
+            }
+        }
+    }
+
+    static async getLatestHospitals(limit: number = 5) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const hospitals = await HospitalRepository.getLatestHospitals(limit)
+            return {
+                success: true,
+                data: hospitals
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des derniers hôpitaux:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des hôpitaux"
+            }
+        }
+    }
+
+    static async getHospitalsByDateRange(params: {
+        startDate: Date;
+        endDate: Date;
+    }) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const hospitals = await HospitalRepository.getHospitalsByDateRange(params)
+            return {
+                success: true,
+                data: hospitals
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des hôpitaux par période:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des hôpitaux"
+            }
+        }
+    }
 } 

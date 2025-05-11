@@ -145,7 +145,7 @@ model Director {
   // Relations
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   hospital   Hospital @relation(fields: [hospitalId], references: [id])
-  hospitalId String
+  hospitalId String   @unique
 
   @@map("directors")
 }

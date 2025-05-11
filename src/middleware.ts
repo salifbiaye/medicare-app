@@ -5,6 +5,25 @@ import { Role, User } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
+// Fonction pour obtenir le bon dashboard en fonction du rôle
+function getDashboardByRole(role: Role): string {
+    switch (role) {
+        case "PATIENT":
+            return "/patient/dashboard";
+        case "DOCTOR":
+        case "CHIEF_DOCTOR":
+            return "/doctor/dashboard";
+        case "SECRETARY":
+            return "/secretary/dashboard";
+        case "DIRECTOR":
+            return "/director/dashboard";
+        case "ADMIN":
+            return "/admin/dashboard";
+        default:
+            return "/dashboard";
+    }
+}
+
 export default async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname;
     const session = getSessionCookie(request);
@@ -25,7 +44,13 @@ export default async function middleware(request: NextRequest) {
     // 1. Redirection si déjà connecté et essaye d'accéder à une page d'authentification
     if (authPages.includes(pathname)) {
         if (session) {
-            return NextResponse.redirect(new URL('/dashboard', request.url));
+            const response = await fetch(`${request.nextUrl.origin}/api/session?token=${session.split(".")[0]}`);
+            if (response.ok) {
+                const existingSession = await response.json();
+                const user = existingSession.session?.user as User;
+                const dashboardPath = getDashboardByRole(user.role);
+                return NextResponse.redirect(new URL(dashboardPath, request.url));
+            }
         }
         // Permettre l'accès aux pages d'authentification si pas de session
         return NextResponse.next();
@@ -44,9 +69,10 @@ export default async function middleware(request: NextRequest) {
                 if (user?.emailVerified && !user.profileCompleted) {
                     return NextResponse.redirect(new URL('/onboarding', request.url));
                 }
-                // Rediriger vers dashboard si profil complet
+                // Rediriger vers le bon dashboard si profil complet
                 if (user?.profileCompleted) {
-                    return NextResponse.redirect(new URL('/dashboard', request.url));
+                    const dashboardPath = getDashboardByRole(user.role);
+                    return NextResponse.redirect(new URL(dashboardPath, request.url));
                 }
             }
         }
@@ -60,6 +86,12 @@ export default async function middleware(request: NextRequest) {
         if (response.ok) {
             const existingSession = await response.json();
             const user = existingSession.session?.user as User;
+
+            // Redirection de /dashboard vers le bon dashboard
+            if (pathname === '/dashboard') {
+                const dashboardPath = getDashboardByRole(user.role);
+                return NextResponse.redirect(new URL(dashboardPath, request.url));
+            }
 
             // Vérification onboarding
             if (!user.profileCompleted && pathname !== '/onboarding') {
@@ -82,9 +114,6 @@ export default async function middleware(request: NextRequest) {
                 });
 
                 if (matchingRoute) {
-                    // Check if the route is admin-only
-                  
-
                     // Check if user's role is allowed for this route
                     if (!matchingRoute.roles.includes(user.role.toString() as Role)) {
                         return NextResponse.redirect(new URL('/not-found', request.url));

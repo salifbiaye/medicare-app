@@ -150,12 +150,12 @@ export default function ImportHospitalsPage() {
             <li>Vérifiez que les données sont valides avant de finaliser l'importation</li>
           </ol>
 
-          <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-500/50 border border-amber-200 rounded-md">
+          <div className="mt-4 p-4 bg-accent dark:bg-accent/50 border border-accent rounded-md">
             <div className="flex items-start">
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-white mr-2 mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-primary dark:text-white mr-2 mt-0.5" />
               <div>
-                <h4 className="font-medium text-amber-800 dark:text-white">Formats acceptés</h4>
-                <ul className="mt-1 text-sm text-amber-700 dark:text-white list-disc list-inside">
+                <h4 className="font-medium text-primary dark:text-white">Formats acceptés</h4>
+                <ul className="mt-1 text-sm text-primary dark:text-white list-disc list-inside">
                   <li>
                     <strong>name</strong>: Nom complet de l'hôpital
                   </li>

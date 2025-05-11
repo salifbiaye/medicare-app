@@ -7,26 +7,110 @@ import { toastAlert } from "@/components/ui/sonner-v2"
 import { getSchemaByRole } from "@/schemas/user.schema"
 import { getFieldsByRole } from "@/fields/user.field"
 import { getGroupsByRole } from "@/groups/user.groups"
-import { createUserAction } from "@/actions/user.action"
 import { RoleSelector } from "./role-selector"
 import { User2, Stethoscope, ClipboardList, Building2 } from "lucide-react"
+import {
+    CreatePatientFormValues,
+    CreateDoctorFormValues,
+    CreateSecretaryFormValues,
+    CreateDirectorFormValues,
+    CreateAdminFormValues,
+} from "@/schemas/user.schema"
+import {createPatientAction} from "@/actions/patient.action";
+import {createDoctorAction} from "@/actions/doctor.action";
+import {createSecretaryAction} from "@/actions/secretary.action";
+import {createDirectorAction} from "@/actions/director.action";
 
 type Role = "PATIENT" | "DOCTOR" | "CHIEF_DOCTOR" | "SECRETARY" | "DIRECTOR" | "ADMIN"
+
+type FormValues = {
+    PATIENT: CreatePatientFormValues
+    DOCTOR: CreateDoctorFormValues
+    CHIEF_DOCTOR: CreateDoctorFormValues
+    SECRETARY: CreateSecretaryFormValues
+    DIRECTOR: CreateDirectorFormValues
+    ADMIN: CreateAdminFormValues
+}
+
+type ActionResult = {
+    success: boolean | "partial"
+    message?: string
+    error?: string
+    data?: any
+}
+
+type PatientResult = {
+    id: string
+    userId: string
+    socialSecurityNumber?: string | null
+    bloodGroup?: string | null
+    allergies?: string | null
+    user: {
+        id: string
+        name: string
+        email: string
+        gender: "MALE" | "FEMALE"
+        emailVerified: boolean
+        profileCompleted: boolean
+        role: "PATIENT"
+        birthDate: Date | null
+        phone: string | null
+        address: string | null
+        createdAt: Date
+        updatedAt: Date
+        image: string | null
+    }
+}
 
 export default function CreateUserPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = React.useState(false)
     const [selectedRole, setSelectedRole] = React.useState<Role>("PATIENT")
 
-    const handleCreateUser = async (values: any) => {
+    const handleCreateUser = async (values: FormValues[Role]) => {
         setIsLoading(true)
-        try {
-            await createUserAction(values)
 
-            toastAlert.success({
-                title: "Utilisateur créé avec succès",
-                description: "L'utilisateur a été ajouté à la plateforme.",
-            })
+        try {
+            let result: ActionResult;
+            switch (selectedRole) {
+                case "PATIENT":
+                    const patientResult = await createPatientAction(values as CreatePatientFormValues)
+                    result = {
+                        success: true,
+                        data: patientResult
+                    }
+                    break;
+                case "DOCTOR":
+                case "CHIEF_DOCTOR":
+                    result = await createDoctorAction(values as CreateDoctorFormValues)
+                    break;
+                case "SECRETARY":
+                    result = await createSecretaryAction(values as CreateSecretaryFormValues)
+                    break;
+                case "DIRECTOR":
+                    result = await createDirectorAction(values as CreateDirectorFormValues)
+                    break;
+                default:
+                    throw new Error("Rôle non supporté")
+            }
+
+            if (result.success === false) {
+                toastAlert.error({
+                    title: "Erreur lors de la création de l'utilisateur",
+                    description: result.error || "Une erreur s'est produite lors de la création de l'utilisateur. Veuillez réessayer.",
+                })
+            } else if (result.success === "partial") {
+                toastAlert.info({
+                    title: "Création partielle",
+                    description: result.message || "Certains utilisateurs n'ont pas pu être créés.",
+                })
+            } else {
+                toastAlert.success({
+                    title: "Utilisateur créé avec succès",
+                    description: "L'utilisateur a été ajouté à la plateforme.",
+                })
+            }
+
             router.push("/admin/users")
         } catch (error) {
             toastAlert.error({
@@ -97,10 +181,10 @@ export default function CreateUserPage() {
 
             <DataForm
                 schema={getSchemaByRole(selectedRole)}
-                fields={getFieldsByRole(selectedRole)}
+                fields={getFieldsByRole(selectedRole) as any}
                 submitButtonText="Créer l'utilisateur"
                 isLoading={isLoading}
-                onSubmit={handleCreateUser}
+                onSubmit={handleCreateUser as any}
                 backLink={{
                     text: "Retour à la liste des utilisateurs",
                     href: "/admin/users",

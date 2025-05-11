@@ -130,4 +130,95 @@ export class UserRepository {
 
         return { users, totalUsers };
     }
+
+    static async getUsersByDateRange(params: {
+        startDate: Date;
+        endDate: Date;
+        page?: number;
+        perPage?: number;
+    }) {
+        const { startDate, endDate, page = 1, perPage = 10 } = params;
+        const skip = (page - 1) * perPage;
+
+        const where = {
+            createdAt: {
+                gte: startDate,
+                lte: endDate
+            }
+        };
+
+        const [users, total] = await Promise.all([
+            prisma.user.findMany({
+                where,
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                skip,
+                take: perPage,
+                select: {
+                    id: true,
+                    email: true,
+                    name: true,
+                    gender: true,
+                    role: true,
+                    profileCompleted: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    emailVerified: true,
+                    image: true,
+                }
+            }),
+            prisma.user.count({ where })
+        ]);
+
+        return { users, total };
+    }
+
+    static async getLatestUsers(limit: number = 10) {
+        return await prisma.user.findMany({
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit,
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                gender: true,
+                role: true,
+                profileCompleted: true,
+                createdAt: true,
+                updatedAt: true,
+                emailVerified: true,
+                image: true,
+            }
+        });
+    }
+
+    static async getUserStats() {
+        const [
+            totalUsers,
+            totalPatients,
+            totalDoctors,
+            totalChiefDoctors,
+            totalSecretaries,
+            totalDirectors
+        ] = await Promise.all([
+            prisma.user.count(),
+            prisma.user.count({ where: { role: 'PATIENT' } }),
+            prisma.user.count({ where: { role: 'DOCTOR' } }),
+            prisma.user.count({ where: { role: 'CHIEF_DOCTOR' } }),
+            prisma.user.count({ where: { role: 'SECRETARY' } }),
+            prisma.user.count({ where: { role: 'DIRECTOR' } })
+        ]);
+
+        return {
+            totalUsers,
+            totalPatients,
+            totalDoctors,
+            totalChiefDoctors,
+            totalSecretaries,
+            totalDirectors
+        };
+    }
 }

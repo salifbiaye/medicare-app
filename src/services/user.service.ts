@@ -265,4 +265,90 @@ export class UserService {
         const user = await UserRepository.getUserById(userId)
         return user && user.role === "ADMIN"
     }
+
+    static async getUsersByDateRange(params: {
+        startDate: Date;
+        endDate: Date;
+        page?: number;
+        perPage?: number;
+    }) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const result = await UserRepository.getUsersByDateRange(params)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des utilisateurs par période:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des utilisateurs"
+            }
+        }
+    }
+
+    static async getLatestUsers(limit: number = 10) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const users = await UserRepository.getLatestUsers(limit)
+            return {
+                success: true,
+                data: users
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des derniers utilisateurs:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des utilisateurs"
+            }
+        }
+    }
+
+    static async getUserStats() {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const isAdmin = await this.checkUserIsAdmin(session.user.id)
+            if (!isAdmin) {
+                return { success: false, error: "Non autorisé" }
+            }
+
+            const stats = await UserRepository.getUserStats()
+            return {
+                success: true,
+                data: stats
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des statistiques:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des statistiques"
+            }
+        }
+    }
 }

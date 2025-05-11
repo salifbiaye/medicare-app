@@ -157,7 +157,7 @@ export function SubNav({ section, user }: SubNavProps) {
 
     return (
         <>
-            <div className="border-b border-border bg-muted">
+            <div className="border-b border-border  bg-gray-600 dark:bg-muted">
 
 
                 {/* Premier niveau de sous-navigation */}
@@ -173,8 +173,8 @@ export function SubNav({ section, user }: SubNavProps) {
                                     href={route.href}
                                     className={`relative font-medium px-3 py-2 text-sm transition-colors flex items-center gap-1.5 rounded-md ${
                                         isActive
-                                            ? "text-primary bg-primary/5 hover:bg-primary/10"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                            ? "text-primary bg-accent dark:bg-primary/5 dark:hover:bg-primary/10"
+                                            : "text-white dark:text-muted-foreground hover:text-foreground hover:bg-muted"
                                     }`}
 
                                 >
@@ -204,7 +204,7 @@ export function SubNav({ section, user }: SubNavProps) {
 
                     <div className="flex items-center gap-4">
                         <div className="relative max-w-md hidden md:flex cursor-pointer" onClick={() => setOpen(true)}>
-                            <div className="flex items-center h-9 gap-4 w-full bg-muted rounded-md border border-input px-4 py-2 text-sm text-muted-foreground max-w-[300px]">
+                            <div className="flex items-center h-9 gap-4 w-full text-white dark:text-muted-foreground bg-gray-700 dark:bg-muted rounded-md border border-gray-700 dark:border-input px-4 py-2 text-sm text-muted-foreground max-w-[300px]">
                                 <Search className="h-4 w-4 mr-2" />
                                 <span>Chercher...</span>
                                 <kbd className="pointer-events-none ml-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
@@ -218,7 +218,7 @@ export function SubNav({ section, user }: SubNavProps) {
 
                 {/* Deuxième niveau de sous-navigation (sous-sous-menus) */}
                 {hasSubSubNav && (
-                    <div className="flex h-12 items-center px-4 md:px-6  bg-gray-600 dark:bg-background/50">
+                    <div className="flex h-12 items-center px-4 md:px-6  bg-muted dark:bg-background/50">
                         <nav className="flex items-center space-x-1 ml-6">
                             {accessibleSubSubRoutes.map((subRoute) => {
                                 const isActive = pathname === subRoute.href || pathname.endsWith(subRoute.href + "/")
@@ -229,8 +229,8 @@ export function SubNav({ section, user }: SubNavProps) {
                                         href={subRoute.href}
                                         className={`relative font-medium px-3 py-1.5 text-sm transition-colors flex items-center gap-1.5 rounded-md ${
                                             isActive
-                                                ? "text-primary bg-accent dark:bg-primary/5 a76"
-                                                : "text-white dark:text-muted-foreground hover:text-foreground hover:bg-muted"
+                                                ? "text-primary bg-primary/5 "
+                                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
                                         }`}
                                     >
                                         {subRoute.icon && <span className="mr-1">{subRoute.icon}</span>}

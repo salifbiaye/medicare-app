@@ -32,4 +32,19 @@ export async function deleteMultipleHospitalsAction(hospitalIds: string[]) {
 
 export async function updateHospitalAction(hospitalId: string, data: Partial<Hospital>) {
     return await HospitalService.updateHospital(hospitalId, data)
+}
+
+export async function getHospitalStatsAction() {
+    return await HospitalService.getHospitalStats()
+}
+
+export async function getLatestHospitalsAction(limit: number = 5) {
+    return await HospitalService.getLatestHospitals(limit)
+}
+
+export async function getHospitalsByDateRangeAction(params: {
+    startDate: Date;
+    endDate: Date;
+}) {
+    return await HospitalService.getHospitalsByDateRange(params)
 } 

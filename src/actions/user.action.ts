@@ -41,3 +41,20 @@ export async function deleteMultipleUsersAction(userIds:string[]){
 export async function updateUserAction(userId: string, data: Partial<User>) {
     return await UserService.updateUser(userId, data)
 }
+
+export async function getUsersByDateRangeAction(params: {
+    startDate: Date;
+    endDate: Date;
+    page?: number;
+    perPage?: number;
+}) {
+    return await UserService.getUsersByDateRange(params)
+}
+
+export async function getLatestUsersAction(limit: number = 10) {
+    return await UserService.getLatestUsers(limit)
+}
+
+export async function getUserStatsAction() {
+    return await UserService.getUserStats()
+}

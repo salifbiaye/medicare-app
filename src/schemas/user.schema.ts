@@ -111,9 +111,13 @@ export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
 
 export const userImportSchema = z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
-    email: z.string().email("Veuillez saisir un email valide"),
-    gender: z.enum(["MALE", "FEMALE"]),
-    role: z.enum(["PATIENT", "ADMIN", "DIRECTOR", "DOCTOR", "SECRETARY", "CHIEF_DOCTOR"]),
+    email: z.string().email("Veuillez saisir une adresse email valide"),
+    gender: z.enum(["MALE", "FEMALE"], {
+        errorMap: () => ({ message: "Le genre doit être 'MALE' ou 'FEMALE'" })
+    }),
+    role: z.enum(["PATIENT", "ADMIN", "DIRECTOR", "DOCTOR", "SECRETARY", "CHIEF_DOCTOR"], {
+        errorMap: () => ({ message: "Le rôle doit être l'un des suivants : PATIENT, ADMIN, DIRECTOR, DOCTOR, SECRETARY, CHIEF_DOCTOR" })
+    }),
     emailVerified: z.preprocess(
         (val) =>
             val === "true" ||
@@ -140,4 +144,95 @@ export const userImportSchema = z.object({
     ),
 })
 
+export const patientImportSchema = userImportSchema.extend({
+    role: z.literal("PATIENT", {
+        errorMap: () => ({ message: "Le rôle doit être 'PATIENT' pour ce type d'utilisateur" })
+    }),
+    socialSecurityNumber: z.string().optional(),
+    bloodGroup: z.string().optional(),
+    allergies: z.string().optional(),
+})
+
+export const doctorImportSchema = userImportSchema.extend({
+    role: z.enum(["DOCTOR", "CHIEF_DOCTOR"], {
+        errorMap: () => ({ message: "Le rôle doit être 'DOCTOR' ou 'CHIEF_DOCTOR' pour ce type d'utilisateur" })
+    }),
+    specialty: z.enum([
+        "GENERAL_PRACTICE",
+        "OPHTHALMOLOGY",
+        "CARDIOLOGY",
+        "PEDIATRICS",
+        "DERMATOLOGY",
+        "NEUROLOGY",
+        "ORTHOPEDICS",
+        "GYNECOLOGY",
+        "RADIOLOGY",
+        "PSYCHIATRY",
+        "UROLOGY",
+        "ENT",
+    ], {
+        errorMap: () => ({ message: "La spécialité doit être l'une des suivantes : GENERAL_PRACTICE, OPHTHALMOLOGY, CARDIOLOGY, PEDIATRICS, DERMATOLOGY, NEUROLOGY, ORTHOPEDICS, GYNECOLOGY, RADIOLOGY, PSYCHIATRY, UROLOGY, ENT" })
+    }),
+    registrationNumber: z.string().min(3, "Le numéro d'enregistrement doit contenir au moins 3 caractères"),
+    isChief: z.preprocess(
+        (val) =>
+            val === "true" ||
+            val === true ||
+            val === "Oui" ||
+            val === "oui" ||
+            val === "OUI" ||
+            val === "Yes" ||
+            val === "yes" ||
+            val === "YES",
+        z.boolean(),
+    ).optional(),
+    hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
+    serviceId: z.string().min(1, "L'identifiant du service est requis"),
+})
+
+export const secretaryImportSchema = userImportSchema.extend({
+    role: z.literal("SECRETARY", {
+        errorMap: () => ({ message: "Le rôle doit être 'SECRETARY' pour ce type d'utilisateur" })
+    }),
+    hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
+    serviceId: z.string().min(1, "L'identifiant du service est requis"),
+})
+
+export const directorImportSchema = userImportSchema.extend({
+    role: z.literal("DIRECTOR", {
+        errorMap: () => ({ message: "Le rôle doit être 'DIRECTOR' pour ce type d'utilisateur" })
+    }),
+    hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
+})
+
 export type UserImport = z.infer<typeof userImportSchema>
+export type PatientImport = z.infer<typeof patientImportSchema>
+export type DoctorImport = z.infer<typeof doctorImportSchema>
+export type SecretaryImport = z.infer<typeof secretaryImportSchema>
+export type DirectorImport = z.infer<typeof directorImportSchema>
+
+// Helper function to get the appropriate import schema based on role
+export const getImportSchemaByRole = (role: string) => {
+    switch (role) {
+        case "PATIENT":
+            return patientImportSchema
+        case "DOCTOR":
+        case "CHIEF_DOCTOR":
+            return doctorImportSchema
+        case "SECRETARY":
+            return secretaryImportSchema
+        case "DIRECTOR":
+            return directorImportSchema
+        default:
+            return userImportSchema
+    }
+}
+
+
+export type RoleImportMap = {
+    PATIENT: PatientImport
+    DOCTOR: DoctorImport
+    CHIEF_DOCTOR: DoctorImport
+    SECRETARY: SecretaryImport
+    DIRECTOR: DirectorImport
+}

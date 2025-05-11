@@ -37,7 +37,7 @@ export function MainNav({ user }: { user: User }) {
     }
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-gray-700 dark:bg-zinc-900 ">
+        <header className="sticky top-0 z-50 w-full  bg-gray-700 dark:bg-zinc-900 ">
             <div className="flex h-16 items-center px-4 md:px-6">
                 {/* Logo avec animation */}
                 <div className="flex items-center gap-2 font-bold text-xl mr-6">

@@ -194,7 +194,7 @@ export const directorFields = [
         defaultValue: "DIRECTOR",
     },
     {
-        type: "select",
+        type: "text",
         name: "hospitalId",
         label: "Hôpital",
         options: [], // This should be populated from the database
