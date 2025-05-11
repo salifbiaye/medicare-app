@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { DataForm } from "@/components/data-form"
 import { toastAlert } from "@/components/ui/sonner-v2"
 import { CreateHospitalFormValues, createHospitalSchema } from "@/schemas/hospital.schema"
-import { createHospitalfields, createHospitalgroups } from "@/fields/hospital.field"
+import { createHospitalfields } from "@/fields/hospital.field"
 import { Building2 } from "lucide-react"
 import { updateHospitalAction } from "@/actions/hospital.action"
 import { Hospital } from "@prisma/client"
@@ -57,7 +57,7 @@ export default function EditHospitalPage({ hospital }: { hospital: Hospital }) {
         }}
         title="Modifier l'hôpital"
         description="Complétez le formulaire pour modifier les informations de l'hôpital."
-        layout="steps"
+        layout="standard"
         theme="modern"
         iconHeader={<Building2 className="h-8 w-8 text-primary" />}
         groups={createHospitalgroups}

@@ -80,6 +80,7 @@ function DataTableContent<TData, TValue>({
 
   const handleDeleteSelected = async (selectedRows: TData[]) => {
     try {
+      // @ts-ignore
       const ids: string[] = selectedRows.map(hospital => hospital.id)
       await deleteMultipleHospitalsAction(ids)
       return { success: true }
@@ -158,7 +159,8 @@ function DataTableContent<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id} colSpan={header.colSpan} className="whitespace-nowrap text-background dark:text-foreground">
+
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )
@@ -194,7 +196,7 @@ function DataTableContent<TData, TValue>({
             </p>
           )}
         </div>
-        <DataTablePagination table={table} totalItems={totalItems} />
+        <DataTablePagination table={table} />
       </div>
     </div>
   )

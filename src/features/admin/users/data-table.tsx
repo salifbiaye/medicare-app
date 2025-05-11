@@ -77,6 +77,7 @@ function DataTableContent<TData, TValue>({
 
   const handleDeleteSelected = async (selectedRows: TData[]) => {
     try {
+      // @ts-ignore
       const ids: string[] = selectedRows.map(user => user.id);
       await deleteMultipleUsersAction(ids)
       return { success: true }

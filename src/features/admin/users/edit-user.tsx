@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation"
 import {DataForm} from "@/components/data-form";
 import {toastAlert} from "@/components/ui/sonner-v2";
 import {CreateUserFormValues, createUserSchema} from "@/schemas/user.schema";
-import {createUserfields, createUsergroups} from "@/fields/user.field";
+import {createUserfields} from "@/fields/user.field";
+import {createUsergroups} from "@/groups/user.groups";
 import {User2} from "lucide-react";
 import { updateUserAction} from "@/actions/user.action";
 import {User} from "@prisma/client";

@@ -8,7 +8,7 @@ import {
     Stethoscope,
     Building,
     Bell,
-    Mail
+    Mail, User2, Users2, UsersRound, DownloadIcon
 } from "lucide-react";
 import { Role } from "@prisma/client";
 
@@ -33,18 +33,59 @@ export const navigationConfig: NavItem[] = [
         roles: [Role.ADMIN],
         subNav: [
             {
+                id: "dashboard",
+                title: "Tableau de bord",
+                href: "/admin/dashboard",
+                icon: <Building className="w-5 h-5" />,
+                roles: [Role.ADMIN]
+            },
+            {
                 id: "hospitals",
                 title: "Hôpitaux",
                 href: "/admin/hospitals",
                 icon: <Building className="w-5 h-5" />,
-                roles: [Role.ADMIN]
+                roles: [Role.ADMIN],
+                subNav: [
+
+                    {
+                        id: "hospitals-create",
+                        title: "Créer un hopital",
+                        href: "/admin/hospitals/new",
+                        icon: <User2 className="w-5 h-5" />,
+                        roles: [Role.ADMIN],
+                    },
+                    {
+                        id: "hospitals-imports",
+                        title: "Importer des hopitaux",
+                        href: "/admin/hospitals/import",
+                        icon: <DownloadIcon className="w-5 h-5" />,
+                        roles: [Role.ADMIN],
+                    },
+                ]
             },
             {
                 id: "users",
                 title: "Utilisateurs",
                 href: "/admin/users",
                 icon: <Users className="w-5 h-5" />,
-                roles: [Role.ADMIN]
+                roles: [Role.ADMIN],
+                subNav: [
+
+                    {
+                        id: "users-create",
+                        title: "Créer un utilisateur",
+                        href: "/admin/users/new",
+                        icon: <User2 className="w-5 h-5" />,
+                        roles: [Role.ADMIN],
+                    },
+                    {
+                        id: "users-imports",
+                        title: "Importer des utilisateurs",
+                        href: "/admin/users/import",
+                        icon: <DownloadIcon className="w-5 h-5" />,
+                        roles: [Role.ADMIN],
+                    },
+                ]
             }
         ]
     },

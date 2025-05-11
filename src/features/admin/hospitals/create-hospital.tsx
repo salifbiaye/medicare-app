@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation"
 import { DataForm } from "@/components/data-form"
 import { toastAlert } from "@/components/ui/sonner-v2"
 import { CreateHospitalFormValues, createHospitalSchema } from "@/schemas/hospital.schema"
-import { createHospitalfields, createHospitalgroups } from "@/fields/hospital.field"
+import { createHospitalfields } from "@/fields/hospital.field"
 import { Building2 } from "lucide-react"
 import { createHospitalAction } from "@/actions/hospital.action"
+import {createHospitalgroups} from "@/groups/hospital.groups";
 
 export default function CreateHospitalPage() {
   const router = useRouter()
@@ -48,7 +49,7 @@ export default function CreateHospitalPage() {
         }}
         title="Créer un nouvel hôpital"
         description="Complétez le formulaire pour ajouter un hôpital à la plateforme."
-        layout="steps"
+        layout="standard"
         theme="modern"
         iconHeader={<Building2 className="h-8 w-8 text-primary" />}
         groups={createHospitalgroups}
