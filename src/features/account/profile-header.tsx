@@ -8,10 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Camera, Check, Loader2, Mail, Phone, MapPin } from "lucide-react"
-import { updateProfileAction } from "@/actions/user.action"
+import {Camera, Check, Loader2, Mail, Phone, MapPin, Users} from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { getRoleLabel, getRoleBadgeVariant } from "@/lib/role-utils"
+import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout";
+import {ParticlesBackground} from "@/components/animations/particles-background";
 
 type ProfileHeaderProps = {
   user: User
@@ -37,14 +38,11 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
       // Simulate upload delay
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Update profile with new image URL
+      // Update account with new image URL
       // In a real implementation, you would get the URL from your upload response
       const imageUrl = URL.createObjectURL(file)
 
-      await updateProfileAction({
-        id: user.id,
-        image: imageUrl,
-      })
+
 
       toast({
         title: "Image mise à jour",
@@ -63,7 +61,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   }
 
   const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Similar implementation as profile image change
+    // Similar implementation as account image change
     setCoverIsUploading(true)
     await new Promise((resolve) => setTimeout(resolve, 1500))
     setCoverIsUploading(false)
@@ -76,52 +74,30 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="relative h-48 bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5">
-        {/* Cover image would go here */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/placeholder.svg?height=400&width=1200')" }}
-        >
-          <div className="absolute inset-0 bg-black/20"></div>
-        </div>
+    <Card className="overflow-hidden bg-background">
 
-        <Button
-          size="sm"
-          variant="secondary"
-          className="absolute top-4 right-4 flex items-center gap-2 bg-background/80 backdrop-blur-sm"
-          disabled={coverIsUploading}
-        >
-          {coverIsUploading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Chargement...</span>
-            </>
-          ) : (
-            <>
-              <Camera className="h-4 w-4" />
-              <span>Modifier la couverture</span>
-            </>
-          )}
-        </Button>
+        <AnimatedLayout className={"rounded-none"} >
+          <ParticlesBackground />
+            <div className={"h-30"}>
 
-        <input type="file" id="cover-upload" className="hidden" accept="image/*" onChange={handleCoverImageChange} />
-      </div>
+            </div>
+
+        </AnimatedLayout>
 
       <CardContent className="relative px-6 pb-6 pt-0 sm:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 -mt-12 sm:-mt-16">
             <div className="relative">
-              <Avatar className="h-24 w-24 sm:h-32 sm:w-32 border-4 border-background rounded-xl">
+              <Avatar className="h-24 w-24 sm:h-32 sm:w-32  z-30 rounded-xl">
                 <AvatarImage src={user.image || ""} alt={user.name} />
-                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                <AvatarFallback className="text-2xl bg-accent dark:bg-primary/50 border-2 border-accent dark:border-primary text-primary dark:text-primary-foreground">
                   {user.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
               <label
                 htmlFor="profile-upload"
-                className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
+                className="absolute bottom-0 right-0 flex h-8 w-8 z-30 cursor-pointer items-center justify-center rounded-full bg-background dark:text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
               </label>

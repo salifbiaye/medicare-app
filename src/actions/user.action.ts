@@ -1,6 +1,6 @@
 "use server"
 
-import {PasswordFormData, ProfileFormData} from "@/features/admin/users/profile/types"
+
 import {UserService} from "@/services/user.service"
 import {revalidatePath} from "next/cache"
 import {User} from "@prisma/client"
@@ -13,13 +13,8 @@ export async function createUserAction(data: CreateUserFormValues) {
 export async function createUsersAction(data: CreateUserFormValues[]) {
     return await UserService.createUsers(data)
 }
-export async function updatePasswordAction(data: PasswordFormData) {
-    return await UserService.updatePassword(data)
-}
-
-export async function updateProfileAction(data: ProfileFormData) {
-    return await UserService.updateProfile(data)
-
+export async function getCurrentUserAction() {
+    return await UserService.getUserCurrent()
 }
 
 export async function getUsersWithPaginationAction(params: ParamsSchemaFormValues) {

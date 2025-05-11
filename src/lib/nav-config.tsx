@@ -28,7 +28,7 @@ export const navigationConfig: NavItem[] = [
     {
         id: "admin",
         title: "Administration",
-        href: "/admin",
+        href: "/admin/dashboard",
         icon: <Building className="w-5 h-5" />,
         roles: [Role.ADMIN],
         subNav: [

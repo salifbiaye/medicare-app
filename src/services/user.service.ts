@@ -1,7 +1,7 @@
 // services/user.service.ts
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { PasswordFormData, ProfileFormData } from "@/features/admin/users/profile/types"
+
 import { AccountRepository } from "@/repository/account.repository"
 import { UserRepository } from "@/repository/user.repository"
 import bcrypt from "bcryptjs"
@@ -17,60 +17,65 @@ export class UserService {
         return await auth.api.getSession({ headers: headersValue })
     }
 
-    static async updatePassword( data: PasswordFormData) {
+    // static async updatePassword( data: PasswordFormData) {
+    //     const session = await this.getSession()
+    //
+    //     if (!session?.user) {
+    //         return { success: false, message: "Utilisateur non authentifié !" }
+    //     }
+    //     const account = await AccountRepository.findAccountByUserId(session.user.id)
+    //
+    //     if (!account) {
+    //         return { success: false, message: "Compte non trouvé !" }
+    //     }
+    //
+    //     if (!account.password) {
+    //         return { success: false, message: "Aucun mot de passe défini pour ce compte !" }
+    //     }
+    //
+    //     const isPasswordCorrect = await bcrypt.compare(data.currentPassword, account.password)
+    //
+    //     if (!isPasswordCorrect) {
+    //         return { success: false, message: "Le mot de passe actuel est incorrect !" }
+    //     }
+    //
+    //     const salt = await bcrypt.genSalt(10);
+    //     const hashedPassword = await bcrypt.hash(data.newPassword, salt);
+    //     const result = await AccountRepository.updatePassword(account.id, hashedPassword)
+    //
+    //     if (!result) {
+    //         return { success: false, message: "Échec de la mise à jour du mot de passe !" }
+    //     }
+    //
+    //     return { success: true, message: "Mot de passe mis à jour avec succès !" }
+    // }
+
+  static async getUserCurrent() {
         const session = await this.getSession()
 
         if (!session?.user) {
-            return { success: false, message: "Utilisateur non authentifié !" }
-        }
-        const account = await AccountRepository.findAccountByUserId(session.user.id)
-
-        if (!account) {
-            return { success: false, message: "Compte non trouvé !" }
+            return { success: false, error: "Utilisateur non authentifié" }
         }
 
-        if (!account.password) {
-            return { success: false, message: "Aucun mot de passe défini pour ce compte !" }
+        const isAdmin = await this.checkUserIsAdmin(session.user.id)
+        if (!isAdmin) {
+            return { success: false, error: "Non autorisé" }
         }
 
-        const isPasswordCorrect = await bcrypt.compare(data.currentPassword, account.password)
-
-        if (!isPasswordCorrect) {
-            return { success: false, message: "Le mot de passe actuel est incorrect !" }
+        try {
+            const user = await UserRepository.getUserById(session.user.id)
+            return {
+                success: true,
+                data: user
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de l'utilisateur:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération de l'utilisateur"
+            }
         }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(data.newPassword, salt);
-        const result = await AccountRepository.updatePassword(account.id, hashedPassword)
-
-        if (!result) {
-            return { success: false, message: "Échec de la mise à jour du mot de passe !" }
-        }
-
-        return { success: true, message: "Mot de passe mis à jour avec succès !" }
-    }
-
-    static async updateProfile( data: ProfileFormData) {
-
-        const session = await this.getSession()
-
-        if (!session?.user) {
-            return { success: false, message: "Utilisateur non authentifié !" }
-        }
-
-        const result = await UserRepository.updateUser(session.user.id, {
-            name: data.name,
-            phone: data.phone,
-            address: data.address,
-            gender: data.gender,
-        })
-
-        if (!result) {
-            return { success: false, message: "Échec de la mise à jour du profil !" }
-        }
-
-        return { success: true, message: "Profil mis à jour avec succès !" }
-    }
+  }
 
     static async getUsersWithPagination(params: ParamsSchemaFormValues) {
         const session = await this.getSession()

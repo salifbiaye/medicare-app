@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { updatePasswordAction } from "@/actions/user.action"
+import {toastAlert} from "@/components/ui/sonner-v2";
 
 const passwordSchema = z
   .object({
@@ -64,18 +65,10 @@ export function ProfileSecurity({
     try {
       setIsUpdating(true)
 
-      const result = await updatePasswordAction({
-        id: user.id,
-        currentPassword: data.currentPassword,
-        newPassword: data.newPassword,
+      toastAlert.success({
+        title: "Mise à jour du mot de passe",
+        description: "Votre mot de passe est en cours de mise à jour...",
       })
-
-      if (result.success) {
-        form.reset()
-        onUpdateSuccess()
-      } else {
-        onUpdateError()
-      }
     } catch (error) {
       onUpdateError()
     }

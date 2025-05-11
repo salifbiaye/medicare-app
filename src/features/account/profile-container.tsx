@@ -41,7 +41,7 @@ export function ProfileContainer({ user }: ProfileContainerProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container px-4 py-8 ">
       <ProfileHeader user={user} />
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">

@@ -1,13 +1,21 @@
-import React from 'react';
+import type { Metadata } from "next"
+import { ProfileContainer } from "@/features/account/profile-container"
 
+import { redirect } from "next/navigation"
+import {getCurrentUserAction} from "@/actions/user.action";
 
-const HomePage = () => {
-    return (
-        <div>
-            <h1>Bienvenue sur la page d'accueil</h1>
-            <p>users</p>
-        </div>
-    );
-};
+export const metadata: Metadata = {
+    title: "Profil Utilisateur | Système de Gestion Médicale",
+    description: "Gérez votre profil et vos informations personnelles",
+}
 
-export default HomePage;
+export default async function ProfilePage() {
+    const userResult = await getCurrentUserAction()
+
+    if (!userResult.success || !userResult.data) {
+        redirect("/login")
+    }
+    console.log("userResult", userResult.data)
+
+    return <ProfileContainer user={userResult.data} />
+}

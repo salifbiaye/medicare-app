@@ -14,7 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
-import { updateProfileAction } from "@/actions/user.action"
+import {toastAlert} from "@/components/ui/sonner-v2";
+
 
 const personalInfoSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -57,19 +58,20 @@ export function ProfilePersonalInfo({
   const onSubmit = async (data: PersonalInfoFormValues) => {
     try {
       setIsUpdating(true)
-
-      const result = await updateProfileAction({
-        id: user.id,
-        ...data,
+        // Simulate API call to update personal information
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+        // Here you would typically call an API to update the user information
+        // For example: await updateUser(data)
+        // Simulate success
+        toastAlert.success({
+          title: "Informations mises à jour",
+          description: "Vos informations personnelles ont été mises à jour avec succès.",
+    })
+  }catch {
+      toastAlert.error({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour de vos informations.",
       })
-
-      if (result.success) {
-        onUpdateSuccess()
-      } else {
-        onUpdateError()
-      }
-    } catch (error) {
-      onUpdateError()
     }
   }
 

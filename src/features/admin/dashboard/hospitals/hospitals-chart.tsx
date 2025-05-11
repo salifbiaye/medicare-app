@@ -9,9 +9,7 @@ import { TrendingUp } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { getHospitalsByDateRangeAction } from "@/actions/hospital.action"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type HospitalChartData = {
@@ -111,10 +109,10 @@ export function HospitalsChart() {
 
   return (
       <Card className="overflow-hidden shadow-sm bg-background">
-        <CardHeader className="bg-gray-600 dark:bg-muted  to-white border-b pb-6">
+        <CardHeader className="bg-gray-600 dark:bg-muted to-white border-b pb-6">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="flex items-center  gap-2 text-xl p-2 font-bold text-background dark:text-foreground">
+              <CardTitle className="flex items-center gap-2 text-xl p-2 font-bold text-background dark:text-foreground">
                 <TrendingUp className="h-5 w-5 text-background dark:text-foreground" />
                 Évolution des Hôpitaux
               </CardTitle>
@@ -122,7 +120,11 @@ export function HospitalsChart() {
                 Nombre d'hôpitaux créés sur la période sélectionnée
               </CardDescription>
             </div>
-            <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as TimeRange)} className="hidden text-background sm:block">
+            <Tabs
+                value={timeRange}
+                onValueChange={(v) => setTimeRange(v as TimeRange)}
+                className="hidden text-background sm:block"
+            >
               <TabsList className="bg-background">
                 <TabsTrigger value="7d">7 jours</TabsTrigger>
                 <TabsTrigger value="3m">3 mois</TabsTrigger>
@@ -130,15 +132,67 @@ export function HospitalsChart() {
               </TabsList>
             </Tabs>
           </div>
-
         </CardHeader>
 
         <CardContent className="p-0 pt-4">
           {isLoading ? (
-              <div className="flex h-[250px] w-full items-center justify-center">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-                  <span className="text-sm text-blue-600">Chargement des données...</span>
+              <div className="px-6 py-8">
+                {/* Chart skeleton */}
+                <div className="space-y-8">
+                  {/* Chart header skeleton with metrics */}
+                  <div className="flex flex-wrap items-center gap-4 mb-6">
+                    <div className="flex flex-col rounded-lg bg-white dark:bg-gray-800 p-3 shadow-sm">
+                      <Skeleton className="h-4 w-16 mb-1" />
+                      <Skeleton className="h-7 w-12" />
+                    </div>
+                    <div className="flex flex-col rounded-lg bg-white dark:bg-gray-800 p-3 shadow-sm">
+                      <Skeleton className="h-4 w-20 mb-1" />
+                      <Skeleton className="h-7 w-16" />
+                    </div>
+                  </div>
+
+                  {/* Chart skeleton */}
+                  <div className="h-[200px] w-full rounded-lg relative">
+                    {/* X-axis */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-700"></div>
+                    {/* Y-axis */}
+                    <div className="absolute top-0 bottom-0 left-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+                    {/* Grid lines */}
+                    {[...Array(5)].map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute left-0 right-0 h-px bg-gray-100 dark:bg-gray-800"
+                            style={{ top: `${(i + 1) * 20}%` }}
+                        ></div>
+                    ))}
+
+                    {/* Animated line */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/3 overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent"></div>
+                      <div className="absolute bottom-0 left-0 right-0 h-px bg-primary"></div>
+                      <div className="absolute bottom-0 left-0 h-1 w-1 rounded-full bg-primary"></div>
+                      <div className="absolute bottom-0 left-1/4 h-12 w-1 rounded-full bg-primary/20"></div>
+                      <div className="absolute bottom-0 left-2/4 h-20 w-1 rounded-full bg-primary/20"></div>
+                      <div className="absolute bottom-0 left-3/4 h-16 w-1 rounded-full bg-primary/20"></div>
+                      <div className="absolute bottom-0 right-0 h-24 w-1 rounded-full bg-primary/20"></div>
+                    </div>
+
+                    {/* Animated loading indicator */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary"></div>
+                        <span className="text-xs text-primary">Chargement du graphique...</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* X-axis labels */}
+                  <div className="flex justify-between pt-2">
+                    {[...Array(5)].map((_, i) => (
+                        <Skeleton key={i} className="h-3 w-12" />
+                    ))}
+                  </div>
                 </div>
               </div>
           ) : (

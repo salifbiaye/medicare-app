@@ -4,9 +4,9 @@
 import { motion } from "framer-motion"
 import { ReactNode } from "react"
 
-export function AnimatedLayout({ children }: { children: ReactNode }) {
+export function AnimatedLayout({ children, className }: { children: ReactNode; className?: string }) {
     return (
-        <div className="relative rounded-lg mb-4 overflow-hidden">
+        <div className={`relative rounded-lg mb-4 overflow-hidden ${className}`}>
             <div className="container mx-auto py-6 px-4 relative z-10">
                 {children}
             </div>
