@@ -8,7 +8,7 @@ import {toastAlert} from "@/components/ui/sonner-v2";
 import {CreateUserFormValues, createUserSchema} from "@/schemas/user.schema";
 import {createUserfields, createUsergroups} from "@/fields/user.field";
 import {User2} from "lucide-react";
-import {createUser} from "@/actions/user.action";
+import {createUserAction} from "@/actions/user.action";
 export default function CreateUserPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
@@ -16,8 +16,8 @@ export default function CreateUserPage() {
   const handleCreateUser = async (values:CreateUserFormValues) => {
     setIsLoading(true)
     try {
-      console.log("Création de l'utilisateur avec les valeurs :", values)
-        await createUser(values)
+
+        await createUserAction(values)
 
 
       toastAlert.success({

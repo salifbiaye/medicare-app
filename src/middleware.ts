@@ -62,13 +62,13 @@ export default async function middleware(request: NextRequest) {
             const user = existingSession.session?.user as User;
 
             // Vérification onboarding
-            if (user?.emailVerified && !user.profileCompleted && pathname !== '/onboarding') {
+            if (!user.profileCompleted && pathname !== '/onboarding') {
                 return NextResponse.redirect(new URL('/onboarding', request.url));
             }
 
             // Vérification des permissions
             if (user?.role) {
-                const navItems = navigationConfig();
+                const navItems = navigationConfig;
                 const pathSegments = pathname.split('/').filter(Boolean);
                 const currentPathPattern = pathSegments.map(segment => {
                     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment)
@@ -78,11 +78,17 @@ export default async function middleware(request: NextRequest) {
 
                 const matchingRoute = navItems.find(item => {
                     const routePath = item.href.startsWith('/') ? item.href.slice(1) : item.href;
-                    // ... (logique de matching existante)
+                    return currentPathPattern.startsWith(routePath);
                 });
 
-                if (matchingRoute && !matchingRoute.roles.includes(user.role as Role)) {
-                    return NextResponse.redirect(new URL('/not-found', request.url));
+                if (matchingRoute) {
+                    // Check if the route is admin-only
+                  
+
+                    // Check if user's role is allowed for this route
+                    if (!matchingRoute.roles.includes(user.role.toString() as Role)) {
+                        return NextResponse.redirect(new URL('/not-found', request.url));
+                    }
                 }
             }
         }

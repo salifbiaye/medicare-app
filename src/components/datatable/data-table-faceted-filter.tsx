@@ -46,7 +46,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button variant="secondary" size="sm" className="h-8  dark:text-white border  border-dashed">
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (
@@ -78,7 +78,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
         <Command>
           <CommandInput placeholder={title} />
           <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty>Aucun résultat.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value)
@@ -136,7 +136,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
                     }}
                     className="justify-center text-center"
                   >
-                    Clear filters
+                    effacer tous les filtres
                   </CommandItem>
                 </CommandGroup>
               </>
@@ -150,7 +150,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
 
 export function DataTableFacetedFilter<TData, TValue>(props: DataTableFacetedFilterProps<TData, TValue>) {
   return (
-    <Suspense fallback={<div>Loading filter...</div>}>
+    <Suspense fallback={<div>Chargement des filtres...</div>}>
       <DataTableFacetedFilterContent {...props} />
     </Suspense>
   )

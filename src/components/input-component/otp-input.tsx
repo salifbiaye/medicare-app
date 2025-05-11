@@ -35,7 +35,7 @@ export function CustomFormOtp<T extends FieldValues>({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <FormLabel className="block text-center text-lg font-medium text-gray-200">
+                        <FormLabel className="block text-center text-lg font-medium ">
                             {labelText}
                         </FormLabel>
                     </motion.div>
@@ -94,10 +94,10 @@ function OtpSlot({ char, hasFakeCaret, isActive }: {
         <motion.div
             className={cn(
                 'relative flex h-14 w-14 items-center justify-center',
-                'border-2 border-zinc-700 bg-zinc-900 text-white',
+                'border-2 ',
                 'rounded-xl transition-all duration-200',
-                'shadow-lg hover:shadow-gray-800/30',
-                isActive && 'border-gray-500 ring-2 ring-gray-500/50 shadow-input'
+                '',
+                isActive && 'border-primary ring-2'
             )}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

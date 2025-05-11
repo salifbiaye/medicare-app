@@ -26,10 +26,10 @@ export function CustomFormPassword<T extends FieldValues>({
 
     const checkStrength = (pass: string) => {
         const requirements = [
-            { regex: /.{8,}/, text: "8+ chars" },
-            { regex: /[0-9]/, text: "Number" },
-            { regex: /[a-z]/, text: "Lowercase" },
-            { regex: /[A-Z]/, text: "Uppercase" },
+            { regex: /.{8,}/, text: "8+ caractères" },
+            { regex: /[0-9]/, text: "Nombre" },
+            { regex: /[a-z]/, text: "Miniscule" },
+            { regex: /[A-Z]/, text: "Majuscule" },
         ];
         return requirements.map((req) => ({ met: req.regex.test(pass), text: req.text }));
     };
@@ -47,9 +47,9 @@ export function CustomFormPassword<T extends FieldValues>({
 
     const getStrengthText = (score: number) => {
         if (score === 0) return "";
-        if (score <= 2) return "Weak";
-        if (score === 3) return "Medium";
-        return "Strong";
+        if (score <= 2) return "Faible";
+        if (score === 3) return "Moyen";
+        return "Fort";
     };
 
     return (
@@ -68,12 +68,12 @@ export function CustomFormPassword<T extends FieldValues>({
                                 type={isVisible ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => field.onChange(e.target.value)}
-                                className="pe-9 bg-zinc-900/80 border-zinc-800 focus:border-gray-500 pl-4 h-12 rounded-lg transition-all duration-300 focus:shadow-input"
+                                className="pe-9  pl-4 h-14 rounded-[15px] bg-muted  transition-all duration-300 "
                                 onFocus={() => setIsHovered(true)}
                                 onBlur={() => setIsHovered(false)}
                             />
                             <button
-                                className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                                className="absolute cursor-pointer inset-y-0 end-0 flex h-full w-9 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                                 type="button"
                                 onClick={toggleVisibility}
                                 aria-label={isVisible ? "Hide password" : "Show password"}
@@ -87,7 +87,7 @@ export function CustomFormPassword<T extends FieldValues>({
                         <div className={`mt-2 transition-all duration-300 ${isHovered || password ? 'opacity-100' : 'opacity-0 h-0'}`}>
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs text-muted-foreground">
-                                    {password ? getStrengthText(strengthScore) : "Enter password"}
+                                    {password ? getStrengthText(strengthScore) : "Entrez un mot de passe"}
                                 </span>
                                 {password && (
                                     <span className="text-xs font-medium" style={{ color: getStrengthColor(strengthScore) }}>

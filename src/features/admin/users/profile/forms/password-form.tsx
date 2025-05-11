@@ -10,7 +10,7 @@ import { PasswordFormData } from "../types"
 import { passwordSchema } from "../schemas"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { updatePassword } from "@/actions/user.action"
+import {updatePasswordAction} from "@/actions/user.action"
 import { toastAlert } from "@/components/ui/sonner-v2"
 
 interface PasswordFormProps {
@@ -37,7 +37,7 @@ const PasswordForm = ({ onCancel }: PasswordFormProps) => {
     setError(null)
     setIsLoading(true)
     try {
-      const result = await updatePassword(data)
+      const result = await updatePasswordAction(data)
       if (!result.success) {
         setError(result.message)
       } else {

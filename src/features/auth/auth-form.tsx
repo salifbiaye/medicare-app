@@ -103,7 +103,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                             <div className="flex justify-end">
                                 <Link
                                     href="/forgot-password"
-                                    className="text-sm text-gray-500 hover:text-gray-300 transition-colors duration-300"
+                                    className="text-sm z-50 text-gray-500 hover:text-gray-300 transition-colors duration-300"
                                 >
                                     Mot de passe oublié ?
                                 </Link>
@@ -114,7 +114,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
 
                 <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-gray-950 text-white h-12 rounded-lg font-medium transition-all duration-500 transform hover:scale-[1.02] active:scale-[0.98] shadow-button"
+                    className="w-full bg-primary/90 hover:bg-primary text-white h-12 rounded-lg font-medium transition-all duration-500 transform hover:scale-[1.02] active:scale-[0.98] shadow-button"
                     disabled={isLoading}
                 >
                     {isLoading ? (
@@ -134,18 +134,19 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                     <div className="mt-8">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-zinc-800"></div>
+                                <div className="w-full border-t border-zinc-200"></div>
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-black text-zinc-400">Ou continuer avec</span>
+                                <span className="px-4 bg-primary/70 text-white rounded ">Ou continuer avec</span>
                             </div>
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-4 social-buttons">
+
                             <Button
                                 variant="outline"
                                 type="button"
-                                className="w-full border-zinc-800 hover:bg-zinc-900 transition-all duration-300 h-12 rounded-lg group"
+                                className="w-full  transition-all duration-300 h-12 rounded-full group"
                                 onClick={() => signInProvider('google')}
                             >
                                 <svg
@@ -174,7 +175,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
                             <Button
                                 variant="outline"
                                 type="button"
-                                className="w-full border-zinc-800 hover:bg-zinc-900 transition-all duration-300 h-12 rounded-lg group"
+                                className="w-full  transition-all duration-300 h-12 rounded-full group"
                                 onClick={() => signInProvider('github')} >
                                 <svg
                                     className="mr-2 h-5 w-5"

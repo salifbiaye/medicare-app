@@ -21,16 +21,16 @@ export function CustomFormCheckbox<T extends FieldValues>({
             control={control}
             name={name}
             render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 py-2">
+                <FormItem className="flex flex-row  items-start space-x-3 space-y-0 py-2">
                     <FormControl>
                         <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
                             disabled={disabled}
-                            className="data-[state=checked]:bg-zinc-700 data-[state=checked]:border-zinc-700"
+                            className="data-[state=checked]:bg-primary bg-muted data-[state=checked]:border-border"
                         />
                     </FormControl>
-                    <FormLabel className="text-zinc-300 font-normal">{labelText}</FormLabel>
+                    <FormLabel className="text-foreground font-normal">{labelText}</FormLabel>
                     <FormMessage className="text-red-500" />
                 </FormItem>
             )}

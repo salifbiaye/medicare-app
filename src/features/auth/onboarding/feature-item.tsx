@@ -66,10 +66,10 @@ export default function FeatureItem({ icon, title, description, custom }: Featur
 
     return (
         <motion.div className="flex items-start gap-4 group" variants={contentVariants} custom={custom}>
-            <div className="h-12 w-12 rounded-full bg-gray-800 flex items-center justify-center mt-0.5 group-hover:bg-gray-700 transition-colors duration-300">
+            <div className="h-12 w-12 rounded-full  bg-primary/80  flex items-center justify-center mt-0.5 group-hover:bg-primary transition-colors duration-300">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-gray-300"
+                    className="h-6 w-6 text-white"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"

@@ -14,7 +14,7 @@ import { ProfileFormData } from "../types"
 import { profileSchema } from "../schemas"
 import { Gender } from "@prisma/client"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { updateProfile } from "@/actions/user.action"
+import { updateProfileAction } from "@/actions/user.action"
 import { toastAlert } from "@/components/ui/sonner-v2"
 
 interface ProfileFormProps {
@@ -35,7 +35,7 @@ const ProfileForm = ({ initialData, onCancel }: ProfileFormProps) => {
     setError(null)
     setIsLoading(true)
     try {
-      const result = await updateProfile(data)
+      const result = await updateProfileAction(data)
       if (result.success) {
         toastAlert.success({
           title: "Profile updated",

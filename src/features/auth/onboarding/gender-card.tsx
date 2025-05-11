@@ -13,7 +13,7 @@ export function GenderCard({ type, selected, onSelect, imageUrl }: GenderCardPro
         <motion.div
             onClick={onSelect}
             className={`relative overflow-hidden rounded-xl border-2 transition-all duration-300 cursor-pointer group ${
-                selected ? "border-gray-300 shadow-glow" : "border-zinc-800 hover:border-zinc-600"
+                selected ? "border-gray-300 dark:border-muted shadow-glow" : "dark:border-zinc-800 dark:hover:border-zinc-600"
             }`}
             whileHover={{ y: -5 }}
             whileTap={{ scale: 0.98 }}
@@ -23,7 +23,7 @@ export function GenderCard({ type, selected, onSelect, imageUrl }: GenderCardPro
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                     style={{ backgroundImage: `url("${imageUrl}")` }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              
             </div>
             <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-center items-center">
         <span

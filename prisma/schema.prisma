@@ -1,37 +1,52 @@
+// schema.prisma
+
 generator client {
   provider = "prisma-client-js"
+  // output   = "app/generated/prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  // adapte si besoin
   url      = env("DATABASE_URL")
 }
 
-enum MuscleGroup {
-  PECTORALS
-  BICEPS
-  TRICEPS
-  ABDOMINALS
-  LEGS
-  BACK
-  SHOULDERS
-  CALVES
-}
-
-enum DayOfWeek {
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
-  SUNDAY
-}
-
+// Enumerations
 enum Role {
-  USER
+  PATIENT
+  DOCTOR
+  CHIEF_DOCTOR
+  SECRETARY
+  DIRECTOR
   ADMIN
+}
+
+enum ServiceType {
+  GENERAL_PRACTICE
+  OPHTHALMOLOGY
+  CARDIOLOGY
+  PEDIATRICS
+  DERMATOLOGY
+  NEUROLOGY
+  ORTHOPEDICS
+  GYNECOLOGY
+  RADIOLOGY
+  PSYCHIATRY
+  UROLOGY
+  ENT // Ear, Nose, and Throat
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  TRANSFERRED
+  COMPLETED
+}
+
+enum PrescriptionStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
 }
 
 enum Gender {
@@ -39,85 +54,284 @@ enum Gender {
   FEMALE
 }
 
+// Data models
 model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
   name             String
-  gender           Gender            @default(MALE)
-  role             Role              @default(USER)
-  profileCompleted Boolean           @default(false)
-  goals            String?
-  musculature      Musculature?      @relation(fields: [musculatureId], references: [id])
-  musculatureId    String?           @unique
-  trainings        TrainingSession[]
-  program          Program?
-  achievements     Achievement[]
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  emailVerified    Boolean
-  image            String?
-  sessions         Session[]
-  accounts         Account[]
+  birthDate        DateTime?
+  profileCompleted Boolean   @default(false)
+  phone            String?
+  address          String?
+  gender           Gender    @default(MALE)
+  role             Role      @default(PATIENT)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  @@map("user")
+  // Role-based relations
+  patient               Patient?
+  doctor                Doctor?
+  secretary             Secretary?
+  director              Director?
+  sentRequests          AppointmentRequest[] @relation("PatientRequests")
+  receivedNotifications Notification[]
+  emailVerified         Boolean
+  image                 String?
+  sessions              Session[]
+  accounts              Account[]
+
+  @@map("users")
 }
 
-model Musculature {
-  id         String @id @default(cuid())
-  user       User?  @relation
-  PECTORALS  Int    @default(0)
-  BICEPS     Int    @default(0)
-  TRICEPS    Int    @default(0)
-  ABDOMINALS Int    @default(0)
-  LEGS       Int    @default(0)
-  BACK       Int    @default(0)
-  SHOULDERS  Int    @default(0)
-  CALVES     Int    @default(0)
+model Patient {
+  id                   String  @id @default(cuid())
+  userId               String  @unique
+  socialSecurityNumber String?
+  bloodGroup           String?
+  allergies            String?
+
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicalRecord MedicalRecord?
+  appointments  Appointment[]
+  prescriptions Prescription[]
+
+  @@map("patients")
 }
 
-model TrainingSession {
-  id        String     @id @default(cuid())
-  date      DateTime   @default(now())
-  exercises Exercise[] @relation("SessionExercises")
-  user      User       @relation(fields: [userId], references: [id])
-  userId    String     @unique
-  notes     String?
+model Doctor {
+  id                 String      @id @default(cuid())
+  userId             String      @unique
+  specialty          ServiceType
+  isChief            Boolean     @default(false)
+  registrationNumber String      @unique
+  availability       Json? // JSON format to store availability
+
+  // Relations
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospital             Hospital             @relation(fields: [hospitalId], references: [id])
+  hospitalId           String
+  service              Service              @relation(fields: [serviceId], references: [id])
+  serviceId            String
+  appointments         Appointment[]
+  medicalReports       MedicalReport[]
+  prescriptionsCreated Prescription[]
+  assignedRequests     AppointmentRequest[] @relation("DoctorRequests")
+  sharedDicoms         DicomSharing[]       @relation("DoctorSharing")
+  receivedDicoms       DicomSharing[]       @relation("DoctorReception")
+
+  @@map("doctors")
 }
 
-model Exercise {
-  id           String            @id @default(cuid())
-  name         String
-  description  String?
-  muscleGroups MuscleGroup[]
-  intensity    Int               @default(1) // 1 = faible, 3 = intense
-  type         String // "matériel", "sans matériel"
-  sessions     TrainingSession[] @relation("SessionExercises")
+model Secretary {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Relations
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service         Service              @relation(fields: [serviceId], references: [id])
+  serviceId       String
+  hospital        Hospital             @relation(fields: [hospitalId], references: [id])
+  hospitalId      String
+  managedRequests AppointmentRequest[] @relation("SecretaryRequests")
+
+  @@map("secretaries")
 }
 
-model Program {
-  id        String       @id @default(cuid())
-  startDate DateTime
-  endDate   DateTime
-  user      User         @relation(fields: [userId], references: [id])
-  userId    String       @unique
-  days      ProgramDay[]
+model Director {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+  hospitalId String
+
+  @@map("directors")
 }
 
-model ProgramDay {
-  id            String        @id @default(cuid())
-  dayOfWeek     DayOfWeek // Enum: LUNDI, MARDI, etc.
-  muscleTargets MuscleGroup[]
-  program       Program       @relation(fields: [programId], references: [id])
-  programId     String
+model Hospital {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  phone     String   @unique
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  services            Service[]
+  doctors             Doctor[]
+  secretaries         Secretary[]
+  directors           Director[]
+  appointmentRequests AppointmentRequest[]
+
+  @@map("hospitals")
 }
 
-model Achievement {
+model Service {
+  id          String      @id @default(cuid())
+  type        ServiceType
+  name        String?
+  description String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  hospital            Hospital             @relation(fields: [hospitalId], references: [id])
+  hospitalId          String
+  doctors             Doctor[]
+  secretaries         Secretary[]
+  appointmentRequests AppointmentRequest[]
+
+  @@map("services")
+}
+
+model MedicalRecord {
   id          String   @id @default(cuid())
-  title       String
-  description String
-  earnedAt    DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
+  patientId   String   @unique
+  phoneNumber String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  patient        Patient         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  medicalReports MedicalReport[]
+  prescriptions  Prescription[]
+  dicomImages    DicomImage[]
+
+  @@map("medical_records")
+}
+
+model AppointmentRequest {
+  id                String        @id @default(cuid())
+  description       String
+  status            RequestStatus @default(PENDING)
+  existingRecord    Boolean       @default(false)
+  identifiedService ServiceType?
+  creationDate      DateTime      @default(now())
+  modificationDate  DateTime      @updatedAt
+
+  // Relations
+  patient     User         @relation("PatientRequests", fields: [patientId], references: [id])
+  patientId   String
+  hospital    Hospital     @relation(fields: [hospitalId], references: [id])
+  hospitalId  String
+  service     Service?     @relation(fields: [serviceId], references: [id])
+  serviceId   String?
+  secretary   Secretary?   @relation("SecretaryRequests", fields: [secretaryId], references: [id])
+  secretaryId String?
+  doctor      Doctor?      @relation("DoctorRequests", fields: [doctorId], references: [id])
+  doctorId    String?
+  appointment Appointment?
+
+  @@map("appointment_requests")
+}
+
+model Appointment {
+  id        String   @id @default(cuid())
+  date      DateTime
+  duration  Int // Duration in minutes
+  status    String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  patient       Patient            @relation(fields: [patientId], references: [id])
+  patientId     String
+  doctor        Doctor             @relation(fields: [doctorId], references: [id])
+  doctorId      String
+  request       AppointmentRequest @relation(fields: [requestId], references: [id])
+  requestId     String             @unique
+  medicalReport MedicalReport?
+
+  @@map("appointments")
+}
+
+model MedicalReport {
+  id              String   @id @default(cuid())
+  content         String
+  diagnosis       String?
+  recommendations String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  medicalRecord   MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  medicalRecordId String
+  doctor          Doctor        @relation(fields: [doctorId], references: [id])
+  doctorId        String
+  appointment     Appointment   @relation(fields: [appointmentId], references: [id])
+  appointmentId   String        @unique
+  prescription    Prescription?
+
+  @@map("medical_reports")
+}
+
+model Prescription {
+  id        String             @id @default(cuid())
+  content   String
+  startDate DateTime           @default(now())
+  endDate   DateTime?
+  status    PrescriptionStatus @default(ACTIVE)
+  createdAt DateTime           @default(now())
+
+  // Relations
+  patient         Patient        @relation(fields: [patientId], references: [id])
+  patientId       String
+  doctor          Doctor         @relation(fields: [doctorId], references: [id])
+  doctorId        String
+  medicalReport   MedicalReport? @relation(fields: [medicalReportId], references: [id])
+  medicalReportId String?        @unique
+  medicalRecord   MedicalRecord  @relation(fields: [medicalRecordId], references: [id])
+  medicalRecordId String
+
+  @@map("prescriptions")
+}
+
+model DicomImage {
+  id          String   @id @default(cuid())
+  orthanc_id  String   @unique // ID of the image on Orthanc server
+  type        String
+  description String?
+  uploadDate  DateTime @default(now())
+
+  // Relations
+  medicalRecord   MedicalRecord  @relation(fields: [medicalRecordId], references: [id])
+  medicalRecordId String
+  sharings        DicomSharing[]
+
+  @@map("dicom_images")
+}
+
+model DicomSharing {
+  id          String   @id @default(cuid())
+  sharingDate DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  // Relations
+  dicomImage     DicomImage @relation(fields: [dicomImageId], references: [id])
+  dicomImageId   String
+  sourceDoctor   Doctor     @relation("DoctorSharing", fields: [sourceDoctorId], references: [id])
+  sourceDoctorId String
+  targetDoctor   Doctor     @relation("DoctorReception", fields: [targetDoctorId], references: [id])
+  targetDoctorId String
+
+  @@map("dicom_sharings")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@map("notifications")
 }
 
 model Session {
@@ -151,7 +365,7 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
-  @@map("account")
+  @@map("patient")
 }
 
 model Verification {

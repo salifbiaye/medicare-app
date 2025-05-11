@@ -30,7 +30,7 @@ export function CustomFormText<T extends FieldValues>({
                      <FormLabel className="capitalize">{labelText  || name}</FormLabel>
                     <FormControl>
                         <div className="space-y-2">
-                            <div className="flex rounded-lg relative shadow-sm shadow-black/5">
+                            <div className="flex rounded-lg relative ">
                                 {/* Icône optionnelle */}
                                 {icon && (
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -40,7 +40,7 @@ export function CustomFormText<T extends FieldValues>({
                                 <Input
                                     {...field}
                                     id={name}
-                                    className={`${icon ? "pl-10" : ""} bg-zinc-900/80 border-zinc-800 focus:border-gray-500 pl-4 h-12 rounded-lg transition-all duration-300 focus:shadow-input`} // Ajoute un padding si une icône est présente
+                                    className={`${icon ? "pl-10" : ""}  pl-4 h-14 rounded-[15px] bg-muted  transition-all duration-300 focus:shadow-input`} // Ajoute un padding si une icône est présente
                                     placeholder={placeholder}
                                     disabled={disabled}
                                     type="text"

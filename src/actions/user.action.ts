@@ -1,86 +1,43 @@
 "use server"
 
-import { PasswordFormData, ProfileFormData } from "@/features/space/profile/types"
-import { UserService } from "@/services/user.service"
-import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
-import { revalidatePath } from "next/cache"
-import { UserRepository } from "@/repository/user.repository"
-import { User } from "@prisma/client"
-import { ParamsSchemaFormValues } from "@/schemas/index.schema"
+import {PasswordFormData, ProfileFormData} from "@/features/admin/users/profile/types"
+import {UserService} from "@/services/user.service"
+import {revalidatePath} from "next/cache"
+import {User} from "@prisma/client"
+import {ParamsSchemaFormValues} from "@/schemas/index.schema"
+import {CreateUserFormValues} from "@/schemas/user.schema"
 
-export async function updatePassword(data: PasswordFormData) {
-    const headersValue = await headers()
-    const session = await auth.api.getSession({ headers: headersValue })
-
-    if (!session?.user) {
-        return { success: false, message: "User not authenticated !" }
-    }
-    const result = await UserService.updatePassword(session.user.id, data)
-    return result
+export async function createUserAction(data: CreateUserFormValues) {
+    return await UserService.createUser(data)
+}
+export async function createUsersAction(data: CreateUserFormValues[]) {
+    return await UserService.createUsers(data)
+}
+export async function updatePasswordAction(data: PasswordFormData) {
+    return await UserService.updatePassword(data)
 }
 
-export async function updateProfile(data: ProfileFormData) {
-    const headersValue = await headers()
-    const session = await auth.api.getSession({ headers: headersValue })
+export async function updateProfileAction(data: ProfileFormData) {
+    return await UserService.updateProfile(data)
 
-    if (!session?.user) {
-        return { success: false, message: "User not authenticated !" }
-    }
-    const result = await UserService.updateProfile(session.user.id, data)
-
-    revalidatePath("/space")
-    return result
 }
 
-export async function getUsersWithPagination(params: ParamsSchemaFormValues) {
-    const headersValue = await headers()
-    const session = await auth.api.getSession({ headers: headersValue })
-
-    if (!session?.user) {
-        return { success: false, error: "User not authenticated" }
-    }
-
-    // Get full user data to check role
-    const user = await UserRepository.getUserById(session.user.id)
-    if (!user || user.role !== "ADMIN") {
-        return { success: false, error: "Unauthorized" }
-    }
-
+export async function getUsersWithPaginationAction(params: ParamsSchemaFormValues) {
     return await UserService.getUsersWithPagination(params)
 }
 
-export async function deleteUser(userId: string) {
-    const headersValue = await headers()
-    const session = await auth.api.getSession({ headers: headersValue })
-
-    if (!session?.user) {
-        return { success: false, error: "User not authenticated" }
-    }
-
-    // Get full user data to check role
-    const user = await UserRepository.getUserById(session.user.id)
-    if (!user || user.role !== "ADMIN") {
-        return { success: false, error: "Unauthorized" }
-    }
-
-    return await UserService.deleteUser(userId)
+export async function deleteUserAction(userId: string) {
+     const result = await UserService.deleteUser(userId)
+    revalidatePath("/admin/users")
+    return result
 }
 
-export async function updateUser(userId: string, data: Partial<User>) {
-    const headersValue = await headers()
-    const session = await auth.api.getSession({ headers: headersValue })
+export async function deleteMultipleUsersAction(userIds:string[]){
+    const result = await UserService.deleteMultipleUsers(userIds)
+    revalidatePath("/admin/users")
+    return result
+}
 
-    if (!session?.user) {
-        return { success: false, error: "User not authenticated" }
-    }
-
-    // Get full user data to check role
-    const user = await UserRepository.getUserById(session.user.id)
-    if (!user || user.role !== "ADMIN") {
-        return { success: false, error: "Unauthorized" }
-    }
-
+export async function updateUserAction(userId: string, data: Partial<User>) {
     return await UserService.updateUser(userId, data)
 }
-

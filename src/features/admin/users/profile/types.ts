@@ -8,7 +8,8 @@ export interface UserProfileProps {
 
 export interface ProfileFormData {
   name: string
-  goals?: string
+  phone?: string
+  address?: string
   gender: Gender
 }
 

@@ -3,7 +3,7 @@
 
 import { useState } from "react"
 import { z } from "zod"
-import { Dumbbell } from "lucide-react"
+import {ArrowLeft, Dumbbell, Syringe} from "lucide-react"
 import SideImageForm from "@/features/auth/side-image-form"
 import { AuthForm } from "@/features/auth/auth-form"
 import { toastAlert } from "@/components/ui/sonner-v2"
@@ -11,6 +11,9 @@ import {redirect, useSearchParams} from "next/navigation"
 import { authClient } from "@/lib/authClient"
 import { toast } from "sonner"
 import {verifiedEmailAction} from "@/actions/auth.action";
+import { motion } from "framer-motion"
+import {ModeToggle} from "@/components/mode-toggle";
+import Link from "next/link";
 
 // Schéma Zod pour la validation OTP
 const verifyEmailSchema = z.object({
@@ -24,26 +27,30 @@ type VerifyEmailFormValues = z.infer<typeof verifyEmailSchema>
 export default function VerifyEmailPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isVerified,] = useState(false)
-    const [currentQuote] = useState(0)
+    const [currentQuote,setCurrentQuote] = useState(0)
     const searchParams = useSearchParams()
     const email = searchParams.get("email")
 
     const motivationalQuotes = [
         {
-            text: "La persévérance transforme l'échec en accomplissement extraordinaire.",
-            author: "Inconnu",
+            text: "Mangez au moins 5 fruits et légumes par jour pour préserver votre vitalité.",
+            author: "PNNS",
         },
         {
-            text: "Chaque vérification est une étape vers une sécurité renforcée.",
-            author: "Inconnu",
+            text: "Boire suffisamment d’eau chaque jour est un acte simple pour une grande santé.",
+            author: "OMS",
         },
         {
-            text: "La discipline est la clé de voûte de toute réussite durable.",
-            author: "Jim Rohn",
+            text: "Une bonne alimentation est le carburant d’un corps et d’un esprit performants.",
+            author: "Auteur inconnu",
         },
         {
-            text: "Votre engagement aujourd'hui construit votre réussite de demain.",
-            author: "Inconnu",
+            text: "Bien manger aujourd’hui, c’est investir dans votre santé de demain.",
+            author: "Diététiciens de France",
+        },
+        {
+            text: "Votre assiette est votre première ordonnance santé.",
+            author: "Hippocrate (adapté)",
         },
     ]
 
@@ -162,22 +169,29 @@ export default function VerifyEmailPage() {
     }
 
     return (
-        <div className="login-container flex min-h-screen bg-black overflow-hidden">
-            {/* Partie image (côté droit) */}
-            <SideImageForm
-                backgroundImage={'url("/auth/verify-email.png")'}
-                motivationalQuotes={motivationalQuotes}
-                currentQuote={currentQuote}
-            />
+        <div className="login-container flex min-h-screen overflow-hidden">
 
-            {/* Formulaire (côté gauche) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+
+            <motion.div initial={{y: 200, opacity: 0}}
+                        animate={{y: 0, opacity: 1}}
+                        transition={{type: "spring", stiffness: 100}}
+                        className="w-full lg:w-1/2 relative flex items-center justify-center p-8">
+                <div className="absolute top-4 left-4 w-full  flex justify-between pt-2 p-8 ">
+                    <Link
+                        href="/"
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                        <ArrowLeft className="h-4 w-4"/>
+                        Retour à l'accueil
+                    </Link>
+                    <ModeToggle/>
+                </div>
                 <div className="max-w-md w-full">
                     <div className="flex flex-col items-center mb-10 transition-all duration-300">
                         <div className="flex items-center gap-2 font-bold text-2xl mb-4 logo-glow">
-                            <Dumbbell className="h-7 w-7 text-gray-400" />
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-200 to-gray-500">
-                ShadowFit
+                            <Syringe className="h-7 w-7 text-primary"/>
+                            <span className="text-gray-800 dark:text-white">
+                Medicare
               </span>
                         </div>
                         <h1 className="text-3xl font-bold mb-2">
@@ -208,13 +222,21 @@ export default function VerifyEmailPage() {
                         fields={verifyEmailFields}
                         submitButtonText={isVerified ? "Continuer vers l'application" : "Vérifier le code"}
                         isLoading={isLoading}
+                        socialButtons={false}
                         onSubmit={handleSubmit}
                         footerText={isVerified ? "" : "Revenir à la page de connexion"}
                         footerLinkText={isVerified ? "" : "Se connecter"}
                         footerLinkHref={isVerified ? "" : "/login"}
                     />
                 </div>
-            </div>
+            </motion.div>
+
+            <SideImageForm
+                setCurrentQuote={setCurrentQuote}
+                backgroundImage={'url("/auth/verify-email.png")'}
+                motivationalQuotes={motivationalQuotes}
+                currentQuote={currentQuote}
+            />
         </div>
     )
 }

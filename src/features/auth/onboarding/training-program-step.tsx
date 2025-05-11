@@ -81,7 +81,7 @@ export default function TrainingProgramStep({
 
                             <Button
                                 onClick={goToNextStep}
-                                className="w-2/3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-600 hover:to-gray-800 text-white h-14 rounded-lg font-medium transition-all duration-500 transform hover:scale-[1.02] active:scale-[0.98] shadow-button"
+                                className="w-2/3  text-foreground h-14 rounded-lg font-medium transition-all duration-500 transform hover:scale-[1.02] active:scale-[0.98] shadow-button"
                             >
                 <span className="flex items-center justify-center">
                   Continue
@@ -98,7 +98,7 @@ export default function TrainingProgramStep({
                         className="absolute rounded-tl-[40px] rounded-bl-[40px] inset-0 bg-cover bg-center"
                         style={{
                             backgroundImage:
-                                gender === "female" ? 'url("/auth/female-training.png")' : 'url("/auth/male-training.png")',
+                                gender === "female" ? 'url("/auth/female-director.png")' : 'url("/auth/male-director.png")',
                         }}
                         initial={{ scale: 1.1, opacity: 0.8 }}
                         animate={{ scale: 1, opacity: 1 }}

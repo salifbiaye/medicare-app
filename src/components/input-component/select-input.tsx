@@ -31,22 +31,22 @@ export function CustomFormSelect<T extends FieldValues>({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="text-zinc-300">{labelText}</FormLabel>
+                    <FormLabel className="text-foreground">{labelText}</FormLabel>
                     <FormControl>
                         <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
                             disabled={disabled}
                         >
-                            <SelectTrigger className="bg-zinc-950 border-zinc-800 text-zinc-300 focus:ring-zinc-700 h-12">
+                            <SelectTrigger className=" bg-muted w-full border-border text-foreground focus:ring-zinc-700 h-12">
                                 <SelectValue placeholder={placeholder || `Select ${labelText.toLowerCase()}`} />
                             </SelectTrigger>
-                            <SelectContent className="bg-zinc-900 border-zinc-800">
+                            <SelectContent className="bg-background  dark:bg-background border-border">
                                 {options.map((option) => (
                                     <SelectItem
                                         key={option.value}
                                         value={option.value}
-                                        className="text-zinc-300 focus:bg-zinc-800 focus:text-white"
+                                        className="text-foreground focus:bg-muted dark:focus:text-white"
                                     >
                                         {option.label}
                                     </SelectItem>

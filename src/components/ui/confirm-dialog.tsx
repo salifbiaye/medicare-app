@@ -28,8 +28,8 @@ export function ConfirmDialog({
   onConfirm,
   title,
   description,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = "Confirmer",
+  cancelText = "annuler",
 }: ConfirmDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
 

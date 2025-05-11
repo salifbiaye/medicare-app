@@ -18,8 +18,8 @@ import {
 } from "@tanstack/react-table"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DataTablePagination } from "./data-table-pagination"
-import { DataTableToolbar } from "../../features/admin/users/data-table-toolbar"
+import { DataTablePagination } from "../../../components/datatable/data-table-pagination"
+import { DataTableToolbar } from "./data-table-toolbar"
 import { deleteMultipleUsersAction } from "@/actions/user.action"
 
 interface DataTableProps<TData, TValue> {

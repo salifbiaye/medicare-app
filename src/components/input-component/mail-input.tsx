@@ -18,12 +18,12 @@ export function CustomFormMail<T extends FieldValues>({ name, control, labelText
                     <FormLabel className="capitalize">{labelText || name}</FormLabel>
                     <FormControl>
                         <div className="space-y-2">
-                            <div className="flex rounded-lg shadow-sm shadow-black/5">
+                            <div className="flex rounded-lg  ">
                                 <Input
                                     {...field}
                                     id={name}
-                                    className="bg-zinc-900/80 border-zinc-800 focus:border-gray-500 pl-4 h-12 rounded-lg transition-all duration-300 focus:shadow-input"
-                                    placeholder="ex: google"
+                                    className=" pl-4 h-14 rounded-[15px] bg-muted   transition-all duration-300 "
+                                    placeholder="ex: salifbiaye@gmail.com"
                                     type="text"
                                     value={field.value}  // Met à jour seulement la partie avant le "@"
                                     onChange={e => field.onChange(e.target.value)}  // Ajoute ou met à jour la partie avant et après '@'

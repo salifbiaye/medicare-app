@@ -3,13 +3,16 @@
 
 import { useState } from "react"
 import { z } from "zod"
-import { Dumbbell } from "lucide-react"
+import {ArrowLeft, Dumbbell, Syringe} from "lucide-react"
 import SideImageForm from "@/features/auth/side-image-form"
 import { AuthForm } from "@/features/auth/auth-form"
 import {authClient} from "@/lib/authClient";
 import {toastAlert} from "@/components/ui/sonner-v2";
 import {toast} from "sonner";
 import {redirect} from "next/navigation";
+import { motion } from "framer-motion"
+import {ModeToggle} from "@/components/mode-toggle";
+import Link from "next/link";
 
 // Schéma Zod pour le formulaire d'inscription
 const registerSchema = z.object({
@@ -23,29 +26,29 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [currentQuote] = useState(0)
+  const [currentQuote,setCurrentQuote] = useState(0)
 
 
   const motivationalQuotes = [
     {
-      text: "Chaque nouveau début est l'occasion de faire quelque chose de grand.",
-      author: "Robin Sharma",
+      text: "Mangez au moins 5 fruits et légumes par jour pour préserver votre vitalité.",
+      author: "PNNS",
     },
     {
-      text: "Le meilleur moment pour commencer est maintenant.",
-      author: "Unknown",
+      text: "Boire suffisamment d’eau chaque jour est un acte simple pour une grande santé.",
+      author: "OMS",
     },
     {
-      text: "L'effort d'aujourd'hui est la force de demain.",
-      author: "Unknown",
+      text: "Une bonne alimentation est le carburant d’un corps et d’un esprit performants.",
+      author: "Auteur inconnu",
     },
     {
-      text: "Ta seule limite est celle que tu t'imposes.",
-      author: "Unknown",
+      text: "Bien manger aujourd’hui, c’est investir dans votre santé de demain.",
+      author: "Diététiciens de France",
     },
     {
-      text: "La progression n'est pas linéaire, mais ta détermination devrait l'être.",
-      author: "Unknown",
+      text: "Votre assiette est votre première ordonnance santé.",
+      author: "Hippocrate (adapté)",
     },
   ]
 
@@ -135,22 +138,29 @@ export default function RegisterPage() {
   }
 
   return (
-      <div className="register-container flex min-h-screen bg-black overflow-hidden">
-        {/* Partie image (côté droit) */}
-        <SideImageForm
-            backgroundImage={'url("/auth/register.png")'}
-            motivationalQuotes={motivationalQuotes}
-            currentQuote={currentQuote}
-        />
+      <div className="register-container flex min-h-screen  overflow-hidden">
 
-        {/* Formulaire d'inscription (côté gauche) */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+
+        <motion.div initial={{y: 200, opacity: 0}}
+                    animate={{y: 0, opacity: 1}}
+                    transition={{type: "spring", stiffness: 100}}
+                    className="w-full lg:w-1/2 relative flex items-center justify-center p-8">
+          <div className="absolute top-4 left-4 w-full flex justify-between pt-2 p-8 ">
+            <Link
+                href="/"
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4"/>
+              Retour à l'accueil
+            </Link>
+            <ModeToggle/>
+          </div>
           <div className="max-w-md w-full">
             <div className="flex flex-col items-center mb-10 transition-all duration-300">
               <div className="flex items-center gap-2 font-bold text-2xl mb-4 logo-glow">
-                <Dumbbell className="h-7 w-7 text-gray-400" />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-200 to-gray-500">
-                ShadowFit
+                <Syringe className="h-7 w-7 text-primary"/>
+                <span className="text-gray-800 dark:text-white">
+                Medicare
               </span>
               </div>
               <h1 className="text-3xl font-bold mb-2">
@@ -170,11 +180,18 @@ export default function RegisterPage() {
                 footerText="Vous avez déjà un compte ?"
                 footerLinkText="Se connecter"
                 footerLinkHref="/login"
-                socialButtons={true}
+                socialButtons={false}
                 forgotPasswordLink={false}
             />
           </div>
-        </div>
+        </motion.div>
+
+        <SideImageForm
+            setCurrentQuote={setCurrentQuote}
+            backgroundImage={'url("/auth/register.png")'}
+            motivationalQuotes={motivationalQuotes}
+            currentQuote={currentQuote}
+        />
       </div>
   )
 }

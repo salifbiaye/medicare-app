@@ -1,0 +1,128 @@
+import prisma from "@/lib/prisma"
+import { Hospital } from "@prisma/client"
+import { CreateHospitalFormValues, HospitalFilterSchema } from "@/schemas/hospital.schema"
+
+export class HospitalRepository {
+    static async createHospital(data: CreateHospitalFormValues) {
+        const newdata = {
+            ...data,
+            phone: data.phone.toString(),
+        }
+        return await prisma.hospital.create({
+            data: newdata,
+        })
+    }
+
+    static async createManyHospitals(data: CreateHospitalFormValues[]) {
+        console.log("data", data)
+        const newdata = data.map((hospital) => ({
+            ...hospital,
+            phone: hospital.phone.toString(),
+        }))
+        return await prisma.hospital.createMany({
+            data:newdata,
+        })
+    }
+
+    static async updateHospital(id: string, data: Partial<Hospital>) {
+        return await prisma.hospital.update({
+            where: { id },
+            data,
+        })
+    }
+
+    static async deleteHospital(id: string) {
+        return await prisma.hospital.delete({
+            where: { id },
+        })
+    }
+
+    static async deleteManyHospitals(ids: string[]) {
+        return await prisma.hospital.deleteMany({
+            where: {
+                id: {
+                    in: ids
+                }
+            }
+        })
+    }
+
+    static async getAllHospitals() {
+        return await prisma.hospital.findMany()
+    }
+
+    static async getHospitalById(id: string) {
+        return await prisma.hospital.findUnique({
+            where: { id },
+        })
+    }
+
+    static async getHospitalByEmail(email: string) {
+        return await prisma.hospital.findFirst({
+            where: { email },
+        })
+    }
+
+    static async getHospitalsWithPagination(params: {
+        page: number
+        perPage: number
+        sort?: string
+        search?: string
+        filters?: HospitalFilterSchema
+    }) {
+        const { page, perPage, sort, search, filters } = params
+        const skip = (page - 1) * perPage
+
+        // Build where clause
+        const where: any = {}
+
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: "insensitive" } },
+                { email: { contains: search, mode: "insensitive" } },
+                { address: { contains: search, mode: "insensitive" } },
+            ]
+        }
+
+        if (filters?.name?.length) {
+            where.name = { in: filters.name }
+        }
+
+        if (filters?.email?.length) {
+            where.email = { in: filters.email }
+        }
+
+        // Build orderBy
+        let orderBy: any = { createdAt: "desc" }
+        if (sort) {
+            const [column, order] = sort.split(".")
+            orderBy = { [column]: order }
+        }
+
+        const totalHospitals = await prisma.hospital.count({ where })
+
+        const hospitals = await prisma.hospital.findMany({
+            where,
+            orderBy,
+            skip,
+            take: perPage,
+            select: {
+                id: true,
+                name: true,
+                address: true,
+                phone: true,
+                email: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        })
+
+        return { hospitals, totalHospitals }
+    }
+
+    static async getUserById(id: string) {
+        return await prisma.user.findUnique({
+            where: { id },
+        })
+    }
+} 

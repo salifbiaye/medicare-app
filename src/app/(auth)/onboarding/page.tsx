@@ -3,7 +3,7 @@
 import React, { useState, } from "react"
 import { useRouter } from "next/navigation"
 import { AnimatePresence } from "framer-motion"
-import { Dumbbell } from "lucide-react"
+import {Dumbbell, Syringe} from "lucide-react"
 import { pageVariants } from "@/lib/animation-variants"
 import GenderSelectionStep from "@/features/auth/onboarding/gender-selection-step";
 import TrainingProgramStep from "@/features/auth/onboarding/training-program-step";
@@ -22,7 +22,7 @@ export default function OnboardingPage() {
 
     // Navigation between steps
     const goToNextStep = () => {
-        if (currentStep < 2) {
+        if (currentStep < 1) {
             setDirection(1)
             setCurrentStep((prev) => prev + 1)
         } else {
@@ -62,14 +62,6 @@ export default function OnboardingPage() {
             direction={direction}
             pageVariants={pageVariants}
         />,
-        <TrainingProgramStep
-            key="training-program"
-            gender={gender}
-            goToPrevStep={goToPrevStep}
-            goToNextStep={goToNextStep}
-            direction={direction}
-            pageVariants={pageVariants}
-        />,
         <ReadyToStartStep
             key="ready-to-start"
             gender={gender}
@@ -81,7 +73,7 @@ export default function OnboardingPage() {
     ]
 
     return (
-        <div className="h-screen bg-black overflow-hidden">
+        <div className="h-screen  overflow-hidden">
 
 
             {/* Grid pattern */}
@@ -89,15 +81,15 @@ export default function OnboardingPage() {
 
             {/* Logo */}
             <div className="absolute top-6 left-3/4 animate-float z-50">
-                <div className="backdrop-blur-md bg-white/10 px-4 py-2 rounded-full border border-white/20 shadow-glow flex items-center">
-                    <Dumbbell className="h-4 w-4 mr-2 text-gray-300" />
-                    <span className="text-white font-medium">ShadowFit</span>
+                <div className="backdrop-blur-md bg-primary/10 px-4 py-2 rounded-full border border-white/20 shadow-glow flex items-center">
+                    <Syringe className="h-4 w-4 mr-2 text-gray-300" />
+                    <span className="text-primary font-medium">Medicare</span>
                 </div>
             </div>
 
             {/* Step indicators */}
             <div className="absolute top-8 right-8 z-50 flex space-x-2">
-                {[0, 1, 2].map((index) => (
+                {[0, 1].map((index) => (
                     <div
                         key={index}
                         className={`h-1.5 rounded-full transition-all duration-500 ${

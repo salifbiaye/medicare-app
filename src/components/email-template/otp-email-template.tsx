@@ -13,23 +13,25 @@ export const OtpEmailTemplate: React.FC<Readonly<OtpEmailProps>> = ({
                                                                         type
                                                                     }) => (
     <div style={containerStyle}>
-        {/* En-tête avec logo ShadowFit */}
+        {/* En-tête avec logo Medicare */}
         <div style={headerStyle}>
             <div style={logoContainerStyle}>
-                <span style={logoTextStyle}>ShadowFit</span>
+                <span style={logoTextStyle}>Medicare</span>
             </div>
             <h1 style={titleStyle}>
                 {type === 'email-verification'
                     ? 'Vérification de votre email'
-                    : 'Réinitialisation de mot de passe'}
+                    : type === 'forget-password'
+                        ? 'Réinitialisation de mot de passe'
+                        : 'Connexion sécurisée'}
             </h1>
         </div>
 
-        {/* Image d'illustration premium */}
+        {/* Image d'illustration médicale */}
         <div style={heroImageStyle}>
             <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%2015%20avr.%202025%2C%2021_24_00-CLOJOHBJWqb3ScewuvpRwBrJenaXey.png"
-                alt="Fitness motivation"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/otp-t1rVgbHQVuRnmLg6vOZ0To5fygIeKp.png"
+                alt="Services médicaux"
                 style={imageStyle}
             />
         </div>
@@ -41,7 +43,9 @@ export const OtpEmailTemplate: React.FC<Readonly<OtpEmailProps>> = ({
             <p style={instructionStyle}>
                 {type === 'email-verification'
                     ? 'Utilisez le code suivant pour vérifier votre email :'
-                    : 'Voici votre code pour réinitialiser votre mot de passe :'}
+                    : type === 'forget-password'
+                        ? 'Voici votre code pour réinitialiser votre mot de passe :'
+                        : 'Utilisez ce code pour vous connecter à votre compte :'}
             </p>
 
             {/* Code OTP */}
@@ -51,12 +55,11 @@ export const OtpEmailTemplate: React.FC<Readonly<OtpEmailProps>> = ({
 
             <p style={validityStyle}>Ce code est valide pendant 15 minutes</p>
 
-            {/* Citation motivante */}
-            <div style={quoteContainerStyle}>
-                <p style={quoteTextStyle}>
-                    &#34;La discipline est le pont entre les objectifs et les accomplishments.&#34;
+            {/* Message de santé */}
+            <div style={healthTipContainerStyle}>
+                <p style={healthTipTextStyle}>
+                    Conseil santé : Pensez à mettre à jour régulièrement vos informations médicales pour un meilleur suivi.
                 </p>
-                <p style={quoteAuthorStyle}>—— Jim Rohn</p>
             </div>
         </div>
 
@@ -65,26 +68,26 @@ export const OtpEmailTemplate: React.FC<Readonly<OtpEmailProps>> = ({
             <p style={footerTextStyle}>
                 Si vous n&apos;avez pas demandé ce code, veuillez ignorer cet email.
             </p>
-            <p style={copyrightStyle}>© {new Date().getFullYear()} ShadowFit. Tous droits réservés.</p>
+            <p style={copyrightStyle}>© {new Date().getFullYear()} Medicare. Tous droits réservés.</p>
         </div>
     </div>
 )
 
-// Styles avec la nouvelle couleur de fond bleu foncé (#04131d)
+// Styles avec la nouvelle couleur de fond clair (#fef7ef)
 const containerStyle = {
     width: '100%',
     margin: '0',
-    backgroundColor: '#04131d', // Nouvelle couleur bleu foncé
-    color: '#f4f4f5',
+    backgroundColor: '#fef7ef', // Nouvelle couleur de fond clair
+    color: '#333333',
     fontFamily: '"Inter", sans-serif',
-    colorScheme: 'dark' as const,
+    colorScheme: 'light' as const,
 }
 
 const headerStyle = {
     padding: '32px 24px',
     textAlign: 'center' as const,
-    background: 'linear-gradient(135deg, #07212e 0%, #04131d 100%)', // Dégradé adapté
-    borderBottom: '1px solid #0a2a3a'
+    background: 'linear-gradient(135deg, #f8f1e8 0%, #fef7ef 100%)',
+    borderBottom: '1px solid #e8d9c5'
 }
 
 const logoContainerStyle = {
@@ -97,7 +100,7 @@ const logoContainerStyle = {
 const logoTextStyle = {
     fontSize: '24px',
     fontWeight: 'bold' as const,
-    background: 'linear-gradient(to right, #5d8aff, #a1c4ff)', // Dégradé bleu
+    background: 'linear-gradient(to right, #2b6cb0, #4299e1)', // Dégradé bleu médical
     WebkitBackgroundClip: 'text' as const,
     backgroundClip: 'text' as const,
     color: 'transparent',
@@ -108,7 +111,7 @@ const titleStyle = {
     fontSize: '20px',
     fontWeight: '600',
     margin: '0',
-    color: '#e1f0ff' // Bleu clair pour le titre
+    color: '#2b6cb0' // Bleu médical
 }
 
 const heroImageStyle = {
@@ -136,76 +139,69 @@ const contentStyle = {
 const greetingStyle = {
     fontSize: '16px',
     marginBottom: '20px',
-    color: '#a1c4ff' // Bleu clair
+    color: '#2b6cb0' // Bleu médical
 }
 
 const instructionStyle = {
     fontSize: '15px',
     lineHeight: '1.5',
     marginBottom: '24px',
-    color: '#d1e3ff'
+    color: '#4a5568'
 }
 
 const otpContainerStyle = {
-    background: 'rgba(7, 33, 46, 0.7)', // Bleu foncé semi-transparent
+    background: 'rgba(235, 248, 255, 0.7)', // Bleu clair semi-transparent
     padding: '20px',
     borderRadius: '8px',
     textAlign: 'center' as const,
     margin: '24px 0',
-    border: '1px solid #1a4b66'
+    border: '1px solid #bee3f8'
 }
 
 const otpTextStyle = {
     fontSize: '32px',
     fontWeight: 'bold' as const,
     letterSpacing: '4px',
-    color: '#ffffff',
+    color: '#2b6cb0',
     display: 'inline-block'
 }
 
 const validityStyle = {
     fontSize: '14px',
-    color: '#89b6e1',
+    color: '#718096',
     textAlign: 'center' as const,
     margin: '24px 0'
 }
 
-const quoteContainerStyle = {
+const healthTipContainerStyle = {
     margin: '32px 0',
     padding: '20px',
-    borderLeft: '3px solid #5d8aff', // Bleu vif
-    background: 'rgba(7, 33, 46, 0.5)'
+    borderLeft: '3px solid #4299e1', // Bleu médical
+    background: 'rgba(235, 248, 255, 0.5)'
 }
 
-const quoteTextStyle = {
-    fontStyle: 'italic' as const,
+const healthTipTextStyle = {
     fontSize: '15px',
     lineHeight: '1.6',
-    margin: '0 0 8px 0',
-    color: '#d1e3ff'
-}
-
-const quoteAuthorStyle = {
-    fontSize: '14px',
-    color: '#89b6e1',
-    margin: '0'
+    margin: '0',
+    color: '#4a5568'
 }
 
 const footerStyle = {
     padding: '24px',
     textAlign: 'center' as const,
-    background: '#07212e',
-    borderTop: '1px solid #0a2a3a'
+    background: '#f8f1e8',
+    borderTop: '1px solid #e8d9c5'
 }
 
 const footerTextStyle = {
     fontSize: '12px',
-    color: '#89b6e1',
+    color: '#718096',
     marginBottom: '12px'
 }
 
 const copyrightStyle = {
     fontSize: '12px',
-    color: '#5d8aff',
+    color: '#2b6cb0',
     margin: '0'
 }
