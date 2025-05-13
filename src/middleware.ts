@@ -87,8 +87,7 @@ export default async function middleware(request: NextRequest) {
             const existingSession = await response.json();
             const user = existingSession.session?.user as User;
 
-            // Redirection de /dashboard vers le bon dashboard
-            if (pathname === '/dashboard') {
+            if (pathname === '/dashboard'|| pathname==='/admin') {
                 const dashboardPath = getDashboardByRole(user.role);
                 return NextResponse.redirect(new URL(dashboardPath, request.url));
             }

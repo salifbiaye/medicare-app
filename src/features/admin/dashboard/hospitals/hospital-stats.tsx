@@ -80,7 +80,7 @@ export function HospitalStats() {
         <div className="w-full">
             <Card className="bg-background pb-6">
                 <CardHeader className="flex flex-row items-center bg-gray-600 dark:bg-muted justify-between space-y-4">
-                    <CardTitle className="text-sm font-medium p-2 pt-4">
+                    <CardTitle className="text-sm  font-medium p-2 pt-4">
                         <Badge variant="accent" className="p-2">
                             Total Hôpitaux
                         </Badge>

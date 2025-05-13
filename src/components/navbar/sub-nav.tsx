@@ -204,7 +204,7 @@ export function SubNav({ section, user }: SubNavProps) {
 
                     <div className="flex items-center gap-4">
                         <div className="relative max-w-md hidden md:flex cursor-pointer" onClick={() => setOpen(true)}>
-                            <div className="flex items-center h-9 gap-4 w-full text-white dark:text-muted-foreground bg-gray-700 dark:bg-muted rounded-md border border-gray-700 dark:border-input px-4 py-2 text-sm text-muted-foreground max-w-[300px]">
+                            <div className="flex items-center h-9 gap-4 w-full text-white dark:text-muted-foreground bg-gray-700 dark:bg-background rounded-md border border-gray-700 dark:border-input px-4 py-2 text-sm text-muted-foreground max-w-[300px]">
                                 <Search className="h-4 w-4 mr-2" />
                                 <span>Chercher...</span>
                                 <kbd className="pointer-events-none ml-auto inline-flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
