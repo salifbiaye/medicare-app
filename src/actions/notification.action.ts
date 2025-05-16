@@ -40,7 +40,7 @@ export async function deleteNotificationAction(notificationId: string) {
 }
 
 export async function getNotificationsWithPaginationAction(params: ParamsSchemaFormValues) {
-    console.log("getNotificationsWithPaginationAction", params, "params")
+
     return await NotificationService.getNotificationsWithPagination(params)
 }
 
@@ -50,4 +50,33 @@ export async function getUnreadCountAction() {
 
 export async function getNotificationStatsAction() {
     return await NotificationService.getNotificationStats()
+}
+
+/**
+ * Récupère les 5 dernières notifications de l'utilisateur connecté
+ * @returns Les 5 dernières notifications
+ */
+export async function getLatestNotificationsAction() {
+    return await NotificationService.getLatestNotifications(5)
+}
+
+/**
+ * Créé une notification pour un utilisateur spécifique concernant une demande de rendez-vous
+ * @param data Les données de la notification
+ * @returns Le résultat de la création de la notification
+ */
+export async function createAppointmentRequestNotificationAction(data: {
+    title: string
+    message: string
+    type: NotificationType
+    priority?: NotificationPriority
+    category: NotificationCategory
+    recipientId: string
+    senderId?: string
+    actionRequired?: boolean
+    expiresAt?: Date
+}) {
+    const result = await NotificationService.createNotification(data)
+    revalidatePath("/notifications")
+    return result
 } 

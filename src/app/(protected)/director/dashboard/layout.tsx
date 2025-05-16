@@ -7,12 +7,12 @@ import {Calculator} from "lucide-react";
 
 export default function DashboardLayout({
                                             children,
-                                            users,
-                                            hospitals,
+                                            personnels,
+                                            services,
                                         }: {
     children: React.ReactNode
-    users: React.ReactNode
-    hospitals: React.ReactNode
+    personnels: React.ReactNode
+    services: React.ReactNode
 }) {
     return (
         <div className="w-full h-full">
@@ -35,8 +35,8 @@ export default function DashboardLayout({
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
                     <div className="space-y-6">
-                        {users}
-                        {hospitals}
+                        {personnels}
+                        {services}
                         {children}
 
                     </div>

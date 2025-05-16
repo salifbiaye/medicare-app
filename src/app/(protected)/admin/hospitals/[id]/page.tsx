@@ -24,7 +24,7 @@ export default async function HospitalPage({ params }: HospitalPageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-12 pt-6 dark:from-background dark:to-background/95">
-      <div className="container mx-auto px-4">
+      <div className=" px-4">
         <AnimatedLayout>
           <ParticlesBackground />
           <div className="text-background dark:text-foreground">

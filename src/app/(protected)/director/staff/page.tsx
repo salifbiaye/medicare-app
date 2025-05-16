@@ -1,8 +1,8 @@
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import { DataTable } from "@/features/admin/users/data-table"
-import { columns } from "@/features/admin/users/columns"
-import { getUsersWithPaginationAction } from "@/actions/user.action"
+import { DataTable } from "@/features/director/personnels/data-table"
+import { columns } from "@/features/director/personnels/columns"
+import { getUsersByHospitalAction } from "@/actions/user.action"
 import { Users } from "lucide-react"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout"
 import {ParticlesBackground} from "@/components/animations/particles-background";
@@ -28,7 +28,7 @@ interface UsersPageProps {
 export default async function UsersPage({ searchParams }: UsersPageProps) {
 
   return (
-      <div className="container mx-auto py-6 px-4">
+      <div className=" py-6 px-4">
 
 
         <AnimatedLayout>
@@ -39,7 +39,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
               <Users className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl text-background dark:text-foreground font-bold tracking-tight">Gestion des Utilisateurs</h1>
+              <h1 className="text-2xl text-background dark:text-foreground font-bold tracking-tight">Gestion du personnel</h1>
               <p className=" text-background/80 dark:text-foreground/50">Visualisez et gérez tous les utilisateurs du système</p>
             </div>
           </AnimatedHeader>
@@ -71,7 +71,7 @@ async function UsersTable({ searchParams }: UsersPageProps) {
   const profileCompletedFilter = Array.isArray(params.profileCompleted) ? params.profileCompleted : params.profileCompleted ? [params.profileCompleted] : []
 
   // Fetch data with pagination, sorting, and filtering
-  const data = await getUsersWithPaginationAction({
+  const data = await getUsersByHospitalAction({
     page,
     perPage,
     sort,

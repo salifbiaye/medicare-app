@@ -16,7 +16,7 @@ export default async function HospitalEditPage({ params }: HospitalEditPageProps
   }
 
   return (
-    <div className="container mx-auto py-10">
+    <div className=" py-10">
       <EditHospitalPage hospital={hospital} />
     </div>
   )

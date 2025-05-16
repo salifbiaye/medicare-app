@@ -183,7 +183,7 @@ function DataTableToolbarContent<TData>({
               </Button>
           )}
 
-          <Button variant="default" onClick={() => router.push("/admin/users/new")} className="h-8 px-2 lg:px-3">
+          <Button variant="default" onClick={() => router.push("/director/staff/new")} className="h-8 px-2 lg:px-3">
             <PlusIcon className="mr-2 h-4 w-4" />
             Ajouter
           </Button>
@@ -195,7 +195,7 @@ function DataTableToolbarContent<TData>({
               filename="utilisateurs"
           />
 
-          <Button variant="special" onClick={() => router.push("/admin/users/import")} className="h-8 px-2 lg:px-3">
+          <Button variant="special" onClick={() => router.push("/director/staff/import")} className="h-8 px-2 lg:px-3">
             <PlusIcon className="mr-2 h-4 w-4" />
             Importer
           </Button>

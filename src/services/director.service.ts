@@ -2,6 +2,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { CreateDirectorFormValues, DirectorImport } from "@/schemas/user.schema"
 import { DirectorRepository } from "@/repository/director.repository"
+import { UserRepository } from "@/repository/user.repository"
 
 export class DirectorService {
     static async getSession() {
@@ -16,6 +17,38 @@ export class DirectorService {
         }
 
         return await DirectorRepository.createDirector(data)
+    }
+
+    static async getDirectorHospitalId() {
+        try {
+            const session = await this.getSession()
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            // Vérifier si l'utilisateur est un directeur
+            const user = await UserRepository.getUserById(session.user.id)
+            if (!user || user.role !== "DIRECTOR") {
+                return { success: false, error: "Seuls les directeurs peuvent accéder à cette fonctionnalité" }
+            }
+
+            // Récupérer le directeur et son hôpital associé
+            const director = await UserRepository.getDirectorByUserId(session.user.id)
+            if (!director) {
+                return { success: false, error: "Directeur non trouvé" }
+            }
+
+            return {
+                success: true,
+                data: director.hospitalId
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de l'hôpital du directeur:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération de l'hôpital du directeur"
+            }
+        }
     }
 
     static async importDirectors(data: DirectorImport[]) {
@@ -93,6 +126,28 @@ export class DirectorService {
         } catch (error) {
             console.error("Erreur lors de l'import des directeurs:", error)
             throw new Error("Échec de l'import des directeurs")
+        }
+    }
+
+    static async updateDirector(userId: string, data: CreateDirectorFormValues) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+
+            const result = await DirectorRepository.updateDirector(userId, data)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du directeur:", error)
+            return {
+                success: false,
+                error: "Échec de la mise à jour du directeur"
+            }
         }
     }
 } 

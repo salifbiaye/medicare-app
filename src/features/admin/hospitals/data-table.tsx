@@ -116,6 +116,14 @@ function DataTableContent<TData, TValue>({
     router.push(`${pathname}?${createQueryString({ view: mode })}`)
   }
 
+  // en haut de DataTableContent
+  const initialPage = page ; // table travaille en zero-based
+  const [pagination, setPagination] = React.useState({
+    pageIndex: initialPage,
+    pageSize: pageSize,
+  });
+
+
   // Initialize table
   const table = useReactTable({
     data,
@@ -125,12 +133,14 @@ function DataTableContent<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange:setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

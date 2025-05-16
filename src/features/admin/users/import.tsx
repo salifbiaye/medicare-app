@@ -282,7 +282,7 @@ export default function ImportUsersPage() {
     const templateHeaders = userImportHeadersByRole[selectedRole] || userImportHeadersByRole["PATIENT"]
 
     return (
-        <div className="container py-10">
+        <div className=" py-10">
             <RoleSelector selectedRole={selectedRole} onRoleChange={setSelectedRole} />
             <AnimatedLayout>
                 <ParticlesBackground/>

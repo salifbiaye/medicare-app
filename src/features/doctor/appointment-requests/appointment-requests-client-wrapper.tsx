@@ -52,14 +52,7 @@ export type AppointmentRequestWithRelations = {
   }
 }
 
-interface AppointmentRequestsStats {
-  total: number
-  pending: number
-  accepted: number
-  rejected: number
-  transferred: number
-  completed: number
-}
+
 
 interface AppointmentRequestsClientWrapperProps {
   // Update this to reflect the actual structure of your data
@@ -67,7 +60,6 @@ interface AppointmentRequestsClientWrapperProps {
     data: AppointmentRequestWithRelations[]
     meta: { total: number, [key: string]: any }
   }
-  stats: AppointmentRequestsStats
   totalItems: number
   currentPage: number
   perPage: number
@@ -83,11 +75,9 @@ interface AppointmentRequestsClientWrapperProps {
 
 export function AppointmentRequestsClientWrapper({
                                                    requests,
-                                                   stats,
                                                    totalItems,
                                                    currentPage,
                                                    perPage,
-                                                   activeTab,
                                                  }: AppointmentRequestsClientWrapperProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
@@ -196,61 +186,18 @@ export function AppointmentRequestsClientWrapper({
 
         </AnimatedLayout>
 
-        <div className="grid gap-4 md:grid-cols-4">
-          <StatsCard title="Toutes les demandes" value={stats.total} description="Total des demandes"/>
-          <StatsCard title="En attente" value={stats.pending} description="Demandes non traitées" className="border-amber-200 dark:border-amber-800" />
-          <StatsCard title="Acceptées" value={stats.accepted} description="Demandes acceptées" className="border-green-200 dark:border-green-800" />
-          <StatsCard title="Rejetées" value={stats.rejected} description="Demandes rejetées" className="border-red-200 dark:border-red-800" />
-        </div>
 
-        <Tabs defaultValue={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">Toutes</TabsTrigger>
-            <TabsTrigger value="pending">En attente ({stats.pending})</TabsTrigger>
-            <TabsTrigger value="accepted">Acceptées ({stats.accepted})</TabsTrigger>
-            <TabsTrigger value="rejected">Rejetées ({stats.rejected})</TabsTrigger>
-          </TabsList>
 
-          <TabsContent value="all" className="pt-4">
             <AppointmentRequestsList
                 requests={requestsArray}
                 onStatusUpdate={handleStatusUpdate}
                 isSubmitting={isSubmitting}
+                isDoctor={true}
             />
-          </TabsContent>
 
-          <TabsContent value="pending" className="pt-4">
-            <AppointmentRequestsList
-                requests={requestsArray.filter(r => r.status === "PENDING")}
-                onStatusUpdate={handleStatusUpdate}
-                isSubmitting={isSubmitting}
-            />
-          </TabsContent>
 
-          <TabsContent value="accepted" className="pt-4">
-            <AppointmentRequestsList
-                requests={requestsArray.filter(r => r.status === "ACCEPTED")}
-                onStatusUpdate={handleStatusUpdate}
-                isSubmitting={isSubmitting}
-            />
-          </TabsContent>
 
-          <TabsContent value="rejected" className="pt-4">
-            <AppointmentRequestsList
-                requests={requestsArray.filter(r => r.status === "REJECTED")}
-                onStatusUpdate={handleStatusUpdate}
-                isSubmitting={isSubmitting}
-            />
-          </TabsContent>
 
-          <TabsContent value="transferred" className="pt-4">
-            <AppointmentRequestsList
-                requests={requestsArray.filter(r => r.status === "TRANSFERRED")}
-                onStatusUpdate={handleStatusUpdate}
-                isSubmitting={isSubmitting}
-            />
-          </TabsContent>
-        </Tabs>
 
         {totalItems > perPage && (
             <Pagination

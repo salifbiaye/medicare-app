@@ -1,15 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getUserStatsAction } from "@/actions/user.action"
-import { Users, UserPlus, Stethoscope, UserCog, UserCheck, UserRound } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Users, UserPlus, Stethoscope, UserCog, UserCheck, UserRound, Shield, ChevronRight } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function UserStats() {
     const [stats, setStats] = React.useState<any>(null)
     const [isLoading, setIsLoading] = React.useState(true)
+    const [activeIndex, setActiveIndex] = React.useState(0)
 
     React.useEffect(() => {
         const fetchStats = async () => {
@@ -29,113 +28,267 @@ export function UserStats() {
         fetchStats()
     }, [])
 
-    const statIcons = [Users, UserPlus, Stethoscope, UserCog, UserCheck, UserRound]
-    const statVariants = ["accent", "secondary", "success", "destructive", "warning", "default"]
-    const statTitles = ["Total Utilisateurs", "Patients", "Médecins", "Médecins en Chef", "Secrétaires", "Directeurs"]
-
-    if (isLoading) {
-        return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="bg-background pb-6 overflow-hidden relative">
-                        {/* Animated gradient overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-pulse-slow"></div>
-
-                        <CardHeader className="flex flex-row items-center bg-gray-600 dark:bg-muted justify-between space-y-4 relative">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
-                            <CardTitle className="text-sm font-medium p-2 pt-4">
-                                <Skeleton className="h-8 w-32 bg-gray-500/30 dark:bg-gray-700/30" />
-                            </CardTitle>
-                            <div className="p-4 rounded-full bg-gray-700/50 dark:bg-background/50 mr-4">
-                                {React.createElement(statIcons[i % statIcons.length], {
-                                    className: "h-4 w-4 text-gray-400 dark:text-muted-foreground/50",
-                                })}
-                            </div>
-                        </CardHeader>
-                        <CardContent className="pt-6">
-                            <div className="flex flex-row gap-4 items-center">
-                                <div className="relative">
-                                    <Skeleton className="h-8 w-16 bg-primary/10" />
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="h-2 w-2 rounded-full bg-primary animate-ping"></div>
-                                    </div>
-                                </div>
-                                <Skeleton className="h-4 w-40 bg-gray-200/30 dark:bg-gray-700/30" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        )
-    }
-
-    const statCards = [
+    const statItems = [
         {
             title: "Total Utilisateurs",
             value: stats?.totalUsers || 0,
             icon: Users,
-            description: "Nombre total d'utilisateurs",
-            variant: "accent",
+            color: "accent",
+            bgClass: "bg-purple-100 dark:bg-purple-900/20",
+            iconClass: "bg-purple-500 text-white",
+            textClass: "text-purple-700 dark:text-purple-300",
+            borderClass: "border-purple-300 dark:border-purple-700",
+            size: "lg",
         },
         {
             title: "Patients",
             value: stats?.totalPatients || 0,
             icon: UserPlus,
-            description: "Nombre total de patients",
-            variant: "secondary",
+            color: "secondary",
+            bgClass: "bg-slate-100 dark:bg-slate-900/20",
+            iconClass: "bg-slate-500 text-white",
+            textClass: "text-slate-700 dark:text-slate-300",
+            borderClass: "border-slate-300 dark:border-slate-700",
+            size: "md",
         },
         {
             title: "Médecins",
             value: stats?.totalDoctors || 0,
             icon: Stethoscope,
-            description: "Nombre total de médecins",
-            variant: "success",
+            color: "success",
+            bgClass: "bg-green-100 dark:bg-green-900/20",
+            iconClass: "bg-green-500 text-white",
+            textClass: "text-green-700 dark:text-green-300",
+            borderClass: "border-green-300 dark:border-green-700",
+            size: "md",
         },
         {
             title: "Médecins en Chef",
             value: stats?.totalChiefDoctors || 0,
             icon: UserCog,
-            description: "Nombre total de médecins en chef",
-            variant: "destructive",
+            color: "destructive",
+            bgClass: "bg-red-100 dark:bg-red-900/20",
+            iconClass: "bg-red-500 text-white",
+            textClass: "text-red-700 dark:text-red-300",
+            borderClass: "border-red-300 dark:border-red-700",
+            size: "sm",
         },
         {
             title: "Secrétaires",
             value: stats?.totalSecretaries || 0,
             icon: UserCheck,
-            description: "Nombre total de secrétaires",
-            variant: "warning",
+            color: "warning",
+            bgClass: "bg-amber-100 dark:bg-amber-900/20",
+            iconClass: "bg-amber-500 text-white",
+            textClass: "text-amber-700 dark:text-amber-300",
+            borderClass: "border-amber-300 dark:border-amber-700",
+            size: "sm",
         },
         {
             title: "Directeurs",
             value: stats?.totalDirectors || 0,
             icon: UserRound,
-            description: "Nombre total de directeurs",
-            variant: "default",
+            color: "default",
+            bgClass: "bg-gray-100 dark:bg-gray-800/40",
+            iconClass: "bg-gray-500 text-white",
+            textClass: "text-gray-700 dark:text-gray-300",
+            borderClass: "border-gray-300 dark:border-gray-700",
+            size: "sm",
+        },
+        {
+            title: "Administrateurs",
+            value: stats?.totalAdmins || 0,
+            icon: Shield,
+            color: "primary",
+            bgClass: "bg-blue-100 dark:bg-blue-900/20",
+            iconClass: "bg-blue-500 text-white",
+            textClass: "text-blue-700 dark:text-blue-300",
+            borderClass: "border-blue-300 dark:border-blue-700",
+            size: "sm",
         },
     ]
 
+    // Function to get size classes
+    const getSizeClasses = (size: string) => {
+        switch (size) {
+            case "lg":
+                return "col-span-2 row-span-2"
+            case "md":
+                return "col-span-1 row-span-2"
+            default:
+                return "col-span-1 row-span-1"
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="relative h-[500px] w-full">
+                <Skeleton className="absolute inset-0 rounded-xl" />
+            </div>
+        )
+    }
+
+    // For mobile view
+    const handleNext = () => {
+        setActiveIndex((prev) => (prev + 1) % statItems.length)
+    }
+
+    const handlePrev = () => {
+        setActiveIndex((prev) => (prev - 1 + statItems.length) % statItems.length)
+    }
+
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {statCards.map((stat, index) => (
-                <Card key={index} className=" bg-background pb-6  ">
-                    <CardHeader className="flex flex-row items-center bg-gray-600 dark:bg-muted justify-between space-y-4 ">
-                        <CardTitle className="text-sm font-medium p-2 pt-4 ">
-                            <Badge variant={stat.variant as any} className=" p-2 ">
-                                {stat.title}
-                            </Badge>
-                        </CardTitle>
-                        <div className={"p-4 rounded-full dark:bg-background bg-gray-700 "}>
-                            <stat.icon className="h-4 w-4 text-white  dark:text-muted-foreground" />
+        <>
+            {/* Desktop view - Creative layout */}
+            <div className="hidden md:block relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-50 via-blue-50 to-emerald-50 dark:from-purple-950/20 dark:via-blue-950/20 dark:to-emerald-950/20 rounded-2xl blur-xl opacity-50"></div>
+
+                <div className="relative grid grid-cols-4 grid-rows-3 gap-4 h-[500px]">
+                    {/* Connecting lines */}
+                    <svg className="absolute inset-0 w-full h-full z-0 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M150,100 C200,50 300,50 350,100" stroke="rgba(147, 51, 234, 0.2)" strokeWidth="2" fill="none" />
+                        <path d="M350,100 C400,150 400,250 350,300" stroke="rgba(59, 130, 246, 0.2)" strokeWidth="2" fill="none" />
+                        <path d="M350,300 C300,350 200,350 150,300" stroke="rgba(16, 185, 129, 0.2)" strokeWidth="2" fill="none" />
+                        <path d="M150,300 C100,250 100,150 150,100" stroke="rgba(239, 68, 68, 0.2)" strokeWidth="2" fill="none" />
+                        <path d="M150,100 C200,150 300,150 350,100" stroke="rgba(245, 158, 11, 0.2)" strokeWidth="2" fill="none" />
+                        <path d="M150,300 C200,250 300,250 350,300" stroke="rgba(107, 114, 128, 0.2)" strokeWidth="2" fill="none" />
+                    </svg>
+
+                    {statItems.map((item, index) => {
+                        const sizeClass = getSizeClasses(item.size)
+
+                        // Calculate positions based on index for a more creative layout
+                        let gridColumn = ""
+                        let gridRow = ""
+
+                        switch (index) {
+                            case 0: // Total Users - large, center
+                                gridColumn = "2 / span 2"
+                                gridRow = "1 / span 2"
+                                break
+                            case 1: // Patients - medium, left
+                                gridColumn = "1 / span 1"
+                                gridRow = "1 / span 2"
+                                break
+                            case 2: // Doctors - medium, right
+                                gridColumn = "4 / span 1"
+                                gridRow = "1 / span 2"
+                                break
+                            case 3: // Chief Doctors - small, bottom left
+                                gridColumn = "1 / span 1"
+                                gridRow = "3 / span 1"
+                                break
+                            case 4: // Secretaries - small, bottom center-left
+                                gridColumn = "2 / span 1"
+                                gridRow = "3 / span 1"
+                                break
+                            case 5: // Directors - small, bottom center-right
+                                gridColumn = "3 / span 1"
+                                gridRow = "3 / span 1"
+                                break
+                            case 6: // Admins - small, bottom right
+                                gridColumn = "4 / span 1"
+                                gridRow = "3 / span 1"
+                                break
+                            default:
+                                break
+                        }
+
+                        return (
+                            <div
+                                key={index}
+                                className={`relative overflow-hidden ${item.bgClass} rounded-xl backdrop-blur-sm border ${item.borderClass} shadow-lg hover:shadow-xl transition-all duration-300`}
+                                style={{ gridColumn, gridRow }}
+                            >
+                                {/* Background pattern */}
+                                <div className="absolute inset-0 opacity-5">
+                                    <div className="absolute -right-4 -top-4 w-24 h-24 rounded-full bg-white dark:bg-gray-700"></div>
+                                    <div className="absolute -left-10 -bottom-10 w-40 h-40 rounded-full bg-white dark:bg-gray-700"></div>
+                                </div>
+
+                                <div className="relative h-full p-4 flex flex-col justify-between">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.title}</h3>
+                                        <div className={`${item.iconClass} p-2 rounded-lg shadow-md`}>
+                                            <item.icon className="h-4 w-4" />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        <p className={`text-3xl font-bold ${item.textClass}`}>{item.value.toLocaleString()}</p>
+                                    </div>
+
+                                    {/* Bottom accent line */}
+                                    <div className={`absolute bottom-0 left-0 right-0 h-1 ${item.iconClass}`}></div>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
+            {/* Mobile view - Interactive carousel */}
+            <div className="md:hidden">
+                <div className="relative overflow-hidden rounded-xl">
+                    <div className="flex justify-between items-center mb-4">
+                        <button
+                            onClick={handlePrev}
+                            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                        >
+                            <ChevronRight className="h-5 w-5 rotate-180" />
+                        </button>
+                        <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {activeIndex + 1} / {statItems.length}
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className={"flex flex-row gap-4 items-center"}>
-                            <div className="text-2xl font-bold">{stat.value}</div>
-                            <p className="text-xs text-muted-foreground">{stat.description}</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
+                        <button
+                            onClick={handleNext}
+                            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                        >
+                            <ChevronRight className="h-5 w-5" />
+                        </button>
+                    </div>
+
+                    <div className="relative h-[200px] overflow-hidden rounded-xl">
+                        {statItems.map((item, index) => (
+                            <div
+                                key={index}
+                                className={`absolute inset-0 ${item.bgClass} rounded-xl backdrop-blur-sm border ${item.borderClass} shadow-lg transition-all duration-500 ${
+                                    index === activeIndex ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full"
+                                }`}
+                            >
+                                <div className="relative h-full p-6 flex flex-col justify-between">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{item.title}</h3>
+                                        <div className={`${item.iconClass} p-3 rounded-xl shadow-lg`}>
+                                            <item.icon className="h-6 w-6" />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        <p className={`text-4xl font-bold ${item.textClass}`}>{item.value.toLocaleString()}</p>
+                                    </div>
+
+                                    {/* Bottom accent line */}
+                                    <div className={`absolute bottom-0 left-0 right-0 h-1 ${item.iconClass}`}></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Indicator dots */}
+                    <div className="flex justify-center mt-4 space-x-2">
+                        {statItems.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setActiveIndex(index)}
+                                className={`h-2 w-2 rounded-full transition-all ${
+                                    index === activeIndex ? "bg-purple-500 w-4" : "bg-gray-300 dark:bg-gray-700"
+                                }`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </>
     )
 }

@@ -71,6 +71,9 @@ export default function CreateUserPage() {
         setIsLoading(true)
 
         try {
+            console.log("Tentative de création d'utilisateur avec le rôle:", selectedRole);
+            console.log("Valeurs du formulaire:", values);
+            
             let result: ActionResult;
             switch (selectedRole) {
                 case "PATIENT":
@@ -85,10 +88,14 @@ export default function CreateUserPage() {
                     result = await createDoctorAction(values as CreateDoctorFormValues)
                     break;
                 case "SECRETARY":
-                    result = await createSecretaryAction(values as CreateSecretaryFormValues)
+                    console.log("Appel de createSecretaryAction avec:", values);
+                    const secretaryResponse = await createSecretaryAction(values as CreateSecretaryFormValues);
+                    console.log("Résultat de createSecretaryAction:", secretaryResponse);
+                    result = secretaryResponse as ActionResult;
                     break;
                 case "DIRECTOR":
-                    result = await createDirectorAction(values as CreateDirectorFormValues)
+                    const directorResponse = await createDirectorAction(values as CreateDirectorFormValues);
+                    result = directorResponse as ActionResult;
                     break;
                 default:
                     throw new Error("Rôle non supporté")

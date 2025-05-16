@@ -41,11 +41,6 @@ export function ProfileTabs({ activeTab, setActiveTab, userRole }: ProfileTabsPr
       icon: UserCog,
     },
     {
-      id: "activity",
-      label: "Activité Récente",
-      icon: Activity,
-    },
-    {
       id: "notifications",
       label: "Notifications",
       icon: Bell,

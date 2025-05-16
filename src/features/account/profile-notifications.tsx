@@ -9,6 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { AnimatedHeader, AnimatedLayout } from "@/components/animations/animated-layout"
+import { ParticlesBackground } from "@/components/animations/particles-background"
+import { toastAlert } from "@/components/ui/sonner-v2"
+import { markAllAsReadAction, markAsReadAction, getUnreadCountAction, getLatestNotificationsAction } from "@/actions/notification.action"
 
 type Notification = {
   id: string
@@ -16,6 +20,14 @@ type Notification = {
   message: string
   read: boolean
   createdAt: Date
+  type?: string
+  priority?: string
+  category?: string
+  sender?: {
+    id: string
+    name: string
+    image: string | null
+  } | null
 }
 
 type NotificationSetting = {
@@ -29,114 +41,170 @@ type ProfileNotificationsProps = {
   userId: string
 }
 
+
+
 export function ProfileNotifications({ userId }: ProfileNotificationsProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [settings, setSettings] = useState<NotificationSetting[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
-    // Mock data fetch
-    const fetchNotifications = async () => {
-      setIsLoading(true)
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Mock notifications
-      const mockNotifications: Notification[] = [
-        {
-          id: "1",
-          title: "Rappel de rendez-vous",
-          message: "Vous avez un rendez-vous demain à 14h00 avec Dr. Martin",
-          read: false,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        },
-        {
-          id: "2",
-          title: "Nouvelle prescription",
-          message: "Une nouvelle prescription a été ajoutée à votre dossier",
-          read: true,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        },
-        {
-          id: "3",
-          title: "Résultats disponibles",
-          message: "Vos résultats d'analyse sont maintenant disponibles",
-          read: false,
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-        },
-      ]
-
-      // Mock settings
-      const mockSettings: NotificationSetting[] = [
-        {
-          id: "1",
-          name: "Rappels de rendez-vous",
-          description: "Recevez des notifications pour vos rendez-vous à venir",
-          enabled: true,
-        },
-        {
-          id: "2",
-          name: "Nouvelles prescriptions",
-          description: "Soyez notifié lorsqu'une nouvelle prescription est ajoutée",
-          enabled: true,
-        },
-        {
-          id: "3",
-          name: "Résultats d'analyses",
-          description: "Recevez une alerte lorsque vos résultats sont disponibles",
-          enabled: false,
-        },
-        {
-          id: "4",
-          name: "Activité du compte",
-          description: "Notifications concernant la sécurité et l'activité de votre compte",
-          enabled: true,
-        },
-      ]
-
-      setNotifications(mockNotifications)
-      setSettings(mockSettings)
-      setIsLoading(false)
-    }
-
+    // Fetch notifications and settings
     fetchNotifications()
   }, [userId])
 
-  const toggleSetting = (id: string) => {
-    setSettings(settings.map((setting) => (setting.id === id ? { ...setting, enabled: !setting.enabled } : setting)))
+  const fetchNotifications = async () => {
+    setIsLoading(true)
+    try {
+      // Fetch unread count
+      const countResponse = await getUnreadCountAction()
+      // Vérifier la structure de la réponse et extraire le compte
+      if (countResponse && typeof countResponse === 'object' && 'data' in countResponse) {
+        setUnreadCount(countResponse.data || 0)
+      } else {
+        setUnreadCount(0)
+      }
+
+      // Récupérer les dernières notifications
+      const notificationResponse = await getLatestNotificationsAction();
+      
+      if (notificationResponse?.success && notificationResponse.data) {
+        // Transformer les données de l'API au format attendu par le composant
+        const formattedNotifications = notificationResponse.data.map((notif: any) => ({
+          id: notif.id,
+          title: notif.title,
+          message: notif.message,
+          read: notif.read,
+          createdAt: new Date(notif.createdAt),
+          type: notif.type,
+          priority: notif.priority,
+          category: notif.category,
+          sender: notif.sender
+        }));
+        
+        setNotifications(formattedNotifications);
+      } else {
+        // Si l'API ne renvoie pas de données, afficher un tableau vide
+        setNotifications([]);
+        // Afficher une notification seulement si une erreur est retournée
+        if (notificationResponse && !notificationResponse.success) {
+          toastAlert.error({
+            title: "Erreur de chargement",
+            description: notificationResponse.error || "Impossible de charger vos notifications.",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des notifications:", error)
+      toastAlert.error({
+        title: "Erreur de chargement",
+        description: "Impossible de charger vos notifications.",
+      })
+      setNotifications([]);
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const markAsRead = (id: string) => {
-    setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
+ 
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      const response = await markAsReadAction(id)
+      
+      if (response?.success) {
+        // Mettre à jour l'état local
+        setNotifications(
+          notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification))
+        )
+        setUnreadCount(prev => Math.max(0, prev - 1))
+        
+        toastAlert.success({
+          title: "Notification marquée comme lue",
+          description: "La notification a été marquée comme lue.",
+        })
+      } else {
+        toastAlert.error({
+          title: "Erreur",
+          description: response?.error || "Impossible de marquer la notification comme lue.",
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors du marquage de la notification:", error)
+      toastAlert.error({
+        title: "Erreur",
+        description: "Impossible de marquer la notification comme lue.",
+      })
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await markAllAsReadAction()
+      
+      if (response?.success) {
+        // Mettre à jour l'état local
+        setNotifications(notifications.map((notification) => ({ ...notification, read: true })))
+        setUnreadCount(0)
+        
+        toastAlert.success({
+          title: "Toutes lues",
+          description: "Toutes les notifications ont été marquées comme lues.",
+        })
+      } else {
+        toastAlert.error({
+          title: "Erreur",
+          description: response?.error || "Impossible de marquer toutes les notifications comme lues.",
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors du marquage des notifications:", error)
+      toastAlert.error({
+        title: "Erreur",
+        description: "Impossible de marquer toutes les notifications comme lues.",
+      })
+    }
   }
 
-  const unreadCount = notifications.filter((notification) => !notification.read).length
+  // Fonction pour rafraîchir les notifications
+  const refreshNotifications = () => {
+    fetchNotifications();
+  }
+
+  // Fonction pour obtenir la couleur de priorité
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case "URGENT": return "bg-red-500";
+      case "HIGH": return "bg-orange-500";
+      case "MEDIUM": return "bg-amber-500";
+      case "LOW": return "bg-blue-500";
+      default: return "bg-gray-500";
+    }
+  }
 
   return (
-    <div>
-      <div className="border-b px-6 py-5">
-        <div className="flex items-center justify-between">
+    <div className="w-full p-6">
+      <AnimatedLayout>
+        <ParticlesBackground />
+        <AnimatedHeader>
+          <div className="bg-blue-100 dark:bg-blue-100/10 p-3 rounded-full mr-4">
+            <Bell className="h-8 w-8 text-primary" />
+          </div>
           <div>
-            <h3 className="text-lg font-medium">Notifications</h3>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl text-background dark:text-foreground font-bold mb-2">
+              Notifications
+            </h1>
+            <p className="text-background/80 dark:text-foreground/40">
               Gérez vos préférences de notifications et consultez vos alertes
             </p>
           </div>
-
           {unreadCount > 0 && (
-            <Badge variant="default" className="bg-primary">
+            <Badge variant="default" className="ml-auto bg-primary">
               {unreadCount} non lu{unreadCount > 1 ? "s" : ""}
             </Badge>
           )}
-        </div>
-      </div>
+        </AnimatedHeader>
+      </AnimatedLayout>
 
       <div className="p-6 space-y-8">
         {isLoading ? (
@@ -148,44 +216,22 @@ export function ProfileNotifications({ userId }: ProfileNotificationsProps) {
           </div>
         ) : (
           <>
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Préférences de notifications</CardTitle>
-                  <Bell className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <CardDescription>Configurez les types de notifications que vous souhaitez recevoir</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {settings.map((setting) => (
-                    <div key={setting.id} className="flex items-center justify-between space-x-2">
-                      <div className="flex-1">
-                        <Label htmlFor={`setting-${setting.id}`} className="font-medium">
-                          {setting.name}
-                        </Label>
-                        <p className="text-sm text-muted-foreground">{setting.description}</p>
-                      </div>
-                      <Switch
-                        id={`setting-${setting.id}`}
-                        checked={setting.enabled}
-                        onCheckedChange={() => toggleSetting(setting.id)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            
 
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">Notifications récentes</h3>
 
-                {notifications.length > 0 && (
-                  <Button variant="outline" size="sm" onClick={markAllAsRead}>
-                    Tout marquer comme lu
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={refreshNotifications}>
+                    Actualiser
                   </Button>
-                )}
+                  {notifications.length > 0 && unreadCount > 0 && (
+                    <Button variant="outline" size="sm" onClick={handleMarkAllAsRead}>
+                      Tout marquer comme lu
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {notifications.length === 0 ? (
@@ -203,12 +249,26 @@ export function ProfileNotifications({ userId }: ProfileNotificationsProps) {
                         !notification.read ? "bg-primary/5 border-primary/20" : ""
                       }`}
                     >
-                      {!notification.read && <div className="absolute right-4 top-4 h-2 w-2 rounded-full bg-primary" />}
+                      {!notification.read && (
+                        <div className={`absolute right-4 top-4 h-2 w-2 rounded-full ${getPriorityColor(notification.priority)}`} />
+                      )}
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                          <p className="font-medium">{notification.title}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{notification.title}</p>
+                            {notification.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {notification.category.toLowerCase()}
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground">{notification.message}</p>
+                          {notification.sender && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              De: {notification.sender.name}
+                            </p>
+                          )}
                         </div>
 
                         <div className="mt-2 flex items-center gap-4 sm:mt-0">
@@ -217,7 +277,7 @@ export function ProfileNotifications({ userId }: ProfileNotificationsProps) {
                           </p>
 
                           {!notification.read && (
-                            <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
+                            <Button variant="ghost" size="sm" onClick={() => handleMarkAsRead(notification.id)}>
                               Marquer comme lu
                             </Button>
                           )}

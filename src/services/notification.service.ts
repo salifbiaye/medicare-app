@@ -1,8 +1,9 @@
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { NotificationRepository } from "@/repository/notification.repository"
-import { Notification, NotificationCategory, NotificationPriority, NotificationType } from "@prisma/client"
-import { paramsSchema, ParamsSchemaFormValues } from "@/schemas/index.schema"
+import { NotificationCategory, NotificationPriority, NotificationType } from "@prisma/client"
+import { ParamsSchemaFormValues } from "@/schemas/index.schema"
+
 
 export type NotificationFilterSchema = {
     type?: string[]
@@ -37,6 +38,8 @@ export class NotificationService {
             }
 
             const notification = await NotificationRepository.createNotification(data)
+            
+
             
             return {
                 success: true,
@@ -211,6 +214,34 @@ export class NotificationService {
             return {
                 success: false,
                 error: "Échec de la récupération des statistiques des notifications"
+            }
+        }
+    }
+
+    /**
+     * Récupère les dernières notifications de l'utilisateur connecté
+     * @param limit Nombre de notifications à récupérer
+     * @returns Les dernières notifications
+     */
+    static async getLatestNotifications(limit = 5) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            const notifications = await NotificationRepository.getLatestNotifications(session.user.id, limit)
+            
+            return {
+                success: true,
+                data: notifications
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des dernières notifications:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des dernières notifications"
             }
         }
     }

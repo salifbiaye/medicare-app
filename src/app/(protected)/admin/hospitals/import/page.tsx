@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function HospitalsPage() {
   return (
-    <div className="container mx-auto py-10">
+    <div className=" py-10">
       <ImportHospitalsPage />
     </div>
   )

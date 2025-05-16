@@ -7,7 +7,8 @@ import { UserRepository } from "@/repository/user.repository"
 import bcrypt from "bcryptjs"
 import { User } from "@prisma/client"
 import { paramsSchema, ParamsSchemaFormValues } from "@/schemas/index.schema"
-import { CreateUserFormValues,UserFilterSchema } from "@/schemas/user.schema"
+import {CreateUserFormValues, PasswordFormValues, UserFilterSchema} from "@/schemas/user.schema"
+import { ActionResult } from "@/lib/action-result"
 
 
 export class UserService {
@@ -17,38 +18,38 @@ export class UserService {
         return await auth.api.getSession({ headers: headersValue })
     }
 
-    // static async updatePassword( data: PasswordFormData) {
-    //     const session = await this.getSession()
-    //
-    //     if (!session?.user) {
-    //         return { success: false, message: "Utilisateur non authentifié !" }
-    //     }
-    //     const account = await AccountRepository.findAccountByUserId(session.user.id)
-    //
-    //     if (!account) {
-    //         return { success: false, message: "Compte non trouvé !" }
-    //     }
-    //
-    //     if (!account.password) {
-    //         return { success: false, message: "Aucun mot de passe défini pour ce compte !" }
-    //     }
-    //
-    //     const isPasswordCorrect = await bcrypt.compare(data.currentPassword, account.password)
-    //
-    //     if (!isPasswordCorrect) {
-    //         return { success: false, message: "Le mot de passe actuel est incorrect !" }
-    //     }
-    //
-    //     const salt = await bcrypt.genSalt(10);
-    //     const hashedPassword = await bcrypt.hash(data.newPassword, salt);
-    //     const result = await AccountRepository.updatePassword(account.id, hashedPassword)
-    //
-    //     if (!result) {
-    //         return { success: false, message: "Échec de la mise à jour du mot de passe !" }
-    //     }
-    //
-    //     return { success: true, message: "Mot de passe mis à jour avec succès !" }
-    // }
+    static async updatePassword( data: PasswordFormValues) {
+        const session = await this.getSession()
+
+        if (!session?.user) {
+            return { success: false, message: "Utilisateur non authentifié !" }
+        }
+        const account = await AccountRepository.findAccountByUserId(session.user.id)
+
+        if (!account) {
+            return { success: false, message: "Compte non trouvé !" }
+        }
+
+        if (!account.password) {
+            return { success: false, message: "Aucun mot de passe défini pour ce compte !" }
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(data.currentPassword, account.password)
+
+        if (!isPasswordCorrect) {
+            return { success: false, message: "Le mot de passe actuel est incorrect !" }
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(data.newPassword, salt);
+        const result = await AccountRepository.updatePassword(account.id, hashedPassword)
+
+        if (!result) {
+            return { success: false, message: "Échec de la mise à jour du mot de passe !" }
+        }
+
+        return { success: true, message: "Mot de passe mis à jour avec succès !" }
+    }
 
   static async getUserCurrent() {
         const session = await this.getSession()
@@ -57,13 +58,40 @@ export class UserService {
             return { success: false, error: "Utilisateur non authentifié" }
         }
 
-        const isAdmin = await this.checkUserIsAdmin(session.user.id)
-        if (!isAdmin) {
+
+        try {
+            const user = await UserRepository.getUserById(session.user.id)
+            return {
+                success: true,
+                data: user
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de l'utilisateur:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération de l'utilisateur"
+            }
+        }
+  }
+
+  static async getUserWithRelations(userId: string) {
+        const session = await this.getSession()
+
+        if (!session?.user) {
+            return { success: false, error: "Utilisateur non authentifié" }
+        }
+
+        const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+        if (!hasAccess) {
             return { success: false, error: "Non autorisé" }
         }
 
         try {
-            const user = await UserRepository.getUserById(session.user.id)
+            const user = await UserRepository.getUserWithRelations(userId)
+            if (!user) {
+                return { success: false, error: "Utilisateur non trouvé" }
+            }
+            
             return {
                 success: true,
                 data: user
@@ -84,8 +112,8 @@ export class UserService {
             return { success: false, error: "Utilisateur non authentifié" }
         }
 
-        const isAdmin = await this.checkUserIsAdmin(session.user.id)
-        if (!isAdmin) {
+        const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+        if (!hasAccess) {
             return { success: false, error: "Non autorisé" }
         }
 
@@ -105,6 +133,50 @@ export class UserService {
             return {
                 success: false,
                 error: "Échec de la récupération des utilisateurs"
+            }
+        }
+    }
+
+    static async getUsersByHospital(params: ParamsSchemaFormValues) {
+        const session = await this.getSession()
+
+        if (!session?.user) {
+            return { success: false, error: "Utilisateur non authentifié" }
+        }
+
+        // Vérifier si l'utilisateur est un directeur
+        const user = await UserRepository.getUserById(session.user.id)
+        if (!user || user.role !== "DIRECTOR") {
+            return { success: false, error: "Seuls les directeurs peuvent accéder à cette fonctionnalité" }
+        }
+
+        try {
+            // Récupérer le directeur et son hôpital associé
+            const director = await UserRepository.getDirectorByUserId(session.user.id)
+            if (!director) {
+                return { success: false, error: "Directeur non trouvé" }
+            }
+
+            const hospitalId = director.hospitalId
+
+            const validatedParams = paramsSchema.parse(params)
+
+            // Récupérer les utilisateurs affiliés à l'hôpital
+            const result = await UserRepository.getUsersByHospital({
+                ...validatedParams,
+                filters: validatedParams.filters as UserFilterSchema,
+                hospitalId
+            })
+            
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des utilisateurs de l'hôpital:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des utilisateurs de l'hôpital"
             }
         }
     }
@@ -186,8 +258,8 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const isAdmin = await this.checkUserIsAdmin(session.user.id)
-            if (!isAdmin) {
+            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+            if (!hasAccess) {
                 return { success: false, error: "Non autorisé" }
             }
             const result = await UserRepository.deleteUser(userId)
@@ -248,8 +320,8 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const isAdmin = await this.checkUserIsAdmin(session.user.id)
-            if (!isAdmin) {
+            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+            if (!hasAccess) {
                 return { success: false, error: "Non autorisé" }
             }
             const result = await UserRepository.updateUser(userId, data)
@@ -266,9 +338,9 @@ export class UserService {
         }
     }
 
-    static async checkUserIsAdmin(userId: string) {
+    static async checkIsAdminOrDirector(userId: string) {
         const user = await UserRepository.getUserById(userId)
-        return user && user.role === "ADMIN"
+        return user && (user.role === "ADMIN" || user.role === "DIRECTOR")
     }
 
     static async getUsersByDateRange(params: {
@@ -284,8 +356,8 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const isAdmin = await this.checkUserIsAdmin(session.user.id)
-            if (!isAdmin) {
+            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+            if (!hasAccess) {
                 return { success: false, error: "Non autorisé" }
             }
 
@@ -311,8 +383,8 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const isAdmin = await this.checkUserIsAdmin(session.user.id)
-            if (!isAdmin) {
+            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+            if (!hasAccess) {
                 return { success: false, error: "Non autorisé" }
             }
 
@@ -338,8 +410,8 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const isAdmin = await this.checkUserIsAdmin(session.user.id)
-            if (!isAdmin) {
+            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
+            if (!hasAccess) {
                 return { success: false, error: "Non autorisé" }
             }
 
@@ -353,6 +425,123 @@ export class UserService {
             return {
                 success: false,
                 error: "Échec de la récupération des statistiques"
+            }
+        }
+    }
+
+    // Personnel methods for director dashboard
+    static async getPersonnelStats(): Promise<ActionResult<any>> {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            // Vérifier si l'utilisateur est un directeur
+            const user = await UserRepository.getUserById(session.user.id)
+            if (!user || user.role !== "DIRECTOR") {
+                return { success: false, error: "Seuls les directeurs peuvent accéder à cette fonctionnalité" }
+            }
+
+            // Récupérer le directeur et son hôpital associé
+            const director = await UserRepository.getDirectorByUserId(session.user.id)
+            if (!director) {
+                return { success: false, error: "Directeur non trouvé" }
+            }
+
+            const hospitalId = director.hospitalId
+            const stats = await UserRepository.getPersonnelStatsByHospital(hospitalId)
+            
+            return {
+                success: true,
+                data: stats
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des statistiques du personnel:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des statistiques du personnel"
+            }
+        }
+    }
+
+    static async getPersonnelsByDateRange(params: {
+        startDate: Date;
+        endDate: Date;
+        page?: number;
+        perPage?: number;
+    }): Promise<ActionResult<any>> {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            // Vérifier si l'utilisateur est un directeur
+            const user = await UserRepository.getUserById(session.user.id)
+            if (!user || user.role !== "DIRECTOR") {
+                return { success: false, error: "Seuls les directeurs peuvent accéder à cette fonctionnalité" }
+            }
+
+            // Récupérer le directeur et son hôpital associé
+            const director = await UserRepository.getDirectorByUserId(session.user.id)
+            if (!director) {
+                return { success: false, error: "Directeur non trouvé" }
+            }
+
+            const hospitalId = director.hospitalId
+            const result = await UserRepository.getPersonnelByDateRangeAndHospital({
+                ...params,
+                hospitalId
+            })
+            
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération du personnel par période:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération du personnel"
+            }
+        }
+    }
+
+    static async getLatestPersonnels(limit: number = 5): Promise<ActionResult<any[]>> {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, error: "Utilisateur non authentifié" }
+            }
+
+            // Vérifier si l'utilisateur est un directeur
+            const user = await UserRepository.getUserById(session.user.id)
+            if (!user || user.role !== "DIRECTOR") {
+                return { success: false, error: "Seuls les directeurs peuvent accéder à cette fonctionnalité" }
+            }
+
+            // Récupérer le directeur et son hôpital associé
+            const director = await UserRepository.getDirectorByUserId(session.user.id)
+            if (!director) {
+                return { success: false, error: "Directeur non trouvé" }
+            }
+
+            const hospitalId = director.hospitalId
+            const personnel = await UserRepository.getLatestPersonnelByHospital(hospitalId, limit)
+            
+            return {
+                success: true,
+                data: personnel
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des derniers membres du personnel:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération du personnel"
             }
         }
     }

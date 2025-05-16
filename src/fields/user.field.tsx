@@ -6,7 +6,7 @@ import {
     HeartPulse,
     Stethoscope,
     Hospital,
-    Briefcase,
+    Briefcase, CalendarIcon, MapPinIcon, PhoneIcon, User2, KeyRound, Lock,
 } from "lucide-react"
 
 // Base user fields that are common to all roles
@@ -139,9 +139,23 @@ export const doctorFields = [
         type: "select",
         name: "hospitalId",
         label: "Hôpital",
-        options: [], // This should be populated from the database
+        options: [], // This will be populated dynamically
         required: true,
         icon: <Hospital className="h-4 w-4" />,
+        async loadOptions() {
+            try {
+                const { getAllHospitalsForSelectAction } = await import("@/actions/hospital.action");
+                const response = await getAllHospitalsForSelectAction();
+
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                return [];
+            } catch (error) {
+                console.error("Erreur lors du chargement des hôpitaux:", error);
+                return [];
+            }
+        }
     },
     {
         type: "select",
@@ -150,13 +164,27 @@ export const doctorFields = [
         options: [], // This should be populated from the database
         required: true,
         icon: <Briefcase className="h-4 w-4" />,
+        dependsOn: "hospitalId",
+        async loadOptions(formData: any) {
+            try {
+                if (!formData.hospitalId) {
+                    return [];
+                }
+                
+                const { getServicesByHospitalIdAction } = await import("@/actions/service.action");
+                const response = await getServicesByHospitalIdAction(formData.hospitalId);
+                
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                return [];
+            } catch (error) {
+                console.error("Erreur lors du chargement des services:", error);
+                return [];
+            }
+        }
     },
-    {
-        type: "checkbox",
-        name: "isChief",
-        label: "Chef de service",
-        icon: <CheckCircle2Icon className="h-4 w-4" />,
-    },
+ 
 ]
 
 // Secretary specific fields
@@ -171,9 +199,23 @@ export const secretaryFields = [
         type: "select",
         name: "hospitalId",
         label: "Hôpital",
-        options: [], // This should be populated from the database
+        options: [], // This will be populated dynamically
         required: true,
         icon: <Hospital className="h-4 w-4" />,
+        async loadOptions() {
+            try {
+                const { getAllHospitalsForSelectAction } = await import("@/actions/hospital.action");
+                const response = await getAllHospitalsForSelectAction();
+
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                return [];
+            } catch (error) {
+                console.error("Erreur lors du chargement des hôpitaux:", error);
+                return [];
+            }
+        }
     },
     {
         type: "select",
@@ -182,6 +224,25 @@ export const secretaryFields = [
         options: [], // This should be populated from the database
         required: true,
         icon: <Briefcase className="h-4 w-4" />,
+        dependsOn: "hospitalId",
+        async loadOptions(formData: any) {
+            try {
+                if (!formData.hospitalId) {
+                    return [];
+                }
+                
+                const { getServicesByHospitalIdAction } = await import("@/actions/service.action");
+                const response = await getServicesByHospitalIdAction(formData.hospitalId);
+                
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                return [];
+            } catch (error) {
+                console.error("Erreur lors du chargement des services:", error);
+                return [];
+            }
+        }
     },
 ]
 
@@ -194,12 +255,27 @@ export const directorFields = [
         defaultValue: "DIRECTOR",
     },
     {
-        type: "text",
+        type: "select",
         name: "hospitalId",
         label: "Hôpital",
-        options: [], // This should be populated from the database
+        options: [], // This will be populated dynamically
         required: true,
         icon: <Hospital className="h-4 w-4" />,
+        async loadOptions() {
+            try {
+                // Importer l'action de manière dynamique pour éviter les erreurs côté serveur
+                const { getAllHospitalsForSelectAction } = await import("@/actions/hospital.action");
+                const response = await getAllHospitalsForSelectAction();
+                
+                if (response.success && response.data) {
+                    return response.data;
+                }
+                return [];
+            } catch (error) {
+                console.error("Erreur lors du chargement des hôpitaux:", error);
+                return [];
+            }
+        }
     },
 ]
 
@@ -251,3 +327,82 @@ export const getFieldsByRole = (role: string) => {
             return createUserfields
     }
 }
+
+
+export const personalInfoFields = [
+    {
+        type: "text" as const,
+        name: "name" as const,
+        label: "Nom complet",
+        placeholder: "Entrez votre nom complet",
+        required: true,
+        icon: <User2 className="h-4 w-4" />,
+    },
+    {
+        type: "email" as const,
+        name: "email" as const,
+        label: "Email",
+        placeholder: "votre@email.com",
+        required: true,
+        icon: <AtSignIcon className="h-4 w-4" />,
+    },
+    {
+        type: "text" as const,
+        name: "phone" as const,
+        label: "Téléphone",
+        placeholder: "Entrez votre numéro de téléphone",
+        icon: <PhoneIcon className="h-4 w-4" />,
+    },
+    {
+        type: "select" as const,
+        name: "gender" as const,
+        label: "Genre",
+        options: [
+            { value: "MALE", label: "Masculin" },
+            { value: "FEMALE", label: "Féminin" },
+        ],
+        required: true,
+    },
+    {
+        type: "date" as const,
+        name: "birthDate" as const,
+        label: "Date de naissance",
+        icon: <CalendarIcon className="h-4 w-4" />,
+    },
+    {
+        type: "textarea" as const,
+        name: "address" as const,
+        label: "Adresse",
+        placeholder: "Entrez votre adresse complète",
+        icon: <MapPinIcon className="h-4 w-4" />,
+        rows: 3,
+    },
+]
+
+export const securityFields = [
+    {
+        type: "password" as const,
+        name: "currentPassword" as const,
+        label: "Mot de passe actuel",
+        placeholder: "Votre mot de passe actuel",
+        required: true,
+        icon: <KeyRound className="h-4 w-4" />,
+    },
+    {
+        type: "password" as const,
+        name: "newPassword" as const,
+        label: "Nouveau mot de passe",
+        placeholder: "Votre nouveau mot de passe",
+        required: true,
+        icon: <Lock className="h-4 w-4" />,
+        helpText: "8 caractères minimum, avec majuscules, minuscules, chiffres et caractères spéciaux",
+    },
+    {
+        type: "password" as const,
+        name: "confirmPassword" as const,
+        label: "Confirmer le mot de passe",
+        placeholder: "Confirmez votre nouveau mot de passe",
+        required: true,
+        icon: <Lock className="h-4 w-4" />,
+    },
+]

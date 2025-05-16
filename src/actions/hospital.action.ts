@@ -47,4 +47,8 @@ export async function getHospitalsByDateRangeAction(params: {
     endDate: Date;
 }) {
     return await HospitalService.getHospitalsByDateRange(params)
+}
+
+export async function getAllHospitalsForSelectAction() {
+    return await HospitalService.getAllHospitalsForSelect()
 } 

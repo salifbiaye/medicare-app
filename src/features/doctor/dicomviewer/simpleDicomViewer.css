@@ -1,0 +1,184 @@
+/* Basic styles for the SimpleDicomViewer component */
+
+.dicom-viewer-container {
+  width: 100%;
+  height: 500px;
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+}
+
+.dicom-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  background-color: hsl(var(--muted));
+}
+
+.dicom-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+}
+
+/* Fullscreen styles */
+.fullscreen-viewer {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999;
+  background-color: hsl(var(--background));
+}
+
+.fullscreen-container {
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+.fullscreen-image {
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+/* Hide scrollbars when in fullscreen */
+:fullscreen {
+  overflow: hidden !important;
+}
+:-webkit-full-screen {
+  overflow: hidden !important;
+}
+:-moz-full-screen {
+  overflow: hidden !important;
+}
+:-ms-fullscreen {
+  overflow: hidden !important;
+}
+
+/* Styles for DWV viewer */
+.dwv-container {
+  width: 100%;
+  height: 500px;
+  background-color: hsl(var(--muted));
+  position: relative;
+}
+
+.dwv-layerGroup {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Style the canvas created by DWV for better visibility */
+.dwv-container canvas {
+  margin: 0 auto;
+  display: block;
+}
+
+/* Style for drag and drop area */
+.dicom-drop-zone {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: hsl(var(--muted-foreground));
+  border: 3px dashed hsl(var(--primary) / 0.5);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.dicom-drop-zone:hover {
+  background-color: hsl(var(--primary) / 0.1);
+  border-color: hsl(var(--primary));
+}
+
+.dicom-drop-zone.active {
+  background-color: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary));
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .dicom-viewer-container,
+  .dicom-image-container {
+    height: 400px; 
+  }
+}
+
+/* Zoom controls overlay */
+.zoom-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  background-color: hsl(var(--primary) / 0.1);
+  padding: 8px 12px;
+  border-radius: 30px;
+  z-index: 10;
+  box-shadow: 0 2px 10px hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--primary) / 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.zoom-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  color: hsl(var(--primary));
+  background-color: hsl(var(--background) / 0.7);
+}
+
+.zoom-controls button:hover {
+  transform: scale(1.1);
+  background-color: hsl(var(--primary) / 0.2);
+}
+
+/* Dark mode adjustments */
+.dark .dicom-image-container {
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.dark .zoom-controls {
+  background-color: hsl(var(--card) / 0.5);
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.dark .dicom-drop-zone {
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary) / 0.7);
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.dark .zoom-controls button {
+  color: hsl(var(--primary-foreground));
+  background-color: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.5);
+}
+
+.dark .zoom-controls button:hover {
+  background-color: hsl(var(--primary) / 0.4);
+}
+
+/* Adjust when in fullscreen mode */
+.fullscreen .zoom-controls {
+  bottom: 40px;
+  padding: 10px 15px;
+} 

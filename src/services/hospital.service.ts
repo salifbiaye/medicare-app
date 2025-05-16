@@ -302,4 +302,29 @@ export class HospitalService {
             }
         }
     }
+
+    static async getAllHospitalsForSelect() {
+        try {
+            // Pas besoin de vérifier l'authentification ici car cette méthode est utilisée
+            // pour remplir des listes déroulantes dans les formulaires accessibles aux utilisateurs
+            const hospitals = await HospitalRepository.getAllHospitals()
+            
+            // Formatter les données pour les listes déroulantes
+            const formattedHospitals = hospitals.map(hospital => ({
+                value: hospital.id,
+                label: hospital.name
+            }))
+            
+            return {
+                success: true,
+                data: formattedHospitals
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des hôpitaux pour la liste:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des hôpitaux"
+            }
+        }
+    }
 } 

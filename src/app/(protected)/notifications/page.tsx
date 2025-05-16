@@ -86,7 +86,6 @@ async function NotificationsWrapper({
   if (priorityFilter.length > 0) {
     filters.priority = priorityFilter;
   }
-
   if (categoryFilter.length > 0) {
     filters.category = categoryFilter;
   }

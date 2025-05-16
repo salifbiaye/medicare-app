@@ -17,7 +17,6 @@ export class DoctorRepository {
                 },
                 specialty: data.specialty,
                 registrationNumber: data.registrationNumber,
-                isChief: data.isChief || false,
                 hospital: {
                     connect: {
                         id: data.hospitalId
@@ -64,7 +63,6 @@ export class DoctorRepository {
                         },
                         specialty: doctor.specialty,
                         registrationNumber: doctor.registrationNumber,
-                        isChief: doctor.isChief || false,
                         hospital: {
                             connect: {
                                 id: doctor.hospitalId
@@ -84,5 +82,69 @@ export class DoctorRepository {
                 })
             )
         )
+    }
+
+    static async updateDoctor(userId: string, data: CreateDoctorFormValues) {
+        // Trouver le médecin associé à l'utilisateur
+        const doctor = await prisma.doctor.findFirst({
+            where: { userId }
+        });
+
+        if (!doctor) {
+            throw new Error("Médecin non trouvé");
+        }
+
+        // Mettre à jour l'utilisateur et le médecin en une seule transaction
+        return await prisma.$transaction(async (tx) => {
+            // Mettre à jour l'utilisateur
+             await tx.user.update({
+                where: { id: userId },
+                data: {
+                    name: data.name,
+                    email: data.email,
+                    gender: data.gender,
+                    role: data.role,
+                    emailVerified: data.emailVerified,
+                    profileCompleted: data.profileCompleted
+                }
+            });
+
+            // Mettre à jour le médecin
+            const updatedDoctor = await tx.doctor.update({
+                where: { id: doctor.id },
+                data: {
+                    specialty: data.specialty,
+                    registrationNumber: data.registrationNumber,
+                    hospital: {
+                        connect: {
+                            id: data.hospitalId
+                        }
+                    },
+                    service: {
+                        connect: {
+                            id: data.serviceId
+                        }
+                    }
+                },
+                include: {
+                    user: true,
+                    hospital: true,
+                    service: true
+                }
+            });
+
+            return updatedDoctor;
+        });
+    }
+    static async findDoctorByUserId(userId:string){
+        return await prisma.doctor.findFirst({
+            where: { userId },
+            include: {
+                hospital: true,
+                service: true
+            }
+        })
+
+
     }
 }

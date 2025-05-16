@@ -28,7 +28,7 @@ interface UsersPageProps {
 export default async function UsersPage({ searchParams }: UsersPageProps) {
 
   return (
-      <div className="container mx-auto py-6 px-4">
+      <div className=" py-6 px-4">
 
 
         <AnimatedLayout>

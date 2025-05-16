@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
-import CreateUserPage from "@/features/admin/users/create-user";
+
+import ImportPersonnelPage from "@/features/director/personnels/import";
 
 export const metadata: Metadata = {
     title: "Nouvel utilisateur",
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function NewUserPage() {
     return (
-        <div className="container mx-auto py-10">
-            <CreateUserPage/>
+        <div className=" py-10">
+            <ImportPersonnelPage/>
         </div>
     );
-} 
+}

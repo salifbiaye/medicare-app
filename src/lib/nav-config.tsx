@@ -8,7 +8,7 @@ import {
     Stethoscope,
     Building,
     Bell,
-    Mail, User2, Users2, UsersRound, DownloadIcon
+    Mail, User2, Users2, UsersRound, DownloadIcon, BriefcaseMedicalIcon
 } from "lucide-react";
 import { Role } from "@prisma/client";
 
@@ -99,11 +99,58 @@ export const navigationConfig: NavItem[] = [
         roles: [Role.DIRECTOR],
         subNav: [
             {
+                id: "dashboard",
+                title: "Tableau de bord",
+                href: "/director/dashboard",
+                icon: <Building className="w-5 h-5" />,
+                roles: [Role.DIRECTOR]
+            },
+            {
+                id: "service",
+                title: "Services",
+                href: "/director/services",
+                icon: <Building className="w-5 h-5" />,
+                roles: [Role.DIRECTOR],
+                subNav: [
+
+                    {
+                        id: "service-create",
+                        title: "Créer un service",
+                        href: "/director/services/new",
+                        icon: <BriefcaseMedicalIcon className="w-5 h-5" />,
+                        roles: [Role.DIRECTOR],
+                    },
+                    {
+                        id: "service-imports",
+                        title: "Importer des services",
+                        href: "/director/services/import",
+                        icon: <DownloadIcon className="w-5 h-5" />,
+                        roles: [Role.DIRECTOR],
+                    },
+                ]
+            },
+            {
                 id: "staff",
-                title: "Personnel",
+                title: "Personnels",
                 href: "/director/staff",
                 icon: <Users className="w-5 h-5" />,
-                roles: [Role.DIRECTOR]
+                roles: [Role.DIRECTOR],
+                subNav: [
+                    {
+                        id: "personnels-create",
+                        title: "Créer un membre du personnels",
+                        href: "/director/staff/new",
+                        icon: <User2 className="w-5 h-5" />,
+                        roles: [Role.DIRECTOR],
+                    },
+                    {
+                        id: "personnels-imports",
+                        title: "Importer des membres du personnels",
+                        href: "/director/staff/import",
+                        icon: <DownloadIcon className="w-5 h-5" />,
+                        roles: [Role.DIRECTOR],
+                    },
+                ]
             }
         ]
     },
@@ -136,15 +183,7 @@ export const navigationConfig: NavItem[] = [
                 href: "/doctor/dicom-viewer",
                 icon: <FileText className="w-5 h-5" />,
                 roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
-                subNav: [
-                    {
-                        id: "dicom-details",
-                        title: "Détails DICOM",
-                        href: "/doctor/dicom-viewer/[id]",
-                        icon: <FileText className="w-5 h-5" />,
-                        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
-                    }
-                ]
+
             },
             {
                 id: "treatments",
@@ -205,11 +244,12 @@ export const navigationConfig: NavItem[] = [
         subNav: [
             {
                 id: "requests",
-                title: "Demandes",
-                href: "/secretary/requests",
+                title: "Tableau de bord",
+                href: "/secretary/dashboard",
                 icon: <Mail className="w-5 h-5" />,
                 roles: [Role.SECRETARY]
-            }
+            },
+
         ]
     },
 

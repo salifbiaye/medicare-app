@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
-import { UserRepository } from "@/repository/user.repository"
-
+import { getUserWithRelationsAction } from "@/actions/user.action"
 import EditUserPage from "@/features/admin/users/edit-user";
 
 interface UserEditPageProps {
@@ -10,19 +9,15 @@ interface UserEditPageProps {
 }
 
 export default async function UserEditPage({ params }: UserEditPageProps) {
-  const user = await UserRepository.getUserById(params.id)
+  const { success, data: user, error } = await getUserWithRelationsAction(params.id)
 
-  if (!user) {
+  if (!success || !user) {
     notFound()
   }
 
   return (
-    <div className="container mx-auto py-10">
-
-
-
-            <EditUserPage user={user}/>
-
+    <div className="py-10">
+      <EditUserPage user={user} />
     </div>
   )
 } 

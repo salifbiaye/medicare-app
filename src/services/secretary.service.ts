@@ -79,4 +79,52 @@ export class SecretaryService {
             }
         }
     }
+
+    static async updateSecretary(userId: string, data: CreateSecretaryFormValues) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+
+            const result = await SecretaryRepository.updateSecretary(userId, data)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de la secrétaire:", error)
+            return {
+                success: false,
+                error: "Échec de la mise à jour de la secrétaire"
+            }
+        }
+    }
+    static async findSecreatry(){
+      try{
+          const session = await this.getSession()
+
+          if (!session?.user) {
+              return { success: false, message: "Utilisateur non authentifié !" }
+          }
+          const userId = session?.user?.id
+
+          const result = await SecretaryRepository.findSecretaryByUserId(userId)
+          return {
+              success: true,
+              data: result
+          }
+
+
+      }catch{
+          return {
+              success: false,
+              error: "Échec lors de la recherche d'un secrétaire"
+          }
+      }
+
+
+
+    }
 } 

@@ -10,12 +10,13 @@ import { NotificationFilter } from "./notification-filter"
 import { NotificationTabs } from "./notification-tabs"
 import { NotificationList } from "./notification-list"
 import { Pagination } from "./pagination"
-import { Notification } from "@prisma/client"
+
 import {Button} from "@/components/ui/button";
 import {CheckCircle2} from "lucide-react";
 import {markAllAsReadAction} from "@/actions/notification.action";
-import {toast} from "sonner";
+
 import {toastAlert} from "@/components/ui/sonner-v2";
+
 
 interface NotificationClientWrapperProps {
   search: string
@@ -248,6 +249,7 @@ export function NotificationClientWrapper({
               searchQuery={search}
               hasFilters={hasFilters}
           />
+
 
           {/* Pagination */}
           {totalItems > perPage && (

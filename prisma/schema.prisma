@@ -74,8 +74,8 @@ model User {
   secretary             Secretary?
   director              Director?
   sentRequests          AppointmentRequest[] @relation("PatientRequests")
-  sentNotifications     Notification[] @relation("SentNotifications")
-  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[]       @relation("SentNotifications")
+  receivedNotifications Notification[]       @relation("ReceivedNotifications")
   emailVerified         Boolean
   image                 String?
   sessions              Session[]
@@ -104,7 +104,6 @@ model Doctor {
   id                 String      @id @default(cuid())
   userId             String      @unique
   specialty          ServiceType
-  isChief            Boolean     @default(false)
   registrationNumber String      @unique
   availability       Json? // JSON format to store availability
 
@@ -321,7 +320,6 @@ model DicomSharing {
   @@map("dicom_sharings")
 }
 
-
 enum NotificationType {
   INFO
   WARNING
@@ -360,18 +358,19 @@ model Notification {
   actionRequired Boolean              @default(false)
   createdAt      DateTime             @default(now())
   expiresAt      DateTime?
-  
+
   // Optional sender information
-  senderId       String?
-  sender         User?                @relation("SentNotifications", fields: [senderId], references: [id])
-  
+  senderId String?
+  sender   User?   @relation("SentNotifications", fields: [senderId], references: [id])
+
   // Recipient information
-  recipientId    String
-  recipient      User                 @relation("ReceivedNotifications", fields: [recipientId], references: [id])
-  
+  recipientId String
+  recipient   User   @relation("ReceivedNotifications", fields: [recipientId], references: [id])
+
   @@index([recipientId, createdAt])
   @@index([type, priority])
 }
+
 model Session {
   id        String   @id
   expiresAt DateTime

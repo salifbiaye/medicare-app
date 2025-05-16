@@ -5,7 +5,8 @@ import {UserService} from "@/services/user.service"
 import {revalidatePath} from "next/cache"
 import {User} from "@prisma/client"
 import {ParamsSchemaFormValues} from "@/schemas/index.schema"
-import {CreateUserFormValues} from "@/schemas/user.schema"
+import {CreateUserFormValues, PasswordFormValues} from "@/schemas/user.schema"
+import { ActionResult } from "@/lib/action-result"
 
 export async function createUserAction(data: CreateUserFormValues) {
     return await UserService.createUser(data)
@@ -21,9 +22,19 @@ export async function getUsersWithPaginationAction(params: ParamsSchemaFormValue
     return await UserService.getUsersWithPagination(params)
 }
 
+export async function getUsersByHospitalAction(params: ParamsSchemaFormValues) {
+    return await UserService.getUsersByHospital(params)
+}
+
 export async function deleteUserAction(userId: string) {
      const result = await UserService.deleteUser(userId)
     revalidatePath("/admin/users")
+    return result
+}
+
+export async function updatePasswordAction( data:PasswordFormValues){
+    const result = await UserService.updatePassword(data)
+    revalidatePath("/account")
     return result
 }
 
@@ -52,4 +63,26 @@ export async function getLatestUsersAction(limit: number = 10) {
 
 export async function getUserStatsAction() {
     return await UserService.getUserStats()
+}
+
+export async function getUserWithRelationsAction(userId: string) {
+    return await UserService.getUserWithRelations(userId)
+}
+
+// Personnel functions for director dashboard
+export async function getPersonnelStatsAction(): Promise<ActionResult<any>> {
+    return await UserService.getPersonnelStats()
+}
+
+export async function getPersonnelsByDateRangeAction(params: {
+    startDate: Date;
+    endDate: Date;
+    page?: number;
+    perPage?: number;
+}): Promise<ActionResult<any>> {
+    return await UserService.getPersonnelsByDateRange(params)
+}
+
+export async function getLatestPersonnelsAction(limit: number = 5): Promise<ActionResult<any[]>> {
+    return await UserService.getLatestPersonnels(limit)
 }

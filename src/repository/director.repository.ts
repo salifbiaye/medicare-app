@@ -66,4 +66,48 @@ export class DirectorRepository {
             )
         )
     }
+
+    static async updateDirector(userId: string, data: CreateDirectorFormValues) {
+        // Trouver le directeur associé à l'utilisateur
+        const director = await prisma.director.findFirst({
+            where: { userId }
+        });
+
+        if (!director) {
+            throw new Error("Directeur non trouvé");
+        }
+
+        // Mettre à jour l'utilisateur et le directeur en une seule transaction
+        return await prisma.$transaction(async (tx) => {
+            // Mettre à jour l'utilisateur
+            await tx.user.update({
+                where: { id: userId },
+                data: {
+                    name: data.name,
+                    email: data.email,
+                    gender: data.gender,
+                    emailVerified: data.emailVerified,
+                    profileCompleted: data.profileCompleted
+                }
+            });
+
+            // Mettre à jour le directeur
+            const updatedDirector = await tx.director.update({
+                where: { id: director.id },
+                data: {
+                    hospital: {
+                        connect: {
+                            id: data.hospitalId
+                        }
+                    }
+                },
+                include: {
+                    user: true,
+                    hospital: true
+                }
+            });
+
+            return updatedDirector;
+        });
+    }
 } 

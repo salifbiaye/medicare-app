@@ -15,7 +15,7 @@ export default async function ProfilePage() {
     if (!userResult.success || !userResult.data) {
         redirect("/login")
     }
-    console.log("userResult", userResult.data)
+
 
     return <ProfileContainer user={userResult.data} />
 }

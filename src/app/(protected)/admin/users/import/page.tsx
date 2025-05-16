@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function NewUserPage() {
     return (
-        <div className="container mx-auto py-10">
+        <div className="w-full  py-10">
             <ImportUsersPage/>
         </div>
     );

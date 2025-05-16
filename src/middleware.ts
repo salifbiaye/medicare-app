@@ -3,7 +3,7 @@ import { getSessionCookie } from "better-auth/cookies";
 import { navigationConfig } from "@/lib/nav-config";
 import { Role, User } from "@prisma/client";
 
-export const dynamic = "force-dynamic";
+
 
 // Fonction pour obtenir le bon dashboard en fonction du rôle
 function getDashboardByRole(role: Role): string {
@@ -87,7 +87,7 @@ export default async function middleware(request: NextRequest) {
             const existingSession = await response.json();
             const user = existingSession.session?.user as User;
 
-            if (pathname === '/dashboard'|| pathname==='/admin') {
+            if (pathname === '/dashboard'|| pathname==='/admin' || pathname === '/director' || pathname === '/secretary') {
                 const dashboardPath = getDashboardByRole(user.role);
                 return NextResponse.redirect(new URL(dashboardPath, request.url));
             }

@@ -41,7 +41,7 @@ export function ProfileContainer({ user }: ProfileContainerProps) {
   }
 
   return (
-    <div className="container px-4 py-8 ">
+    <div className="  py-8 ">
       <ProfileHeader user={user} />
 
       <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -56,24 +56,19 @@ export function ProfileContainer({ user }: ProfileContainerProps) {
                 user={user}
                 onUpdateSuccess={handleUpdateSuccess}
                 onUpdateError={handleUpdateError}
-                isUpdating={isUpdating}
-                setIsUpdating={setIsUpdating}
+
               />
             )}
 
             {activeTab === "security" && (
               <ProfileSecurity
-                user={user}
                 onUpdateSuccess={handleUpdateSuccess}
                 onUpdateError={handleUpdateError}
-                isUpdating={isUpdating}
-                setIsUpdating={setIsUpdating}
               />
             )}
 
             {activeTab === "role" && <ProfileRoleInfo user={user} />}
 
-            {activeTab === "activity" && <ProfileActivity userId={user.id} />}
 
             {activeTab === "notifications" && <ProfileNotifications userId={user.id} />}
           </div>

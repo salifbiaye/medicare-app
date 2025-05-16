@@ -19,8 +19,8 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DataTablePagination } from "../../../components/datatable/data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
 import { deleteMultipleUsersAction } from "@/actions/user.action"
+import {DataTableToolbar} from "@/features/director/personnels/data-table-toolbar";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

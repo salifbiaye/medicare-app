@@ -2,6 +2,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { CreateDoctorFormValues, DoctorImport } from "@/schemas/user.schema"
 import { DoctorRepository } from "@/repository/doctor.repository"
+import {SecretaryRepository} from "@/repository/secretary.repository";
 
 export class DoctorService {
     static async getSession() {
@@ -79,4 +80,50 @@ export class DoctorService {
             }
         }
     }
-} 
+
+    static async updateDoctor(userId: string, data: CreateDoctorFormValues) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+
+            const result = await DoctorRepository.updateDoctor(userId, data)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du médecin:", error)
+            return {
+                success: false,
+                error: "Échec de la mise à jour du médecin"
+            }
+        }
+    }
+    static async findDoctor(){
+        try{
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+            const userId = session?.user?.id
+
+            const result = await DoctorRepository.findDoctorByUserId(userId)
+            return {
+                success: true,
+                data: result
+            }
+
+
+        }catch{
+            return {
+                success: false,
+                error: "Échec lors de la recherche d'un secrétaire"
+            }
+        }
+
+    }
+}

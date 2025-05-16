@@ -9,6 +9,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {AnimatedLayout} from "@/components/animations/animated-layout";
 import {ParticlesBackground} from "@/components/animations/particles-background";
+import {UserSessionsManager} from "@/features/admin/user-sessions-manager";
 
 interface UserPageProps {
   params: {
@@ -17,7 +18,8 @@ interface UserPageProps {
 }
 
 export default async function UserPage({ params }: UserPageProps) {
-  const user = await UserRepository.getUserById(params.id)
+  const param = await params
+  const user = await UserRepository.getUserById(param.id)
 
   if (!user) {
     notFound()
@@ -59,7 +61,7 @@ export default async function UserPage({ params }: UserPageProps) {
 
   return (
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-12 pt-6 dark:from-background dark:to-background/95">
-        <div className="container mx-auto px-4">
+        <div className=" px-4">
           <AnimatedLayout>
             <ParticlesBackground/>
             <div
@@ -82,7 +84,7 @@ export default async function UserPage({ params }: UserPageProps) {
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Badge variant="outline"
                              className="rounded-md bg-accent dark:bg-primary/5 px-2.5 py-1 font-medium text-primary">
-                        ID: {params.id}
+                        ID: {param.id}
                       </Badge>
                       <Badge
                           variant="outline"
@@ -108,7 +110,7 @@ export default async function UserPage({ params }: UserPageProps) {
 
           </AnimatedLayout>
           <div className="mb-4">
-            <Link href="/admin/users" passHref>
+            <Link href="/director/staff" passHref>
               <Button variant="ghost" className="gap-2">
                 <ArrowLeftIcon className="h-4 w-4"/>
                 Retour à la liste
@@ -245,6 +247,9 @@ export default async function UserPage({ params }: UserPageProps) {
               </div>
             </div>
           </div>
+        <div className={"p-8"}>
+          <UserSessionsManager userId={user.id} userName={user.name}/>
+        </div>
         </div>
       </div>
   )

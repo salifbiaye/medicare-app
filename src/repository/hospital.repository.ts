@@ -14,7 +14,6 @@ export class HospitalRepository {
     }
 
     static async createManyHospitals(data: CreateHospitalFormValues[]) {
-        console.log("data", data)
         const newdata = data.map((hospital) => ({
             ...hospital,
             phone: hospital.phone.toString(),

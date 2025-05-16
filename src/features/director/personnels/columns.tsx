@@ -217,10 +217,10 @@ export const columns: ColumnDef<User>[] = [
                   Copier l'ID
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push(`/admin/users/${user.id}`)}>
+                <DropdownMenuItem onClick={() => router.push(`/director/staff/${user.id}`)}>
                   Voir les détails
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/admin/users/${user.id}/edit`)}>
+                <DropdownMenuItem onClick={() => router.push(`/director/staff/${user.id}/edit`)}>
                   Modifier
                 </DropdownMenuItem>
                 <DropdownMenuItem

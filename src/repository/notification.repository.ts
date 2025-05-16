@@ -237,4 +237,31 @@ export class NotificationRepository {
             actionRequired
         }
     }
+
+    /**
+     * Récupère les dernières notifications d'un utilisateur
+     * @param userId ID de l'utilisateur
+     * @param limit Nombre de notifications à récupérer (par défaut: 5)
+     * @returns Les dernières notifications de l'utilisateur
+     */
+    static async getLatestNotifications(userId: string, limit = 5) {
+        return await prisma.notification.findMany({
+            where: {
+                recipientId: userId
+            },
+            orderBy: {
+                createdAt: "desc"
+            },
+            take: limit,
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    },
+                },
+            },
+        })
+    }
 } 

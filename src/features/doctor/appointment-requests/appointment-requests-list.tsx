@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRightLeft,
-  MoreHorizontal,
   Eye
 } from "lucide-react"
 import { RequestStatus } from "@prisma/client"
@@ -22,7 +21,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 type AppointmentRequest = {
@@ -70,9 +68,15 @@ type AppointmentRequestsListProps = {
     serviceId?: string
   }) => void
   isSubmitting?: boolean
+  isDoctor?: boolean
 }
 
-export function AppointmentRequestsList({ requests, onStatusUpdate, isSubmitting = false }: AppointmentRequestsListProps) {
+export function AppointmentRequestsList({ 
+  requests, 
+  onStatusUpdate, 
+  isSubmitting = false,
+  isDoctor = true  // Par défaut, pour le composant des docteurs, isDoctor est true
+}: AppointmentRequestsListProps) {
   const [selectedRequest, setSelectedRequest] = useState<AppointmentRequest | null>(null)
   const [alertOpen, setAlertOpen] = useState(false)
   const [actionType, setActionType] = useState<"accept" | "reject" | "transfer" | null>(null)
@@ -238,9 +242,9 @@ export function AppointmentRequestsList({ requests, onStatusUpdate, isSubmitting
                     {request.status === "PENDING" && (
                       <>
                         <Button 
-                          variant="outline"
+                          variant="outline" 
                           size="sm" 
-                          className="w-full bg-green-50 dark:bg-background/30 text-green-700 dark:text-white border-green-200 hover:bg-green-100 hover:text-green-800"
+                          className="w-full bg-green-50 text-green-700 border-green-200 dark:bg-background/30 dark:text-white hover:bg-green-100 hover:text-green-800"
                           onClick={() => handleAction(request, "accept")}
                           disabled={isSubmitting}
                         >
@@ -248,18 +252,29 @@ export function AppointmentRequestsList({ requests, onStatusUpdate, isSubmitting
                           Accepter
                         </Button>
                         <Button 
-                          variant="outline"
+                          variant="outline" 
                           size="sm" 
-                          className="w-full bg-red-50 text-red-700 border-red-200  dark:bg-background/30  dark:text-white hover:bg-red-100 hover:text-red-800"
+                          className="w-full bg-red-50 text-red-700 border-red-200 dark:bg-background/30 dark:text-white hover:bg-red-100 hover:text-red-800"
                           onClick={() => handleAction(request, "reject")}
                           disabled={isSubmitting}
                         >
                           <XCircle className="mr-2 h-4 w-4" />
                           Rejeter
                         </Button>
+                        {/* Pour les docteurs, toujours afficher le bouton de transfert */}
 
                       </>
                     )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full bg-purple-50 text-purple-700 border-purple-200 dark:bg-background/30 dark:text-white hover:bg-purple-100 hover:text-purple-800"
+                        onClick={() => handleAction(request, "transfer")}
+                        disabled={isSubmitting}
+                    >
+                      <ArrowRightLeft className="mr-2 h-4 w-4" />
+                      Transférer
+                    </Button>
                   </div>
                 </div>
               </CardContent>

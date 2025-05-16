@@ -3,6 +3,9 @@
 import type { User, Role } from "@prisma/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { motion } from "framer-motion"
+import { AnimatedHeader, AnimatedLayout } from "@/components/animations/animated-layout"
+import { ParticlesBackground } from "@/components/animations/particles-background"
 import {
   UserPlus,
   Stethoscope,
@@ -14,6 +17,7 @@ import {
   CalendarClock,
   FileText,
   Pill,
+  SquareUser,
 } from "lucide-react"
 
 type ProfileRoleInfoProps = {
@@ -80,6 +84,96 @@ export function ProfileRoleInfo({ user }: ProfileRoleInfoProps) {
 
   const RoleIcon = getRoleIcon(user.role)
 
+  // Description des fonctionnalités par rôle
+  const getRoleDescription = (role: Role) => {
+    switch (role) {
+      case "PATIENT":
+        return {
+          title: "En tant que Patient, vous pouvez :",
+          features: [
+            "Prendre rendez-vous avec des médecins",
+            "Consulter votre dossier médical complet",
+            "Voir vos prescriptions et ordonnances actives",
+            "Recevoir des notifications pour vos rendez-vous à venir",
+            "Accéder à vos résultats d'analyses médicales",
+            "Contacter votre médecin via messagerie sécurisée"
+          ]
+        }
+      case "DOCTOR":
+        return {
+          title: "En tant que Médecin, vous pouvez :",
+          features: [
+            "Gérer votre calendrier de consultations",
+            "Consulter et modifier les dossiers médicaux des patients",
+            "Créer des prescriptions et ordonnances",
+            "Rédiger des rapports médicaux",
+            "Partager des dossiers médicaux avec d'autres médecins",
+            "Recevoir des notifications pour vos rendez-vous"
+          ]
+        }
+      case "CHIEF_DOCTOR":
+        return {
+          title: "En tant que Médecin en Chef, vous pouvez :",
+          features: [
+            "Toutes les fonctionnalités d'un médecin standard",
+            "Gérer les médecins de votre service",
+            "Valider les rapports médicaux importants",
+            "Superviser l'activité de votre service",
+            "Accéder aux statistiques de votre service",
+            "Gérer les ressources et le planning du service"
+          ]
+        }
+      case "SECRETARY":
+        return {
+          title: "En tant que Secrétaire, vous pouvez :",
+          features: [
+            "Gérer les rendez-vous et le planning des médecins",
+            "Traiter les demandes de rendez-vous des patients",
+            "Gérer les dossiers administratifs des patients",
+            "Préparer les documents pour les médecins",
+            "Envoyer des notifications aux patients",
+            "Gérer l'accueil et l'orientation des patients"
+          ]
+        }
+      case "DIRECTOR":
+        return {
+          title: "En tant que Directeur, vous pouvez :",
+          features: [
+            "Superviser l'ensemble des services de l'hôpital",
+            "Accéder aux statistiques globales de l'établissement",
+            "Gérer les ressources humaines et matérielles",
+            "Valider les décisions administratives importantes",
+            "Consulter les rapports d'activité des services",
+            "Communiquer avec les chefs de service"
+          ]
+        }
+      case "ADMIN":
+        return {
+          title: "En tant qu'Administrateur, vous pouvez :",
+          features: [
+            "Gérer tous les utilisateurs du système",
+            "Créer et configurer les comptes utilisateurs",
+            "Configurer les paramètres globaux de la plateforme",
+            "Surveiller l'activité et les performances du système",
+            "Gérer les droits d'accès et les permissions",
+            "Effectuer la maintenance et les sauvegardes"
+          ]
+        }
+      default:
+        return {
+          title: "Fonctionnalités disponibles :",
+          features: [
+            "Accès au tableau de bord principal",
+            "Gestion de votre profil utilisateur",
+            "Modification de vos paramètres de sécurité",
+            "Consultation des notifications du système"
+          ]
+        }
+    }
+  }
+
+  const roleFeatures = getRoleDescription(user.role)
+
   // Mock data for demonstration
   const mockHospital = {
     name: "Hôpital Universitaire de Paris",
@@ -104,11 +198,31 @@ export function ProfileRoleInfo({ user }: ProfileRoleInfoProps) {
   }
 
   return (
-    <div>
-      <div className="border-b px-6 py-5">
-        <h3 className="text-lg font-medium">Informations Professionnelles</h3>
-        <p className="text-sm text-muted-foreground">Détails spécifiques à votre rôle dans le système</p>
-      </div>
+    <div className="w-full p-6">
+      <AnimatedLayout>
+        <ParticlesBackground />
+        <AnimatedHeader>
+          <div className="bg-blue-100 dark:bg-blue-100/10 p-3 rounded-full mr-4">
+            <SquareUser className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <motion.h1
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-2xl text-background dark:text-foreground font-bold mb-2"
+            >
+              Informations Professionnelles
+            </motion.h1>
+            <p className="text-background/80 dark:text-foreground/40">
+              Détails spécifiques à votre rôle dans le système
+            </p>
+          </div>
+          <Badge className={`ml-auto ${getRoleColor(user.role)}`}>
+            {getRoleLabel(user.role)}
+          </Badge>
+        </AnimatedHeader>
+      </AnimatedLayout>
 
       <div className="p-6 space-y-6">
         <Card>
@@ -127,6 +241,31 @@ export function ProfileRoleInfo({ user }: ProfileRoleInfoProps) {
               <span className="text-sm text-muted-foreground">
                 Depuis le {new Date(user.createdAt).toLocaleDateString("fr-FR")}
               </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Fonctionnalités disponibles</CardTitle>
+              <RoleIcon className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <CardDescription>Ce que vous pouvez faire avec votre compte</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">{roleFeatures.title}</h4>
+              <ul className="space-y-2">
+                {roleFeatures.features.map((feature, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <span className={`flex-shrink-0 rounded-full h-5 w-5 flex items-center justify-center text-[10px] font-bold ${getRoleColor(user.role)}`}>
+                      {index + 1}
+                    </span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </CardContent>
         </Card>

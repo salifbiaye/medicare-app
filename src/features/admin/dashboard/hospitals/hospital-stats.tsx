@@ -1,10 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getHospitalStatsAction } from "@/actions/hospital.action"
-import { Building2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Building2, Hospital } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function HospitalStats() {
@@ -32,70 +30,64 @@ export function HospitalStats() {
     if (isLoading) {
         return (
             <div className="w-full">
-                <Card className="bg-background pb-6 overflow-hidden relative">
-                    {/* Animated gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-pulse-slow"></div>
-
-                    <CardHeader className="flex flex-row items-center bg-gray-600 dark:bg-muted justify-between space-y-4">
-                        <CardTitle className="text-sm font-medium p-2 pt-4">
-                            <Skeleton className="h-8 w-32 bg-gray-500/30 dark:bg-gray-700/30" />
-                        </CardTitle>
-                        <div className="p-4 rounded-full bg-gray-700/50 dark:bg-background/50 mr-4">
-                            <Building2 className="h-4 w-4 text-gray-400 dark:text-muted-foreground/50" />
-                        </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                        <div className="flex flex-row gap-4 items-center">
-                            <div className="relative">
-                                <Skeleton className="h-8 w-16 bg-primary/10" />
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="h-2 w-2 rounded-full bg-primary animate-ping"></div>
-                                </div>
-                            </div>
-                            <Skeleton className="h-4 w-40 bg-gray-200/30 dark:bg-gray-700/30" />
-                        </div>
-
-                        {/* Animated dots */}
-                        <div className="flex mt-6 space-x-1 justify-center">
-                            <div
-                                className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-                                style={{ animationDelay: "0ms" }}
-                            ></div>
-                            <div
-                                className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-                                style={{ animationDelay: "150ms" }}
-                            ></div>
-                            <div
-                                className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce"
-                                style={{ animationDelay: "300ms" }}
-                            ></div>
-                        </div>
-                    </CardContent>
-                </Card>
+                <Skeleton className="h-40 w-full rounded-xl" />
             </div>
         )
     }
 
     return (
         <div className="w-full">
-            <Card className="bg-background pb-6">
-                <CardHeader className="flex flex-row items-center bg-gray-600 dark:bg-muted justify-between space-y-4">
-                    <CardTitle className="text-sm  font-medium p-2 pt-4">
-                        <Badge variant="accent" className="p-2">
-                            Total Hôpitaux
-                        </Badge>
-                    </CardTitle>
-                    <div className="p-4 rounded-full dark:bg-background bg-gray-700">
-                        <Building2 className="h-4 w-4 text-white dark:text-muted-foreground" />
+            <div className="relative overflow-hidden bg-gradient-to-br from-primary to-indigo-700 rounded-xl shadow-lg">
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-10">
+                    <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <pattern id="hospital-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+                            </pattern>
+                        </defs>
+                        <rect width="100" height="100" fill="url(#hospital-grid)" />
+                    </svg>
+                </div>
+
+                {/* Hospital icons background */}
+                <div className="absolute inset-0 opacity-5">
+                    <div className="absolute top-5 left-10">
+                        <Hospital className="h-12 w-12 text-white" />
                     </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-row gap-4 items-center">
-                        <div className="text-2xl font-bold">{stats?.totalHospitals || 0}</div>
-                        <p className="text-xs text-muted-foreground">Nombre total d'hôpitaux</p>
+                    <div className="absolute bottom-5 right-10">
+                        <Hospital className="h-12 w-12 text-white" />
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <Hospital className="h-20 w-20 text-white" />
+                    </div>
+                </div>
+
+                <div className="relative p-8 flex flex-col items-center text-white">
+                    <div className="flex items-center justify-center mb-4">
+                        <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full">
+                            <Building2 className="h-8 w-8 text-white" />
+                        </div>
+                    </div>
+
+                    <h3 className="text-lg font-medium mb-2 text-white/80">Total Hôpitaux</h3>
+
+                    <div className="text-6xl font-bold mb-2 flex items-center">
+            <span className="relative">
+              {stats?.totalHospitals || 0}
+                <span className="absolute -top-1 -right-4 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+              </span>
+            </span>
+                    </div>
+
+                    <p className="text-sm text-white/70">Établissements de santé enregistrés</p>
+
+                    {/* Bottom decorative element */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-white/0 via-white/50 to-white/0"></div>
+                </div>
+            </div>
         </div>
     )
 }

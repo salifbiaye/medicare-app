@@ -1,4 +1,4 @@
-import { z } from "zod";
+import {z} from "zod";
 
 
 // Base user schema with common fields
@@ -36,7 +36,6 @@ export const createDoctorSchema = baseUserSchema.extend({
         "ENT",
     ]),
     registrationNumber: z.string().min(3, "Le numéro d'enregistrement est requis"),
-    isChief: z.preprocess((val) => val === "true" || val === true, z.boolean()).optional(),
     hospitalId: z.string().min(1, "L'hôpital est requis"),
     serviceId: z.string().min(1, "Le service est requis"),
 })
@@ -64,7 +63,7 @@ export const createUserSchema = z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Veuillez saisir un email valide"),
     gender: z.enum(["MALE", "FEMALE"]),
-    role: z.enum(["PATIENT", "ADMIN", "DIRECTOR", "DOCTOR", "SECRETARY","CHIEF_DOCTOR"]),
+    role: z.enum(["PATIENT", "ADMIN", "DIRECTOR", "DOCTOR", "SECRETARY", "CHIEF_DOCTOR"]),
     emailVerified: z.preprocess(val => val === "true" || val === true, z.boolean()),
     profileCompleted: z.preprocess(val => val === "true" || val === true, z.boolean()),
 })
@@ -101,22 +100,20 @@ export const UserFilterSchema = z.object({
 })
 export type UserFilterSchema = z.infer<typeof UserFilterSchema>
 export const forgotPasswordSchema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
+    email: z.string().email({message: "Invalid email address"}),
 })
 
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
-
-
 
 
 export const userImportSchema = z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Veuillez saisir une adresse email valide"),
     gender: z.enum(["MALE", "FEMALE"], {
-        errorMap: () => ({ message: "Le genre doit être 'MALE' ou 'FEMALE'" })
+        errorMap: () => ({message: "Le genre doit être 'MALE' ou 'FEMALE'"})
     }),
     role: z.enum(["PATIENT", "ADMIN", "DIRECTOR", "DOCTOR", "SECRETARY", "CHIEF_DOCTOR"], {
-        errorMap: () => ({ message: "Le rôle doit être l'un des suivants : PATIENT, ADMIN, DIRECTOR, DOCTOR, SECRETARY, CHIEF_DOCTOR" })
+        errorMap: () => ({message: "Le rôle doit être l'un des suivants : PATIENT, ADMIN, DIRECTOR, DOCTOR, SECRETARY, CHIEF_DOCTOR"})
     }),
     emailVerified: z.preprocess(
         (val) =>
@@ -146,7 +143,7 @@ export const userImportSchema = z.object({
 
 export const patientImportSchema = userImportSchema.extend({
     role: z.literal("PATIENT", {
-        errorMap: () => ({ message: "Le rôle doit être 'PATIENT' pour ce type d'utilisateur" })
+        errorMap: () => ({message: "Le rôle doit être 'PATIENT' pour ce type d'utilisateur"})
     }),
     socialSecurityNumber: z.string().optional(),
     bloodGroup: z.string().optional(),
@@ -155,7 +152,7 @@ export const patientImportSchema = userImportSchema.extend({
 
 export const doctorImportSchema = userImportSchema.extend({
     role: z.enum(["DOCTOR", "CHIEF_DOCTOR"], {
-        errorMap: () => ({ message: "Le rôle doit être 'DOCTOR' ou 'CHIEF_DOCTOR' pour ce type d'utilisateur" })
+        errorMap: () => ({message: "Le rôle doit être 'DOCTOR' ou 'CHIEF_DOCTOR' pour ce type d'utilisateur"})
     }),
     specialty: z.enum([
         "GENERAL_PRACTICE",
@@ -171,28 +168,16 @@ export const doctorImportSchema = userImportSchema.extend({
         "UROLOGY",
         "ENT",
     ], {
-        errorMap: () => ({ message: "La spécialité doit être l'une des suivantes : GENERAL_PRACTICE, OPHTHALMOLOGY, CARDIOLOGY, PEDIATRICS, DERMATOLOGY, NEUROLOGY, ORTHOPEDICS, GYNECOLOGY, RADIOLOGY, PSYCHIATRY, UROLOGY, ENT" })
+        errorMap: () => ({message: "La spécialité doit être l'une des suivantes : GENERAL_PRACTICE, OPHTHALMOLOGY, CARDIOLOGY, PEDIATRICS, DERMATOLOGY, NEUROLOGY, ORTHOPEDICS, GYNECOLOGY, RADIOLOGY, PSYCHIATRY, UROLOGY, ENT"})
     }),
     registrationNumber: z.string().min(3, "Le numéro d'enregistrement doit contenir au moins 3 caractères"),
-    isChief: z.preprocess(
-        (val) =>
-            val === "true" ||
-            val === true ||
-            val === "Oui" ||
-            val === "oui" ||
-            val === "OUI" ||
-            val === "Yes" ||
-            val === "yes" ||
-            val === "YES",
-        z.boolean(),
-    ).optional(),
     hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
     serviceId: z.string().min(1, "L'identifiant du service est requis"),
 })
 
 export const secretaryImportSchema = userImportSchema.extend({
     role: z.literal("SECRETARY", {
-        errorMap: () => ({ message: "Le rôle doit être 'SECRETARY' pour ce type d'utilisateur" })
+        errorMap: () => ({message: "Le rôle doit être 'SECRETARY' pour ce type d'utilisateur"})
     }),
     hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
     serviceId: z.string().min(1, "L'identifiant du service est requis"),
@@ -200,7 +185,7 @@ export const secretaryImportSchema = userImportSchema.extend({
 
 export const directorImportSchema = userImportSchema.extend({
     role: z.literal("DIRECTOR", {
-        errorMap: () => ({ message: "Le rôle doit être 'DIRECTOR' pour ce type d'utilisateur" })
+        errorMap: () => ({message: "Le rôle doit être 'DIRECTOR' pour ce type d'utilisateur"})
     }),
     hospitalId: z.string().min(1, "L'identifiant de l'hôpital est requis"),
 })
@@ -229,10 +214,28 @@ export const getImportSchemaByRole = (role: string) => {
 }
 
 
-export type RoleImportMap = {
-    PATIENT: PatientImport
-    DOCTOR: DoctorImport
-    CHIEF_DOCTOR: DoctorImport
-    SECRETARY: SecretaryImport
-    DIRECTOR: DirectorImport
-}
+export const personalInfoSchema = z.object({
+    name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+    email: z.string().email("Adresse email invalide"),
+    phone: z.string().optional(),
+    address: z.string().optional(),
+    gender: z.enum(["MALE", "FEMALE"]),
+    birthDate: z.date().optional(),
+})
+
+export type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>
+
+export const passwordSchema = z
+    .object({
+        currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
+        newPassword: z
+            .string()
+            .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+        confirmPassword: z.string().min(1, "La confirmation du mot de passe est requise"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Les mots de passe ne correspondent pas",
+        path: ["confirmPassword"],
+    })
+
+export type PasswordFormValues = z.infer<typeof passwordSchema>

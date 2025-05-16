@@ -91,7 +91,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               <Avatar className="h-24 w-24 sm:h-32 sm:w-32  z-30 rounded-xl">
                 <AvatarImage src={user.image || ""} alt={user.name} />
                 <AvatarFallback className="text-2xl bg-accent dark:bg-primary/50 border-2 border-accent dark:border-primary text-primary dark:text-primary-foreground">
-                  {user.name.slice(0, 2).toUpperCase()}
+                  {user.name.split(" ").map((name) => name[0]).join("").toUpperCase()}
                 </AvatarFallback>
               </Avatar>
 
@@ -157,11 +157,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
           </div>
 
-          <div className="mt-6 sm:mt-0 flex flex-wrap gap-3">
-            <Button variant="outline" className="w-full sm:w-auto">
-              Exporter les données
-            </Button>
-          </div>
         </div>
       </CardContent>
     </Card>

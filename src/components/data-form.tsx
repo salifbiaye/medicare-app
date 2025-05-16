@@ -65,6 +65,8 @@ interface FieldConfig<T extends FieldValues> {
     rows?: number
     icon?: React.ReactNode
     tooltip?: string
+    loadOptions?: (formData?: any) => Promise<FieldOption[]>
+    dependsOn?: string // Nom du champ dont dépend ce champ
     validation?: {
         min?: number
         max?: number
@@ -216,9 +218,19 @@ export function DataForm<T extends ZodType<any, any, any>>({
             case "textarea":
                 return <CustomFormTextarea {...commonProps} rows={field.rows || 4} />
             case "select":
-                return <CustomFormSelect {...commonProps} options={field.options || []} />
+                return <CustomFormSelect 
+                    {...commonProps} 
+                    options={field.options || []} 
+                    loadOptions={field.loadOptions}
+                    dependsOn={field.dependsOn}
+                />
             case "multi-select":
-                return <CustomFormMultiSelect {...commonProps} options={field.options || []} />
+                return <CustomFormMultiSelect 
+                    {...commonProps} 
+                    options={field.options || []} 
+                    loadOptions={field.loadOptions}
+                    dependsOn={field.dependsOn}
+                />
             case "checkbox":
                 return <CustomFormCheckbox {...commonProps} />
             case "date":
@@ -350,6 +362,7 @@ export function DataForm<T extends ZodType<any, any, any>>({
 
         return (
             <motion.div
+
                 initial={animations[animation].initial}
                 animate={animations[animation].animate}
                 exit={animations[animation].exit}
@@ -610,7 +623,7 @@ export function DataForm<T extends ZodType<any, any, any>>({
     } as React.CSSProperties : {}
 
     return (
-        <div className={`w-full ${className}`} style={customStyle}>
+        <div className={`w-full p-6 ${className}`} style={customStyle}>
             {(title || description || backLink || headerImage) && (
                 <div className="mb-8">
                     {headerImage && (
@@ -663,7 +676,7 @@ export function DataForm<T extends ZodType<any, any, any>>({
             )}
 
             <Form {...form}>
-                <form onSubmit={handleSubmit} className={layoutClasses[layout]}>
+                <form  onSubmit={handleSubmit} className={layoutClasses[layout]}>
                     {layout === "sidebar" && (
                         <div className="space-y-4">
                             {sidebarContent || (

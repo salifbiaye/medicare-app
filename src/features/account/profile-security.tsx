@@ -1,243 +1,310 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { User } from "@prisma/client"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Eye, EyeOff, Loader2, Shield } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Shield, Loader2, LogOut, Computer, Calendar, Clock, MapPin } from "lucide-react"
+
+import { toastAlert } from "@/components/ui/sonner-v2"
+import { DataForm } from "@/components/data-form"
+import { PasswordFormValues, passwordSchema } from "@/schemas/user.schema"
+import { securityFields } from "@/fields/user.field"
+import { securityGroups } from "@/groups/user.groups"
 import { updatePasswordAction } from "@/actions/user.action"
-import {toastAlert} from "@/components/ui/sonner-v2";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { format, formatDistance } from "date-fns"
+import { fr } from "date-fns/locale"
+import { getUserSessionsAction, getCurrentSessionAction, deleteSessionAction, deleteOtherSessionsAction } from "@/actions/session.action"
 
-const passwordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
-    newPassword: z
-      .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        "Le mot de passe doit contenir au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial",
-      ),
-    confirmPassword: z.string().min(1, "La confirmation du mot de passe est requise"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
-    path: ["confirmPassword"],
-  })
-
-type PasswordFormValues = z.infer<typeof passwordSchema>
+interface Session {
+  id: string
+  ipAddress: string | null
+  userAgent: string | null
+  createdAt: Date
+  expiresAt: Date
+  isCurrentSession?: boolean
+}
 
 type ProfileSecurityProps = {
-  user: User
-  onUpdateSuccess: () => void
-  onUpdateError: () => void
-  isUpdating: boolean
-  setIsUpdating: (value: boolean) => void
+  onUpdateSuccess?: () => void
+  onUpdateError?: () => void
 }
 
 export function ProfileSecurity({
-  user,
   onUpdateSuccess,
   onUpdateError,
-  isUpdating,
-  setIsUpdating,
 }: ProfileSecurityProps) {
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [sessions, setSessions] = useState<Session[]>([])
+  const [loading, setLoading] = useState(true)
+  const [currentSessionId, setCurrentSessionId] = useState<string>("")
 
-  const form = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  })
+  const initialData = {
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  }
 
-  const onSubmit = async (data: PasswordFormValues) => {
+  // Chargement des sessions au montage du composant
+  useEffect(() => {
+    fetchSessions()
+  }, [])
+
+  const fetchSessions = async () => {
+    setLoading(true)
     try {
-      setIsUpdating(true)
+      // Récupérer la session actuelle
+      const currentSessionResponse = await getCurrentSessionAction()
+      if (currentSessionResponse.success && currentSessionResponse.data) {
+        setCurrentSessionId(currentSessionResponse.data.id)
+      }
 
-      toastAlert.success({
-        title: "Mise à jour du mot de passe",
-        description: "Votre mot de passe est en cours de mise à jour...",
-      })
+      // Récupérer toutes les sessions
+      const sessionsResponse = await getUserSessionsAction()
+      if (sessionsResponse.success && sessionsResponse.data) {
+        // Transformer les sessions
+        const formattedSessions = sessionsResponse.data.map((session: any) => ({
+          ...session,
+          createdAt: new Date(session.createdAt),
+          expiresAt: new Date(session.expiresAt),
+          isCurrentSession: session.id === (currentSessionResponse.success && currentSessionResponse.data ? currentSessionResponse.data.id : null)
+        }))
+        
+        setSessions(formattedSessions)
+      } else {
+        setSessions([])
+        if (!sessionsResponse.success) {
+          toastAlert.error({
+            title: "Erreur de chargement",
+            description: sessionsResponse.error || "Impossible de charger vos sessions."
+          })
+        }
+      }
     } catch (error) {
-      onUpdateError()
+      console.error("Erreur lors du chargement des sessions:", error)
+      toastAlert.error({
+        title: "Erreur de chargement",
+        description: "Impossible de charger vos sessions."
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
+  const handleUpdatePassword = async (data: PasswordFormValues) => {
+    setIsUpdating(true)
+    try {
+      const result = await updatePasswordAction(data)
+
+      if (result.success === false) {
+        toastAlert.error({
+          title: "Échec de la mise à jour",
+          description: result.message || "Une erreur est survenue lors de la mise à jour de votre mot de passe.",
+        })
+      } else {
+        toastAlert.success({
+          title: "Mot de passe mis à jour",
+          description: "Votre mot de passe a été mis à jour avec succès.",
+        })
+      }
+
+      if (onUpdateSuccess) onUpdateSuccess()
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du mot de passe:", error)
+      toastAlert.error({
+        title: "Échec de la mise à jour",
+        description: "Une erreur est survenue lors de la mise à jour de votre mot de passe.",
+      })
+      
+      if (onUpdateError) onUpdateError()
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleDeleteSession = async (sessionId: string) => {
+    try {
+      const result = await deleteSessionAction(sessionId)
+      
+      if (result.success) {
+        toastAlert.success({
+          title: "Session supprimée",
+          description: "La session a été déconnectée avec succès."
+        })
+        // Actualiser la liste des sessions
+        fetchSessions()
+      } else {
+        toastAlert.error({
+          title: "Erreur",
+          description: result.error || "Impossible de supprimer cette session."
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la session:", error)
+      toastAlert.error({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression de la session."
+      })
+    }
+  }
+
+  const handleDeleteOtherSessions = async () => {
+    try {
+      const result = await deleteOtherSessionsAction()
+      
+      if (result.success) {
+        toastAlert.success({
+          title: "Sessions déconnectées",
+          description: result.data?.message || "Toutes les autres sessions ont été déconnectées."
+        })
+        // Actualiser la liste des sessions
+        fetchSessions()
+      } else {
+        toastAlert.error({
+          title: "Erreur",
+          description: result.error || "Impossible de déconnecter les autres sessions."
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion des autres sessions:", error)
+      toastAlert.error({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion des autres sessions."
+      })
+    }
+  }
+
+  // Fonction pour extraire et formater les informations du user agent
+  const formatUserAgent = (userAgent: string | null) => {
+    if (!userAgent) return "Appareil inconnu"
+    
+    // Version simplifiée, pour une version plus avancée, utilisez des bibliothèques comme ua-parser-js
+    if (userAgent.includes("Windows")) return "Windows"
+    if (userAgent.includes("Mac")) return "MacOS"
+    if (userAgent.includes("iPhone")) return "iPhone"
+    if (userAgent.includes("iPad")) return "iPad"
+    if (userAgent.includes("Android")) return "Android"
+    if (userAgent.includes("Linux")) return "Linux"
+    
+    return "Autre appareil"
+  }
+
   return (
-    <div>
-      <div className="border-b px-6 py-5">
-        <h3 className="text-lg font-medium">Sécurité</h3>
-        <p className="text-sm text-muted-foreground">Gérez vos paramètres de sécurité et mots de passe</p>
-      </div>
+    <div className="w-full p-6 space-y-6">
+      <DataForm
+        schema={passwordSchema}
+        fields={securityFields}
+        initialData={initialData}
+        submitButtonText="Mettre à jour le mot de passe"
+        isLoading={isUpdating}
+        onSubmit={handleUpdatePassword}
+        title="Sécurité"
+        description="Gérez vos paramètres de sécurité et mots de passe"
+        layout="standard"
+        theme="modern"
+        iconHeader={<Shield className="h-8 w-8 text-primary" />}
+        groups={securityGroups}
+        rounded="md"
+        animation="fade"
+      />
 
-      <div className="p-6 space-y-8">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Changer votre mot de passe</CardTitle>
-            <CardDescription>Assurez-vous d'utiliser un mot de passe fort et unique</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="currentPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mot de passe actuel</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showCurrentPassword ? "text" : "password"}
-                            placeholder="Votre mot de passe actuel"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          >
-                            {showCurrentPassword ? (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
+      <Card className="">
+        <CardHeader className="pb-3 ">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Sessions actives</CardTitle>
+            <Shield className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <CardDescription>
+            Gérez vos sessions actives sur différents appareils. Vous pouvez déconnecter les sessions que vous ne reconnaissez pas.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground">
+              Aucune session active trouvée
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sessions.map((session) => (
+                <div 
+                  key={session.id}
+                  className={`flex items-center justify-between p-4 rounded-lg border ${
+                    session.isCurrentSession ? "bg-primary/5 border-primary/20" : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-4">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Computer className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium">
+                          {formatUserAgent(session.userAgent)}
+                        </p>
+                        {session.isCurrentSession && (
+                          <Badge variant="outline" className="text-xs">
+                            Session Actuelle
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          <span>{session.ipAddress || "IP inconnue"}</span>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nouveau mot de passe</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showNewPassword ? "text" : "password"}
-                            placeholder="Votre nouveau mot de passe"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                          >
-                            {showNewPassword ? (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
+                        <div className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          <span>{format(session.createdAt, "dd/MM/yyyy")}</span>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirmer le mot de passe</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Confirmez votre nouveau mot de passe"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          >
-                            {showConfirmPassword ? (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
+                        <div className="flex items-center">
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>
+                            {formatDistance(new Date(session.createdAt), new Date(), {
+                              addSuffix: true,
+                              locale: fr
+                            })}
+                          </span>
                         </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {!session.isCurrentSession && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteSession(session.id)}
+                    >
+                      <LogOut className="h-4 w-4 mr-1" />
+                      Déconnecter
+                    </Button>
                   )}
-                />
+                </div>
+              ))}
 
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={isUpdating}>
-                    {isUpdating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Mise à jour...
-                      </>
-                    ) : (
-                      "Mettre à jour le mot de passe"
-                    )}
+              {sessions.length > 1 && (
+                <div className="flex justify-end mt-4">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={handleDeleteOtherSessions}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Déconnecter toutes les autres sessions
                   </Button>
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Sessions actives</CardTitle>
-              <Shield className="h-5 w-5 text-muted-foreground" />
+              )}
             </div>
-            <CardDescription>Gérez vos sessions actives sur différents appareils</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Shield className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Session actuelle</p>
-                    <p className="text-xs text-muted-foreground">Dernière activité: il y a quelques secondes</p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" disabled>
-                  Session Actuelle
-                </Button>
-              </div>
-
-              <div className="flex justify-end">
-                <Button variant="destructive">Déconnecter toutes les autres sessions</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }

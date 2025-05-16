@@ -1,4 +1,13 @@
-import { UserIcon, CheckCircle2Icon, HeartPulse, Stethoscope, ClipboardList, Building2, Hospital } from "lucide-react"
+import {
+    UserIcon,
+    CheckCircle2Icon,
+    HeartPulse,
+    Stethoscope,
+    ClipboardList,
+    Building2,
+    Hospital,
+    User2, MapPinIcon, Shield
+} from "lucide-react"
 
 // Base user groups
 const baseUserGroups = [
@@ -103,3 +112,27 @@ export const getGroupsByRole = (role: string) => {
             return createUsergroups
     }
 }
+
+export const personalInfoGroups = [
+    {
+        title: "Informations de base",
+        description: "Vos informations personnelles principales",
+        fields: ["name", "email", "gender"],
+        icon: <User2 className="h-5 w-5" />,
+    },
+    {
+        title: "Coordonnées",
+        description: "Vos informations de contact et adresse",
+        fields: ["phone", "birthDate", "address"],
+        icon: <MapPinIcon className="h-5 w-5" />,
+    },
+]
+
+export const securityGroups = [
+    {
+        title: "Changement de mot de passe",
+        description: "Assurez-vous d'utiliser un mot de passe fort et unique",
+        fields: ["currentPassword", "newPassword", "confirmPassword"],
+        icon: <Shield className="h-5 w-5" />,
+    }
+]

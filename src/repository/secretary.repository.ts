@@ -79,4 +79,66 @@ export class SecretaryRepository {
             )
         )
     }
+    
+    static async updateSecretary(userId: string, data: CreateSecretaryFormValues) {
+        // Trouver la secrétaire associée à l'utilisateur
+        const secretary = await prisma.secretary.findFirst({
+            where: { userId }
+        });
+
+        if (!secretary) {
+            throw new Error("Secrétaire non trouvée");
+        }
+
+        // Mettre à jour l'utilisateur et la secrétaire en une seule transaction
+        return await prisma.$transaction(async (tx) => {
+            // Mettre à jour l'utilisateur
+           await tx.user.update({
+                where: { id: userId },
+                data: {
+                    name: data.name,
+                    email: data.email,
+                    gender: data.gender,
+                    emailVerified: data.emailVerified,
+                    profileCompleted: data.profileCompleted
+                }
+            });
+
+            // Mettre à jour la secrétaire
+            const updatedSecretary = await tx.secretary.update({
+                where: { id: secretary.id },
+                data: {
+                    hospital: {
+                        connect: {
+                            id: data.hospitalId
+                        }
+                    },
+                    service: {
+                        connect: {
+                            id: data.serviceId
+                        }
+                    }
+                },
+                include: {
+                    user: true,
+                    hospital: true,
+                    service: true
+                }
+            });
+
+            return updatedSecretary;
+        });
+    }
+    static async findSecretaryByUserId(userId:string){
+        return await prisma.secretary.findFirst({
+                where: { userId },
+                include: {
+                    hospital: true,
+                    service: true
+                }
+            })
+
+
+    }
+
 } 

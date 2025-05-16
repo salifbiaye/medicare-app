@@ -4,6 +4,7 @@ import "./globals.css";
 import {Toaster} from "@/components/ui/sonner";
 import {ThemeProvider} from "next-themes";
 
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,7 +36,8 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange={false}
       >
-        {children}
+          {children}
+
 
         <Toaster position="bottom-right" closeButton richColors />
       </ThemeProvider>
