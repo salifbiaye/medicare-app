@@ -36,7 +36,7 @@ export class AppointmentRequestService {
         await NotificationService.createNotification({
           title: "Nouvelle demande de rendez-vous",
           message: `${request.patient.name} a fait une demande de rendez-vous.`,
-          type: "ALERT" as NotificationType,
+          type: "WARNING" as NotificationType,
           priority: "MEDIUM",
           category: "ADMINISTRATIVE",
           recipientId: session.user.id, // À remplacer par les IDs des secrétaires du service

@@ -26,12 +26,12 @@ export function CustomFormTextarea<T extends FieldValues>({
             name={name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="text-zinc-300">{labelText}</FormLabel>
+                    <FormLabel className="dark:text-zinc-300">{labelText}</FormLabel>
                     <FormControl>
                         <Textarea
                             {...field}
                             placeholder={placeholder}
-                            className="bg-zinc-950 border-zinc-800 text-zinc-300 focus:ring-zinc-700 focus-visible:ring-zinc-700 focus-visible:ring-offset-zinc-900 resize-none"
+                            className="bg-muted dark:border-zinc-800 dark:text-zinc-300 dark:focus:ring-zinc-700 dark:focus-visible:ring-zinc-700 dark:focus-visible:ring-offset-zinc-900 resize-none"
                             rows={rows}
                             disabled={disabled}
                         />

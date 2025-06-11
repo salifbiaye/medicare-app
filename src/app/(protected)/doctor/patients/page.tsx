@@ -1,8 +1,9 @@
+
 import { Suspense } from "react"
 import type { Metadata } from "next"
 import { DataTable } from "@/features/doctor/patients/data-table"
 import { columns } from "@/features/doctor/patients/columns"
-import { getPatientsWithPaginationAction } from "@/actions/patient.action"
+import { getPatientsDoctorWithPaginationAction } from "@/actions/patient.action"
 import { Users } from "lucide-react"
 import { AnimatedHeader, AnimatedLayout } from "@/components/animations/animated-layout"
 import { ParticlesBackground } from "@/components/animations/particles-background"
@@ -65,7 +66,7 @@ async function PatientsTable({ searchParams }: PatientsPageProps) {
   const emailFilter = Array.isArray(params.email) ? params.email : params.email ? [params.email] : []
 
   // Fetch data with pagination, sorting, and filtering
-  const data = await getPatientsWithPaginationAction({
+  const data = await getPatientsDoctorWithPaginationAction({
     page,
     perPage,
     sort,

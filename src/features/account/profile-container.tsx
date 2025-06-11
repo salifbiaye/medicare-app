@@ -6,8 +6,7 @@ import { ProfileHeader } from "./profile-header"
 import { ProfileTabs } from "./profile-tabs"
 import { ProfilePersonalInfo } from "./profile-personal-info"
 import { ProfileSecurity } from "./profile-security"
-import { ProfileRoleInfo } from "./profile-role-info"
-import { ProfileActivity } from "./profile-activity"
+
 import { ProfileNotifications } from "./profile-notifications"
 import { useToast } from "@/hooks/use-toast"
 
@@ -15,7 +14,7 @@ type ProfileContainerProps = {
   user: User
 }
 
-type TabType = "personal" | "security" | "role" | "activity" | "notifications"
+type TabType = "personal" | "security" | "notifications"
 
 export function ProfileContainer({ user }: ProfileContainerProps) {
   const [activeTab, setActiveTab] = useState<TabType>("personal")
@@ -66,9 +65,6 @@ export function ProfileContainer({ user }: ProfileContainerProps) {
                 onUpdateError={handleUpdateError}
               />
             )}
-
-            {activeTab === "role" && <ProfileRoleInfo user={user} />}
-
 
             {activeTab === "notifications" && <ProfileNotifications userId={user.id} />}
           </div>

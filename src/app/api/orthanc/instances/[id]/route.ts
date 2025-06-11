@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-
-// URL du serveur Orthanc
-const ORTHANC_SERVER_URL = 'http://localhost:8042';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { OrthancConfig } from '@/lib/orthanc-config';
 
 // Récupérer les détails d'une instance
 export async function GET(
@@ -10,17 +10,22 @@ export async function GET(
 ) {
   try {
     const param = await params
-    const id = await param.id;
+    const id =  param.id;
     
-    console.log(`Récupération de l'instance DICOM avec ID: ${id}`);
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+
     
     // Vérifier si on demande le fichier DICOM ou les métadonnées
     const url = new URL(request.url);
     const isFileRequest = url.searchParams.get('file') === 'true';
     
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id, id)
+    
     // Vérifier d'abord que le serveur Orthanc est disponible
     try {
-      const checkResponse = await fetch(`${ORTHANC_SERVER_URL}/system`, {
+      const checkResponse = await fetch(`${orthancUrl}/system`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -29,14 +34,13 @@ export async function GET(
       });
       
       if (!checkResponse.ok) {
-        console.error(`Serveur Orthanc non disponible: ${checkResponse.status} ${checkResponse.statusText}`);
         return NextResponse.json(
           { error: 'Le serveur Orthanc n\'est pas disponible' },
           { status: 503 }
         );
       }
     } catch (error) {
-      console.error("Erreur lors de la vérification du serveur Orthanc:", error);
+
       return NextResponse.json(
         { error: 'Impossible de se connecter au serveur Orthanc', details: error instanceof Error ? error.message : String(error) },
         { status: 503 }
@@ -46,7 +50,7 @@ export async function GET(
     if (isFileRequest) {
       console.log(`Récupération du fichier DICOM pour l'instance: ${id}`);
       // Récupérer le fichier DICOM
-      const response = await fetch(`${ORTHANC_SERVER_URL}/instances/${id}/file`, {
+      const response = await fetch(`${orthancUrl}/instances/${id}/file`, {
         method: 'GET',
         cache: 'no-store',
       });
@@ -77,7 +81,7 @@ export async function GET(
     } else {
       console.log(`Récupération des métadonnées pour l'instance: ${id}`);
       // Récupérer les métadonnées de l'instance
-      const response = await fetch(`${ORTHANC_SERVER_URL}/instances/${id}`, {
+      const response = await fetch(`${orthancUrl}/instances/${id}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -116,7 +120,13 @@ export async function DELETE(
   try {
     const id = params.id;
     
-    const response = await fetch(`${ORTHANC_SERVER_URL}/instances/${id}`, {
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+    
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id, id)
+    
+    const response = await fetch(`${orthancUrl}/instances/${id}`, {
       method: 'DELETE',
       cache: 'no-store',
     });

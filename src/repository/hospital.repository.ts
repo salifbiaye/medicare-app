@@ -19,14 +19,18 @@ export class HospitalRepository {
             phone: hospital.phone.toString(),
         }))
         return await prisma.hospital.createMany({
-            data:newdata,
+            data: newdata,
         })
     }
 
-    static async updateHospital(id: string, data: Partial<Hospital>) {
+    static async updateHospital(id: string, data: CreateHospitalFormValues) {
+        const newdata = {
+            ...data,
+            phone: data.phone.toString(),
+        }
         return await prisma.hospital.update({
             where: { id },
-            data,
+            data: newdata,
         })
     }
 
@@ -173,5 +177,18 @@ export class HospitalRepository {
         });
 
         return hospitals;
+    }
+
+    static async getHospitalsForSelect() {
+        const hospitals = await prisma.hospital.findMany({
+            select: {
+                id: true,
+                name: true,
+            },
+        })
+        return hospitals.map((hospital) => ({
+            value: hospital.id,
+            label: hospital.name,
+        }))
     }
 } 

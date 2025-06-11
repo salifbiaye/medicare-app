@@ -5,8 +5,8 @@ import { columns } from "@/features/admin/users/columns"
 import { getUsersWithPaginationAction } from "@/actions/user.action"
 import { Users } from "lucide-react"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout"
-import {ParticlesBackground} from "@/components/animations/particles-background";
-import LoaderDatatable from "@/components/animations/loader-datatable";
+import {ParticlesBackground} from "@/components/animations/particles-background"
+import LoaderDatatable from "@/components/animations/loader-datatable"
 
 export const metadata: Metadata = {
   title: "Users",
@@ -26,11 +26,8 @@ interface UsersPageProps {
 }
 
 export default async function UsersPage({ searchParams }: UsersPageProps) {
-
   return (
       <div className=" py-6 px-4">
-
-
         <AnimatedLayout>
           <ParticlesBackground />
 
@@ -53,12 +50,24 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
           </Suspense>
         </div>
       </div>
-
   )
 }
 
-async function UsersTable({ searchParams }: UsersPageProps) {
-  // Parse search params
+// Interface corrigée pour accepter les searchParams comme dans la version 2
+interface UsersTableProps {
+  searchParams: {
+    page?: string
+    per_page?: string
+    sort?: string
+    role?: string[]
+    gender?: string[]
+    profileCompleted?: string[]
+    search?: string
+  }
+}
+
+async function UsersTable({ searchParams }: UsersTableProps) {
+  // Await des searchParams ici comme dans la version 2
   const params = await searchParams
   const page = Number(params.page) || 1
   const perPage = Number(params.per_page) || 10
@@ -131,15 +140,16 @@ async function UsersTable({ searchParams }: UsersPageProps) {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={users}
-      filterableColumns={filterableColumns}
-      searchableColumns={searchableColumns}
-      totalItems={totalUsers}
-      pageCount={Math.ceil(totalUsers / perPage)}
-      defaultPageSize={perPage}
+      <DataTable
+          columns={columns}
+          data={users}
+          filterableColumns={filterableColumns}
+          searchableColumns={searchableColumns}
+          totalItems={totalUsers}
+          pageCount={Math.ceil(totalUsers / perPage)}
+          defaultPageSize={perPage}
 
-    />
+          // Supprimé pageNumber={page} car cette prop pourrait causer des conflits
+      />
   )
 }

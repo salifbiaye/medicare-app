@@ -1,6 +1,6 @@
 import {
   AlarmClock,
-  CalendarIcon,
+  Calendar, CalendarIcon,
   FileText,
   Image,
   ListChecks,
@@ -14,7 +14,7 @@ import type {
 } from "@/schemas/medical-document.schema"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
-import { getCompletedAppointmentsAction } from "@/actions/appointment.action"
+import { getCompletedAppointmentsAction, getPatientAppointmentsAction } from "@/actions/appointment.action"
 
 // Définition du type FieldConfig pour ce fichier spécifique
 interface FieldOption {
@@ -40,7 +40,7 @@ interface FieldConfig<T> {
   rows?: number;
   icon?: React.ReactNode;
   tooltip?: string;
-  loadOptions?: () => Promise<FieldOption[]>;
+  loadOptions?: (params?: { patientId?: string }) => Promise<FieldOption[]>;
   dependsOn?: string;
 }
 
@@ -52,7 +52,10 @@ interface Appointment {
     user: {
       name: string;
     }
-  }
+  };
+  medicalReport?: {
+    id: string;
+  };
 }
 
 // Fields for medical report form
@@ -65,9 +68,13 @@ export const medicalReportFields: FieldConfig<CreateMedicalReportFormValues>[] =
     required: true,
     icon: <CalendarIcon className="h-4 w-4" />,
     helpText: "Le rendez-vous auquel ce rapport médical est lié",
-    loadOptions: async () => {
+    loadOptions: async (params?: { patientId?: string }) => {
       try {
-        const result = await getCompletedAppointmentsAction()
+        if (!params?.patientId) {
+          return []
+        }
+
+        const result = await getPatientAppointmentsAction(params.patientId)
         
         if (!result.success || !result.data) {
           return []
@@ -75,7 +82,10 @@ export const medicalReportFields: FieldConfig<CreateMedicalReportFormValues>[] =
         
         const appointments = result.data as Appointment[]
 
-        return appointments.map((appointment: Appointment) => ({
+        // Filtrer les rendez-vous qui n'ont pas de rapport médical
+        const appointmentsWithoutReports = appointments.filter(appointment => !appointment.medicalReport)
+
+        return appointmentsWithoutReports.map((appointment: Appointment) => ({
           value: appointment.id,
           label: `${format(new Date(appointment.date), "dd/MM/yyyy HH:mm", { locale: fr })} - ${appointment.patient.user.name}`
         }))

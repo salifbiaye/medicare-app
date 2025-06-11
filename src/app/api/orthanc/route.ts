@@ -1,17 +1,23 @@
 import { NextResponse } from 'next/server';
-
-// URL du serveur Orthanc
-const ORTHANC_SERVER_URL = 'http://localhost:8042';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { OrthancConfig } from '@/lib/orthanc-config';
 
 export async function GET(request: Request) {
   console.log("Vérification de la disponibilité du serveur Orthanc");
   
   try {
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+    
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id)
+
     // Ajouter un timeout pour éviter les attentes trop longues
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes de timeout
     
-    const response = await fetch(`${ORTHANC_SERVER_URL}/system`, {
+    const response = await fetch(`${orthancUrl}/system`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -57,7 +63,10 @@ export async function GET(request: Request) {
 // Route pour récupérer la liste des instances
 export async function POST(request: Request) {
   try {
-    const { path, method = 'GET', body } = await request.json();
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+    
+    const { path, method = 'GET', body, dicomId } = await request.json();
     
     if (!path) {
       return NextResponse.json(
@@ -66,8 +75,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id, dicomId)
+    
     console.log(`Requête Orthanc: ${method} ${path}`);
-    const url = `${ORTHANC_SERVER_URL}${path}`;
+    const url = `${orthancUrl}${path}`;
     
     const fetchOptions: RequestInit = {
       method,

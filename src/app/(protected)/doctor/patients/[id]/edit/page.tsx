@@ -1,7 +1,6 @@
 import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { PatientRepository } from "@/repository/patient.repository"
-import AddMedicalDocumentPage from "@/features/doctor/patients/add-medical-document"
 
 export const metadata: Metadata = {
   title: "Ajouter un document médical",
@@ -21,8 +20,8 @@ export default async function EditMedicalRecordPage({
   params, 
   searchParams 
 }: EditMedicalRecordPageProps) {
-  const { id } = await params
-  const { type } = await searchParams
+  const { id } = params
+  const { type } = searchParams
 
   // Validate document type
   if (!type || !["medicalreport", "prescription", "dicomimage"].includes(type)) {
@@ -50,12 +49,11 @@ export default async function EditMedicalRecordPage({
   }
   
   return (
-    <div className="py-10">
-      <AddMedicalDocumentPage 
-        patient={patient} 
-        medicalRecord={medicalRecord}
-        documentType={type}
-      />
-    </div>
+    <AddMedicalDocumentPage
+      patient={patient}
+      medicalRecord={medicalRecord}
+      documentType={type}
+      patientId={id}
+    />
   )
 } 

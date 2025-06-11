@@ -8,6 +8,7 @@ export const createHospitalSchema = z.object({
     z.number().min(1, "Le numéro de téléphone est requis"),
   ]),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
+  urlOrthanc: z.string().min(1, "L'URL du serveur Orthanc est requise"),
 })
 
 export type CreateHospitalFormValues = z.infer<typeof createHospitalSchema>
@@ -25,6 +26,7 @@ export const hospitalImportSchema = z.object({
   address: z.string().min(1, "L'adresse est requise"),
   phone: z.number().min(1, "Le numéro de téléphone est requis"),
   email: z.string().email("Email invalide").optional().or(z.literal("")),
+  urlOrthanc: z.string().min(1, "L'URL du serveur Orthanc est requise"),
 })
 
 export type HospitalImport = z.infer<typeof hospitalImportSchema>

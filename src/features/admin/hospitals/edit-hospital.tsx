@@ -9,16 +9,18 @@ import { createHospitalfields } from "@/fields/hospital.field"
 import { Building2 } from "lucide-react"
 import { updateHospitalAction } from "@/actions/hospital.action"
 import { Hospital } from "@prisma/client"
+import { createHospitalgroups } from "@/groups/hospital.groups"
 
 export default function EditHospitalPage({ hospital }: { hospital: Hospital }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
 
-  const data = {
+  const data: CreateHospitalFormValues = {
     name: hospital.name,
     address: hospital.address,
     phone: hospital.phone,
-    email: hospital.email,
+    email: hospital.email || "",
+    urlOrthanc: hospital.urlOrthanc,
   }
 
   const handleEditHospital = async (values: CreateHospitalFormValues) => {

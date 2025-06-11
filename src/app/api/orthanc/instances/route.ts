@@ -1,19 +1,25 @@
 import { NextResponse } from 'next/server';
-
-// URL du serveur Orthanc
-const ORTHANC_SERVER_URL = 'http://localhost:8042';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { OrthancConfig } from '@/lib/orthanc-config';
 
 // Récupérer la liste des instances
 export async function GET(request: Request) {
-  console.log("Récupération de la liste des instances DICOM");
+
   
   try {
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+    
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id)
+    
     // Vérifier d'abord que le serveur Orthanc est disponible
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes de timeout
       
-      const checkResponse = await fetch(`${ORTHANC_SERVER_URL}/system`, {
+      const checkResponse = await fetch(`${orthancUrl}/system`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -47,7 +53,7 @@ export async function GET(request: Request) {
       );
     }
     
-    const response = await fetch(`${ORTHANC_SERVER_URL}/instances`, {
+    const response = await fetch(`${orthancUrl}/instances`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -83,12 +89,18 @@ export async function POST(request: Request) {
   console.log("Téléchargement d'une instance DICOM");
   
   try {
+    const headersValue = await headers()
+    const session = await auth.api.getSession({ headers: headersValue })
+    
+    // Récupérer l'URL Orthanc appropriée
+    const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id)
+    
     // Vérifier d'abord que le serveur Orthanc est disponible
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 secondes de timeout
       
-      const checkResponse = await fetch(`${ORTHANC_SERVER_URL}/system`, {
+      const checkResponse = await fetch(`${orthancUrl}/system`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -140,7 +152,7 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
 
     // Envoyer le fichier DICOM à Orthanc
-    const response = await fetch(`${ORTHANC_SERVER_URL}/instances`, {
+    const response = await fetch(`${orthancUrl}/instances`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/dicom',

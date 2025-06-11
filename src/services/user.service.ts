@@ -320,11 +320,9 @@ export class UserService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
-            const hasAccess = await this.checkIsAdminOrDirector(session.user.id)
-            if (!hasAccess) {
-                return { success: false, error: "Non autorisé" }
-            }
+
             const result = await UserRepository.updateUser(userId, data)
+            console.log(  "Updating user profile with data:", data, "###########")
             return {
                 success: true,
                 data: result

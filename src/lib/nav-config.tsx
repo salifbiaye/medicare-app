@@ -90,6 +90,78 @@ export const navigationConfig: NavItem[] = [
         ]
     },
 
+    // Doctor routes
+    {
+        id: "doctor",
+        title: "Médecin",
+        href: "/doctor",
+        icon: <Stethoscope className="w-5 h-5" />,
+        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
+        subNav: [
+
+            {
+                id: "appointments",
+                title: "Rendez-vous",
+                href: "/doctor/appointment/#",
+                icon: <Calendar className="w-5 h-5" />,
+                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
+                subNav: [
+                    {
+                        id: "appointments-new",
+                        title: "creer rendez-vous",
+                        href: "/doctor/appointment",
+                        icon: <Calendar className="w-5 h-5" />,
+                        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
+                    },
+                    {
+                        id: "calendar",
+                        title: "calendrier",
+                        href: "/doctor/calendar",
+                        icon: <Calendar className="w-5 h-5" />,
+                        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
+                    }
+                ]
+            },
+            {
+                id: "patients",
+                title: "Patients",
+                href: "/doctor/patients",
+                icon: <User className="w-5 h-5" />,
+                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
+            },
+            {
+                id: "dicom",
+                title: "DICOM ",
+                href: "/doctor/dicom-viewer/#",
+                icon: <FileText className="w-5 h-5" />,
+                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
+                subNav: [
+                    {
+                        id: "dicom-viewer",
+                        title: "DICOM Viewer",
+                        href: "/doctor/dicom-viewer",
+                        icon: <FileText className="w-5 h-5" />,
+                        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
+                    },
+                    {
+                        id: "dicom-shared",
+                        title: "DICOM Partagés",
+                        href: "/doctor/dicom-viewer/shared",
+                        icon: <FileText className="w-5 h-5" />,
+                        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
+                    }
+                ]
+            },
+            {
+                id: "treatments",
+                title: "Demandes",
+                href: "/doctor/treatments",
+                icon: <ClipboardList className="w-5 h-5" />,
+                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
+            }
+        ]
+    },
+
     // Director routes
     {
         id: "director",
@@ -155,45 +227,7 @@ export const navigationConfig: NavItem[] = [
         ]
     },
 
-    // Doctor routes
-    {
-        id: "doctor",
-        title: "Médecin",
-        href: "/doctor",
-        icon: <Stethoscope className="w-5 h-5" />,
-        roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
-        subNav: [
-            {
-                id: "calendar",
-                title: "Calendrier",
-                href: "/doctor/calendar",
-                icon: <Calendar className="w-5 h-5" />,
-                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
-            },
-            {
-                id: "patients",
-                title: "Patients",
-                href: "/doctor/patients",
-                icon: <User className="w-5 h-5" />,
-                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
-            },
-            {
-                id: "dicom-viewer",
-                title: "DICOM Viewer",
-                href: "/doctor/dicom-viewer",
-                icon: <FileText className="w-5 h-5" />,
-                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR],
 
-            },
-            {
-                id: "treatments",
-                title: "Traitements",
-                href: "/doctor/treatments",
-                icon: <ClipboardList className="w-5 h-5" />,
-                roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]
-            }
-        ]
-    },
 
     // Patient routes
     {

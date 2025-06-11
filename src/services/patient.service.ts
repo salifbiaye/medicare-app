@@ -1,6 +1,6 @@
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { CreatePatientFormValues, PatientImport } from "@/schemas/user.schema"
+import {CreatePatientFormValues, PatientImport} from "@/schemas/user.schema"
 import { PatientRepository } from "@/repository/patient.repository"
 import { ParamsSchemaFormValues } from "@/schemas/index.schema"
 import { CreateMedicalRecordFormValues } from "@/schemas/medical-record.schema"
@@ -9,6 +9,8 @@ import {
   CreatePrescriptionFormValues, 
   CreateDicomImageFormValues 
 } from "@/schemas/medical-document.schema"
+import { PatientOnboardingFormValues } from "@/schemas/patient-onboarding.schema"
+
 
 export class PatientService {
     static async getSession() {
@@ -37,8 +39,86 @@ export class PatientService {
             }
         }
     }
+    static async importPatients(data: PatientImport[]) {
+        try {
+            const session = await this.getSession()
 
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
 
+            const existingUsers = await PatientRepository.getAllPatients()
+            const existingEmails = existingUsers.map(user => user.user.email)
+            const existingEmailSet = new Set(existingEmails)
+            const newPatients = data.filter(secretary => !existingEmailSet.has(secretary.email))
+
+            if (newPatients.length !== data.length) {
+                const existingCount = data.length - newPatients.length
+                const plural = existingCount > 1 ? 's' : ''
+
+                if (newPatients.length === 0) {
+                    return {
+                        success: false,
+                        message: `Toutes les secrétaires existent déjà !`
+                    }
+                }
+
+                return {
+                    success: "partial" as const,
+                    message: `${existingCount} secrétaire${plural} existe${plural} déjà, création des autres en cours...`,
+                    data: {
+                        total: data.length,
+                        existing: existingCount,
+                        toCreate: newPatients.length
+                    }
+                }
+            }
+
+            const result = await PatientRepository.createManyPatients(data)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'import des secrétaires:", error)
+            return {
+                success: false,
+                error: "Échec de l'import des secrétaires"
+            }
+        }
+    }
+
+    static async createPatientForExistingUser(data: PatientOnboardingFormValues) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+
+            const userId = session.user.id
+
+            const existingPatient = await PatientRepository.getPatientByUserId(userId)
+            if (existingPatient) {
+                return {
+                    success: false,
+                    error: "Un profil patient existe déjà pour cet utilisateur"
+                }
+            }
+
+            const result = await PatientRepository.createPatientForExistingUser(userId, data)
+            return {
+                success: true,
+                data: result
+            }
+        } catch (error) {
+            console.error("Erreur lors de la création du profil patient:", error)
+            return {
+                success: false,
+                error: "Échec de la création du profil patient"
+            }
+        }
+    }
 
     static async updatePatient(userId: string, data: CreatePatientFormValues) {
         try {
@@ -72,6 +152,38 @@ export class PatientService {
 
             const { page, perPage, sort, search, filters } = params
             const result = await PatientRepository.getPatientsWithPagination({
+                page,
+                perPage,
+                sort,
+                search,
+                filters
+            })
+
+            return {
+                success: true,
+                data: {
+                    patients: result.patients,
+                    totalPatients: result.totalPatients
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération des patients:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération des patients"
+            }
+        }
+    }
+    static async getPatientsDoctorWithPagination(params: ParamsSchemaFormValues) {
+        try {
+            const session = await this.getSession()
+
+            if (!session?.user) {
+                return { success: false, message: "Utilisateur non authentifié !" }
+            }
+
+            const { page, perPage, sort, search, filters } = params
+            const result = await PatientRepository.getPatientsAppointmentsRequestWithPagination({
                 page,
                 perPage,
                 sort,

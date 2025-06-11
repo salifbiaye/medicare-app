@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma"
-import { CreatePatientFormValues, PatientImport } from "@/schemas/user.schema"
+import {CreatePatientFormValues, PatientImport} from "@/schemas/user.schema"
 import { CreateMedicalRecordFormValues } from "@/schemas/medical-record.schema"
 import { 
   CreateMedicalReportFormValues, 
@@ -7,8 +7,21 @@ import {
   CreateDicomImageFormValues 
 } from "@/schemas/medical-document.schema"
 import { Prisma } from "@prisma/client"
+import { PatientOnboardingFormValues } from "@/schemas/patient-onboarding.schema"
 
 export class PatientRepository {
+    static async getPatientByUserId(userId: string) {
+        return await prisma.patient.findUnique({
+            where: {
+                userId: userId
+            },
+            include: {
+                user: true,
+                medicalRecord: true
+            }
+        })
+    }
+
     static async createPatient(data: CreatePatientFormValues) {
         return await prisma.patient.create({
             data: {
@@ -32,12 +45,54 @@ export class PatientRepository {
         })
     }
 
+    static async createPatientForExistingUser(userId: string, data: PatientOnboardingFormValues) {
+        return await prisma.patient.create({
+            data: {
+                user: {
+                    connect: { id: userId }
+                },
+                socialSecurityNumber: data.socialSecurityNumber,
+                bloodGroup: data.bloodGroup,
+                allergies: data.allergies,
+            },
+            include: {
+                user: true
+            }
+        })
+    }
+
     static async getAllPatients() {
         return await prisma.patient.findMany({
             include: {
                 user: true
             }
         })
+    }
+    static async createManyPatients(data: PatientImport[]) {
+        return await prisma.$transaction(
+            data.map(patient =>
+                prisma.patient.create({
+                    data: {
+                        user: {
+                            create: {
+                                name: patient.name,
+                                email: patient.email,
+                                gender: patient.gender,
+                                role: "PATIENT",
+                                emailVerified: patient.emailVerified,
+                                profileCompleted: patient.profileCompleted,
+                            }
+                        },
+                        socialSecurityNumber: patient.socialSecurityNumber,
+                        bloodGroup: patient.bloodGroup,
+                        allergies: patient.allergies,
+                    },
+                    include: {
+                        user: true,
+                    }
+                })
+            )
+        )
     }
 
 
@@ -77,6 +132,30 @@ export class PatientRepository {
             }
         })
     }
+    static async getPatientPrescriptions(id:string){
+        return await prisma.prescription.findMany({
+            where:{
+                patientId: id
+            },
+            include: {
+                doctor: {
+                    include: {
+                        user: true
+                    }
+                },
+                patient: {
+                    include: {
+                        user: true
+                    }
+                },
+                medicalRecord: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        })
+    }
+
 
     static async getMedicalRecordById(recordId: string) {
         return await prisma.medicalRecord.findUnique({
@@ -195,6 +274,156 @@ export class PatientRepository {
                 take: perPage,
                 include: {
                     user: true,
+                    medicalRecord: true
+                }
+            }),
+            prisma.patient.count({ where })
+        ])
+
+        return {
+            patients,
+            totalPatients
+        }
+    }
+    static async getPatientsAppointmentsRequestWithPagination({ page = 1, perPage = 10, sort, search, filters, doctorId }: {
+        page: number;
+        perPage: number;
+        sort?: string;
+        search?: string;
+        filters?: Record<string, string[]>;
+        doctorId?: string;
+    }) {
+        // Construire les options de tri
+        const orderBy: Prisma.PatientOrderByWithRelationInput[] = []
+
+        if (sort) {
+            const [field, direction] = sort.split('.')
+            const isDesc = direction === 'desc'
+
+            // Vérifier si le champ de tri appartient à user
+            if (field.startsWith('user.')) {
+                const userField = field.replace('user.', '')
+                orderBy.push({
+                    user: {
+                        [userField]: isDesc ? 'desc' : 'asc'
+                    }
+                })
+            } else {
+                orderBy.push({
+                    [field]: isDesc ? 'desc' : 'asc'
+                })
+            }
+        } else {
+            // Tri par défaut
+            orderBy.push({
+                user: {
+                    name: 'asc'
+                }
+            })
+        }
+
+        // Construire les options de filtrage
+        const where: Prisma.PatientWhereInput = {
+            // Filtrer les patients dont l'utilisateur a des demandes de rendez-vous transférées
+            // et assignées au docteur spécifié
+            user: {
+                sentRequests: {
+                    some: {
+                        status: "TRANSFERRED",
+                        ...(doctorId ? { doctorId } : {})
+                    }
+                }
+            }
+        }
+
+        // Recherche textuelle
+        if (search) {
+            where.OR = [
+                {
+                    user: {
+                        name: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    }
+                },
+                {
+                    user: {
+                        email: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    }
+                },
+                {
+                    socialSecurityNumber: {
+                        contains: search,
+                        mode: 'insensitive'
+                    }
+                }
+            ]
+        }
+
+        // Filtres additionnels
+        if (filters) {
+            Object.entries(filters).forEach(([key, values]) => {
+                if (values.length === 0) return
+
+                if (key.startsWith('user.')) {
+                    const userField = key.replace('user.', '')
+                    where.user = {
+                        ...where.user,
+                        [userField]: {
+                            in: values
+                        }
+                    }
+                } else {
+                    // Utiliser des valeurs connues pour les champs qui existent réellement dans le modèle Patient
+                    if (key === 'socialSecurityNumber') {
+                        where.socialSecurityNumber = {
+                            in: values
+                        }
+                    } else if (key === 'bloodGroup') {
+                        where.bloodGroup = {
+                            in: values
+                        }
+                    } else if (key === 'allergies') {
+                        where.allergies = {
+                            in: values
+                        }
+                    }
+                    // Il faudrait ajouter tous les autres champs possibles du modèle Patient
+                }
+            })
+        }
+
+        // Exécuter la requête avec pagination
+        const [patients, totalPatients] = await Promise.all([
+            prisma.patient.findMany({
+                where,
+                orderBy,
+                skip: (page - 1) * perPage,
+                take: perPage,
+                include: {
+                    user: {
+                        include: {
+                            sentRequests: {
+                                where: {
+                                    status: "TRANSFERRED",
+                                    ...(doctorId ? { doctorId } : {})
+                                },
+                                include: {
+                                    hospital: true,
+                                    service: true,
+                                    doctor: {
+                                        include: {
+                                            user: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     medicalRecord: true
                 }
             }),

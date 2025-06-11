@@ -151,13 +151,14 @@ model Director {
 }
 
 model Hospital {
-  id        String   @id @default(cuid())
-  name      String
-  address   String
-  phone     String   @unique
-  email     String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  urlOrthanc String   @default("")
+  address    String
+  phone      String   @unique
+  email      String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relations
   services            Service[]
@@ -238,12 +239,12 @@ model Appointment {
   updatedAt DateTime @updatedAt
 
   // Relations
-  patient       Patient            @relation(fields: [patientId], references: [id])
+  patient       Patient             @relation(fields: [patientId], references: [id])
   patientId     String
-  doctor        Doctor             @relation(fields: [doctorId], references: [id])
+  doctor        Doctor              @relation(fields: [doctorId], references: [id])
   doctorId      String
-  request       AppointmentRequest @relation(fields: [requestId], references: [id])
-  requestId     String             @unique
+  request       AppointmentRequest? @relation(fields: [requestId], references: [id])
+  requestId     String?             @unique
   medicalReport MedicalReport?
 
   @@map("appointments")
@@ -292,6 +293,7 @@ model Prescription {
 model DicomImage {
   id          String   @id @default(cuid())
   orthanc_id  String   @unique // ID of the image on Orthanc server
+  orthanc_url String   @default("")
   type        String
   description String?
   uploadDate  DateTime @default(now())

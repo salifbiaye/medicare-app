@@ -217,10 +217,18 @@ export const getImportSchemaByRole = (role: string) => {
 export const personalInfoSchema = z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Adresse email invalide"),
-    phone: z.string().optional(),
+    phone: z.union([
+        z.string().min(1, "Le numéro de téléphone est requis"),
+        z.literal("")
+    ]).optional(),
     address: z.string().optional(),
     gender: z.enum(["MALE", "FEMALE"]),
-    birthDate: z.date().optional(),
+    birthDate: z.union([
+        z.date(),
+        z.string().transform((str) => new Date(str)),
+        z.null(),
+        z.undefined()
+    ]).optional(),
 })
 
 export type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>

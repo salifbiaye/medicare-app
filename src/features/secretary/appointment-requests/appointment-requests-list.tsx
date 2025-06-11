@@ -257,16 +257,7 @@ export function AppointmentRequestsList({ requests, onStatusUpdate, isSubmitting
                           <XCircle className="mr-2 h-4 w-4" />
                           Rejeter
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 hover:text-purple-800"
-                          onClick={() => handleAction(request, "transfer")}
-                          disabled={isSubmitting}
-                        >
-                          <ArrowRightLeft className="mr-2 h-4 w-4" />
-                          Transférer
-                        </Button>
+                        
                       </>
                     )}
                   </div>

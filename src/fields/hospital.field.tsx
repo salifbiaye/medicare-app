@@ -1,4 +1,4 @@
-import { Building2, MapPin, Phone, Mail } from "lucide-react"
+import { Building2, MapPin, Phone, Mail, Link } from "lucide-react"
 import React from "react"
 
 export const createHospitalfields = [
@@ -38,6 +38,15 @@ export const createHospitalfields = [
     required: false,
     icon: <Mail className="h-4 w-4" />,
     helpText: "Adresse email de contact",
+  },
+  {
+    type: "text",
+    name: "urlOrthanc",
+    label: "URL du serveur Orthanc",
+    placeholder: "http://orthanc.hopital.com",
+    required: true,
+    icon: <Link className="h-4 w-4" />,
+    helpText: "URL du serveur Orthanc pour les images DICOM",
   },
 ]
 

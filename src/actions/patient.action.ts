@@ -1,6 +1,6 @@
 "use server"
 
-import { CreatePatientFormValues, PatientImport } from "@/schemas/user.schema"
+import {CreatePatientFormValues, PatientImport, SecretaryImport} from "@/schemas/user.schema"
 import { PatientService } from "@/services/patient.service"
 import { revalidatePath } from "next/cache"
 import { ParamsSchemaFormValues } from "@/schemas/index.schema"
@@ -10,12 +10,18 @@ import {
   CreatePrescriptionFormValues, 
   CreateDicomImageFormValues 
 } from "@/schemas/medical-document.schema"
+import { PatientOnboardingFormValues } from "@/schemas/patient-onboarding.schema"
+
 
 export async function createPatientAction(data: CreatePatientFormValues) {
     return await PatientService.createPatient(data)
 }
-
-
+export async function importPatientsAction(data: PatientImport[]) {
+    return await PatientService.importPatients(data)
+}
+export async function createPatientFromExistingUserAction(data: PatientOnboardingFormValues) {
+    return await PatientService.createPatientForExistingUser(data)
+}
 
 export async function updatePatientAction(userId: string, data: CreatePatientFormValues) {
     const result = await PatientService.updatePatient(userId, data)
@@ -26,6 +32,11 @@ export async function updatePatientAction(userId: string, data: CreatePatientFor
 export async function getPatientsWithPaginationAction(params: ParamsSchemaFormValues) {
     return await PatientService.getPatientsWithPagination(params)
 }
+
+export async function getPatientsDoctorWithPaginationAction(params: ParamsSchemaFormValues) {
+    return await PatientService.getPatientsDoctorWithPagination(params)
+}
+
 
 export async function deletePatientAction(patientId: string) {
     const result = await PatientService.deletePatient(patientId)

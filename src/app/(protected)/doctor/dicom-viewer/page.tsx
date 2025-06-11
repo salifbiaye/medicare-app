@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Search, RefreshCw, AlertCircle, Image } from 'lucide-react';
+import { Loader2, Search, RefreshCw, AlertCircle, Image, ScanLine } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useSearchParams, useRouter } from 'next/navigation';
+import { AnimatedHeader, AnimatedLayout } from "@/components/animations/animated-layout"
+import { ParticlesBackground } from "@/components/animations/particles-background"
 
 // Étendre l'interface Window pour TypeScript
 declare global {
@@ -325,175 +327,194 @@ const DicomViewerPage = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6">Visualiseur d'images médicales DICOM</h1>
-            
-            {/* Alerte de statut du serveur */}
-            {serverStatus === 'unavailable' && (
-                <Alert variant="destructive" className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Serveur Orthanc non disponible</AlertTitle>
-                    <AlertDescription>
-                        <p>Impossible de se connecter au serveur Orthanc. Vérifiez que le serveur est en cours d'exécution.</p>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2" 
-                            onClick={reconnectToOrthancServer}
-                        >
-                            Réessayer la connexion
-                        </Button>
-                    </AlertDescription>
-                </Alert>
-            )}
-            
-            {error && (
-                <div className="mb-6">
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Erreur</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                </div>
-            )}
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Liste des instances DICOM */}
-                <div className="lg:col-span-1">
-                    <Card className="h-full">
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-        <div>
-                                    <CardTitle>Images DICOM disponibles</CardTitle>
-                                    <CardDescription>
-                                        Sélectionnez une image à visualiser
-                                    </CardDescription>
-                                </div>
-                                <Button 
-                                    variant="outline" 
-                                    size="icon"
-                                    onClick={refreshInstancesList}
-                                    disabled={isLoading || serverStatus !== 'available'}
-                                    title="Actualiser la liste"
-                                >
-                                    <RefreshCw className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                                <Input
-                                    placeholder="Rechercher par ID..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="flex-1"
-                                    disabled={serverStatus !== 'available' || !!dicomId}
-                                    readOnly={!!dicomId}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !dicomId) {
-                                            handleSearchById();
-                                        }
-                                    }}
-                                />
-                                <Button 
-                                    variant="outline" 
-                                    size="icon"
-                                    onClick={dicomId ? () => router.push('/doctor/dicom-viewer') : handleSearchById}
-                                    disabled={(!searchTerm && !dicomId) || serverStatus !== 'available'}
-                                    title={dicomId ? "Effacer la recherche" : "Rechercher"}
-                                >
-                                    {dicomId ? (
-                                        <RefreshCw className="h-4 w-4" />
-                                    ) : (
-                                        <Search className="h-4 w-4" />
-                                    )}
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {serverStatus === 'checking' ? (
-                                <div className="flex flex-col justify-center items-center h-32">
-                                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                                    <p className="text-muted-foreground">Connexion au serveur Orthanc...</p>
-                                </div>
-                            ) : serverStatus === 'unavailable' ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <AlertCircle className="h-8 w-8 mx-auto mb-2 text-destructive" />
-                                    <p>Serveur Orthanc non disponible</p>
-                                </div>
-                            ) : isLoading && !dicomFile ? (
-                                <div className="flex justify-center items-center h-32">
-                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                </div>
-                            ) : orthancInstances.length === 0 ? (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    Aucune image DICOM disponible sur le serveur
-                                </div>
-                            ) : (
-                                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                                    {filteredInstances.map((instance) => (
-                                        <div 
-                                            key={instance.ID}
-                                            className={`p-3 rounded-md cursor-pointer transition-colors ${
-                                                selectedInstanceId === instance.ID 
-                                                ? 'bg-primary text-primary-foreground' 
-                                                : 'bg-muted hover:bg-muted/80'
-                                            }`}
-                                            onClick={() => loadDicomInstance(instance.ID)}
-                                        >
-                                            <div className="font-medium truncate">
-                                                {instance.MainDicomTags?.SOPInstanceUID || instance.ID.substring(0, 8)}
-                                            </div>
-                                            <div className="text-xs opacity-80 mt-1">
-                                                ID: {instance.ID.substring(0, 8)}...
-                                            </div>
-                                            <div className="text-xs opacity-80">
-                                                Taille: {Math.round(instance.FileSize / 1024)} Ko
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+        <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-12 pt-6 dark:from-background dark:to-background/95">
+            <div className="px-4">
+                <AnimatedLayout>
+                    <ParticlesBackground />
+                    <AnimatedHeader>
+                        <div className="bg-blue-100 dark:bg-blue-100/10 p-3 rounded-full mr-4">
+                            <ScanLine className="h-8 w-8 text-primary" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl text-background dark:text-foreground font-bold tracking-tight">Visualiseur DICOM</h1>
+                            <p className="text-background/80 dark:text-foreground/50">Visualisez et analysez les images médicales</p>
+                        </div>
+                    </AnimatedHeader>
+                </AnimatedLayout>
 
-                {/* Visualiseur DICOM */}
-                <div className="lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Visualiseur DICOM</CardTitle>
-                            <CardDescription>
-                                {selectedInstanceId 
-                                    ? `Visualisation de l'image: ${selectedInstanceId.substring(0, 8)}...` 
-                                    : "Sélectionnez une image DICOM dans la liste pour la visualiser"}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {selectedInstanceId ? (
-                                <div id="dicom-container">
-                                    {/* Utiliser la clé pour forcer le rechargement du composant quand l'ID change */}
-                                    <SimpleDicomViewer 
-                                        key={selectedInstanceId}
-                                        onFilesLoad={handleFilesLoad}
-                                        fileInputId="dicom-file-input"
-                                        hideFileInput={true}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-12 text-center">
-                                    <Image className="h-16 w-16 text-muted-foreground/50 mb-4" />
-                                    <h3 className="text-lg font-medium mb-2">Aucune image sélectionnée</h3>
-                                    <p className="text-muted-foreground max-w-md">
-                                        Veuillez sélectionner une image DICOM dans la liste à gauche pour la visualiser.
-                                        {orthancInstances.length === 0 && (
-                                            <span className="block mt-2">
-                                                Aucune image DICOM n'est actuellement disponible sur le serveur.
-                                            </span>
+                <div className="mt-8">
+                    <div className="container mx-auto p-4">
+                        <h1 className="text-3xl font-bold mb-6">Visualiseur d'images médicales DICOM</h1>
+                        
+                        {/* Alerte de statut du serveur */}
+                        {serverStatus === 'unavailable' && (
+                            <Alert variant="destructive" className="mb-6">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Serveur Orthanc non disponible</AlertTitle>
+                                <AlertDescription>
+                                    <p>Impossible de se connecter au serveur Orthanc. Vérifiez que le serveur est en cours d'exécution.</p>
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="mt-2" 
+                                        onClick={reconnectToOrthancServer}
+                                    >
+                                        Réessayer la connexion
+                                    </Button>
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                        
+                        {error && (
+                            <div className="mb-6">
+                                <Alert variant="destructive">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>Erreur</AlertTitle>
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                            </div>
+                        )}
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Liste des instances DICOM */}
+                            <div className="lg:col-span-1">
+                                <Card className="h-full">
+                                    <CardHeader>
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <CardTitle>Images DICOM disponibles</CardTitle>
+                                                <CardDescription>
+                                                    Sélectionnez une image à visualiser
+                                                </CardDescription>
+                                            </div>
+                                            <Button 
+                                                variant="outline" 
+                                                size="icon"
+                                                onClick={refreshInstancesList}
+                                                disabled={isLoading || serverStatus !== 'available'}
+                                                title="Actualiser la liste"
+                                            >
+                                                <RefreshCw className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <Input
+                                                placeholder="Rechercher par ID..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="flex-1"
+                                                disabled={serverStatus !== 'available' || !!dicomId}
+                                                readOnly={!!dicomId}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !dicomId) {
+                                                        handleSearchById();
+                                                    }
+                                                }}
+                                            />
+                                            <Button 
+                                                variant="outline" 
+                                                size="icon"
+                                                onClick={dicomId ? () => router.push('/doctor/dicom-viewer') : handleSearchById}
+                                                disabled={(!searchTerm && !dicomId) || serverStatus !== 'available'}
+                                                title={dicomId ? "Effacer la recherche" : "Rechercher"}
+                                            >
+                                                {dicomId ? (
+                                                    <RefreshCw className="h-4 w-4" />
+                                                ) : (
+                                                    <Search className="h-4 w-4" />
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {serverStatus === 'checking' ? (
+                                            <div className="flex flex-col justify-center items-center h-32">
+                                                <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                                                <p className="text-muted-foreground">Connexion au serveur Orthanc...</p>
+                                            </div>
+                                        ) : serverStatus === 'unavailable' ? (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-destructive" />
+                                                <p>Serveur Orthanc non disponible</p>
+                                            </div>
+                                        ) : isLoading && !dicomFile ? (
+                                            <div className="flex justify-center items-center h-32">
+                                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                            </div>
+                                        ) : orthancInstances.length === 0 ? (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                Aucune image DICOM disponible sur le serveur
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                                                {filteredInstances.map((instance) => (
+                                                    <div 
+                                                        key={instance.ID}
+                                                        className={`p-3 rounded-md cursor-pointer transition-colors ${
+                                                            selectedInstanceId === instance.ID 
+                                                            ? 'bg-primary text-primary-foreground' 
+                                                            : 'bg-muted hover:bg-muted/80'
+                                                        }`}
+                                                        onClick={() => loadDicomInstance(instance.ID)}
+                                                    >
+                                                        <div className="font-medium truncate">
+                                                            {instance.MainDicomTags?.SOPInstanceUID || instance.ID.substring(0, 8)}
+                                                        </div>
+                                                        <div className="text-xs opacity-80 mt-1">
+                                                            ID: {instance.ID.substring(0, 8)}...
+                                                        </div>
+                                                        <div className="text-xs opacity-80">
+                                                            Taille: {Math.round(instance.FileSize / 1024)} Ko
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         )}
-                                    </p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                    </CardContent>
+                                </Card>
+                            </div>
+
+                            {/* Visualiseur DICOM */}
+                            <div className="lg:col-span-2">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>Visualiseur DICOM</CardTitle>
+                                        <CardDescription>
+                                            {selectedInstanceId 
+                                                ? `Visualisation de l'image: ${selectedInstanceId.substring(0, 8)}...` 
+                                                : "Sélectionnez une image DICOM dans la liste pour la visualiser"}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {selectedInstanceId ? (
+                                            <div id="dicom-container">
+                                                {/* Utiliser la clé pour forcer le rechargement du composant quand l'ID change */}
+                                                <SimpleDicomViewer 
+                                                    key={selectedInstanceId}
+                                                    onFilesLoad={handleFilesLoad}
+                                                    fileInputId="dicom-file-input"
+                                                    hideFileInput={true}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-12 text-center">
+                                                <Image className="h-16 w-16 text-muted-foreground/50 mb-4" />
+                                                <h3 className="text-lg font-medium mb-2">Aucune image sélectionnée</h3>
+                                                <p className="text-muted-foreground max-w-md">
+                                                    Veuillez sélectionner une image DICOM dans la liste à gauche pour la visualiser.
+                                                    {orthancInstances.length === 0 && (
+                                                        <span className="block mt-2">
+                                                            Aucune image DICOM n'est actuellement disponible sur le serveur.
+                                                        </span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

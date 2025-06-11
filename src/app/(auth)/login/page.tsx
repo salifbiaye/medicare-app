@@ -130,7 +130,7 @@ export default function LoginPage() {
           description: "You are now logged into your patient.",
           duration: 4000,
         });
-        redirect("/dashboard");
+        redirect("/account");
 
       },
       onError: (ctx) => {

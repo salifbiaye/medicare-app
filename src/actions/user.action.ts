@@ -45,6 +45,7 @@ export async function deleteMultipleUsersAction(userIds:string[]){
 }
 
 export async function updateUserAction(userId: string, data: Partial<User>) {
+
     return await UserService.updateUser(userId, data)
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Image, Calendar, Eye, ArrowUpRight } from "lucide-react"
+import { Image, Calendar, Eye, ArrowUpRight, Share2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -10,6 +10,9 @@ import { getDicomImagesByMedicalRecordIdAction } from "@/actions/patient.action"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { toastAlert } from "@/components/ui/sonner-v2"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { shareDicomAction } from "@/actions/dicom.action"
 
 interface DicomImage {
   id: string
@@ -22,6 +25,9 @@ interface DicomImage {
 export function DicomsList({ medicalRecordId }: { medicalRecordId: string }) {
   const [dicomImages, setDicomImages] = useState<DicomImage[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedDicom, setSelectedDicom] = useState<DicomImage | null>(null)
+  const [doctorEmail, setDoctorEmail] = useState("")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchDicomImages = async () => {
@@ -49,6 +55,38 @@ export function DicomsList({ medicalRecordId }: { medicalRecordId: string }) {
 
     fetchDicomImages()
   }, [medicalRecordId])
+
+  const handleShare = async (dicomId: string) => {
+    setLoading(true)
+    try {
+      const result = await shareDicomAction({
+        dicomId,
+        doctorEmail
+      })
+
+      if (result.success) {
+        toastAlert.success({
+          title: "Partage réussi",
+          description: "L'image DICOM a été partagée avec le médecin"
+        })
+        setSelectedDicom(null)
+        setDoctorEmail("")
+      } else {
+        toastAlert.error({
+          title: "Erreur",
+          description: result.error || "Une erreur est survenue lors du partage"
+        })
+      }
+    } catch (error) {
+      console.error("Erreur lors du partage:", error)
+      toastAlert.error({
+        title: "Erreur",
+        description: "Une erreur est survenue lors du partage"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -100,6 +138,52 @@ export function DicomsList({ medicalRecordId }: { medicalRecordId: string }) {
                       Visualiser
                     </Button>
                   </Link>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1"
+                        onClick={() => setSelectedDicom(dicom)}
+                      >
+                        <Share2 className="h-3.5 w-3.5" />
+                        Partager
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Partager l'image DICOM</DialogTitle>
+                        <DialogDescription>
+                          Entrez l'adresse email du médecin avec qui vous souhaitez partager cette image.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <Input
+                          placeholder="Email du médecin"
+                          value={doctorEmail}
+                          onChange={(e) => setDoctorEmail(e.target.value)}
+                        />
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedDicom(null)
+                            setDoctorEmail("")
+                          }}
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          onClick={() => handleShare(dicom.id)}
+                          disabled={loading || !doctorEmail}
+                        >
+                          {loading ? "Partage en cours..." : "Partager"}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </CardHeader>

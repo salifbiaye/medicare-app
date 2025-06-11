@@ -23,15 +23,16 @@ import { CustomFormTextarea } from "@/components/input-component/text-area-input
 import { motion } from "framer-motion"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout";
 import {ParticlesBackground} from "@/components/animations/particles-background";
+import { CustomFormDateTime } from "@/components/input-component/date-time-input"
 
 // Type utilitaire
 type InferFormValues<T extends ZodType<any, any, any>> = z.infer<T>
 
 // Types de champs supportés
-type FieldType = "email" | "password" | "text" | "textarea" | "select" | "checkbox" | "date" | "number" | "otp" | "file" | "slide" | "multi-select"
+export type FieldType = "email" | "password" | "text" | "textarea" | "select" | "checkbox" | "date" | "date-time" | "number" | "otp" | "file" | "slide" | "multi-select"
 
 // Configuration pour les options des champs select, radio, etc.
-interface FieldOption {
+export interface FieldOption {
     value: string
     label: string
 }
@@ -47,7 +48,7 @@ interface FieldGroup {
     variant?: "default" | "outlined" | "filled"
 }
 
-interface FieldConfig<T extends FieldValues> {
+export interface FieldConfig<T extends FieldValues> {
     type: FieldType
     name: Path<T>
     label: string
@@ -204,7 +205,7 @@ export function DataForm<T extends ZodType<any, any, any>>({
             name: field.name,
             control: form.control as Control<FormValues>,
             labelText: field.label,
-            placeholder: field.placeholder || `Entrez ${field.label.toLowerCase()}`,
+            placeholder: field.placeholder || (field.label ? `Entrez ${field.label.toLowerCase()}` : ''),
             disabled: field.disabled,
         }
 
@@ -235,6 +236,8 @@ export function DataForm<T extends ZodType<any, any, any>>({
                 return <CustomFormCheckbox {...commonProps} />
             case "date":
                 return <CustomFormDatePicker {...commonProps} />
+            case "date-time":
+                return <CustomFormDateTime {...commonProps} showSeconds={false} />
             case "number":
                 return <CustomFormNumberInput
                     {...commonProps}

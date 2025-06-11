@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma"
 import { CreateDoctorFormValues, DoctorImport } from "@/schemas/user.schema"
+import { Role } from "@prisma/client"
 
 export class DoctorRepository {
     static async createDoctor(data: CreateDoctorFormValues) {
@@ -28,6 +29,16 @@ export class DoctorRepository {
                     }
                 }
             },
+            include: {
+                user: true,
+                hospital: true,
+                service: true
+            }
+        })
+    }
+    static async getDoctorByUserId(userId: string) {
+        return await prisma.doctor.findFirst({
+            where: { userId },
             include: {
                 user: true,
                 hospital: true,
@@ -146,5 +157,29 @@ export class DoctorRepository {
         })
 
 
+    }
+
+    static async getSharedDicoms(doctorId: string) {
+        return prisma.dicomSharing.findMany({
+            where: {
+                targetDoctorId: doctorId,
+                isActive: true
+            },
+            include: {
+                dicomImage: true,
+                sourceDoctor: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                }
+            },
+            orderBy: {
+                sharingDate: 'desc'
+            }
+        })
     }
 }

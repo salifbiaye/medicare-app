@@ -99,10 +99,7 @@ export class HospitalService {
             return { success: false, error: "Utilisateur non authentifié" }
         }
 
-        const isAdmin = await this.checkUserIsAdmin(session.user.id)
-        if (!isAdmin) {
-            return { success: false, error: "Non autorisé" }
-        }
+
 
         try {
             const validatedParams = paramsSchema.parse(params)
@@ -324,6 +321,29 @@ export class HospitalService {
             return {
                 success: false,
                 error: "Échec de la récupération des hôpitaux"
+            }
+        }
+    }
+
+    static async getHospitalById(id: string) {
+        try {
+            const hospital = await HospitalRepository.getHospitalById(id)
+            if (!hospital) {
+                return {
+                    success: false,
+                    error: "Hôpital non trouvé"
+                }
+            }
+            
+            return {
+                success: true,
+                data: hospital
+            }
+        } catch (error) {
+            console.error("Erreur lors de la récupération de l'hôpital:", error)
+            return {
+                success: false,
+                error: "Échec de la récupération de l'hôpital"
             }
         }
     }

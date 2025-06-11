@@ -38,6 +38,7 @@ export function ProfilePersonalInfo({
   const handleUpdateInfo = async (data: PersonalInfoFormValues) => {
     setIsUpdating(true)
     try {
+
        await updateUserAction(user.id,data)
       
       toastAlert.success({

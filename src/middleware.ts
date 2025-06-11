@@ -91,6 +91,14 @@ export default async function middleware(request: NextRequest) {
                 const dashboardPath = getDashboardByRole(user.role);
                 return NextResponse.redirect(new URL(dashboardPath, request.url));
             }
+            if(pathname === '/patient'  ) {
+                const calendarPath = '/patient' + '/calendar';
+                return NextResponse.redirect(new URL(calendarPath, request.url));
+            }
+            if (pathname === '/doctor'){
+                const calendarPath = '/doctor' + '/calendar';
+                return NextResponse.redirect(new URL(calendarPath, request.url));
+            }
 
             // Vérification onboarding
             if (!user.profileCompleted && pathname !== '/onboarding') {
