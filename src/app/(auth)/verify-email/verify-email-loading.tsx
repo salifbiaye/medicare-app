@@ -1,6 +1,6 @@
 import {Syringe} from "lucide-react";
 
-function VerifyEmailLoading() {
+export function VerifyEmailLoading() {
     return (
         <div className="login-container flex min-h-screen overflow-hidden">
             <div className="w-full lg:w-1/2 relative flex items-center justify-center p-8">

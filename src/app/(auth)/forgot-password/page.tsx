@@ -3,7 +3,7 @@
 
 import { useState } from "react"
 import { z } from "zod"
-import {ArrowLeft, Dumbbell, Syringe} from "lucide-react"
+import {ArrowLeft,Syringe} from "lucide-react"
 import SideImageForm from "@/features/auth/side-image-form"
 import { AuthForm } from "@/features/auth/auth-form"
 import { toastAlert } from "@/components/ui/sonner-v2"
