@@ -18,6 +18,13 @@ export class DirectorService {
 
         return await DirectorRepository.createDirector(data)
     }
+    static async findDirector() {
+        const session = await this.getSession()
+        if (!session?.user) {
+            throw new Error("Unauthorized")
+        }
+        return await DirectorRepository.findDirector(session.user.id)
+    }
 
     static async getDirectorHospitalId() {
         try {

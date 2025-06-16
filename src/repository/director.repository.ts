@@ -37,6 +37,16 @@ export class DirectorRepository {
         })
     }
 
+    static async findDirector(userId: string) {
+        return await prisma.director.findFirst({
+            where: { userId: userId },
+            include: {
+                user: true,
+                hospital: true
+            }
+        })
+    }
+
     static async createManyDirectors(data: DirectorImport[]) {
         return await prisma.$transaction(
             data.map(director => 
