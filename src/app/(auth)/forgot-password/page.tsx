@@ -32,15 +32,15 @@ export default function ForgotPasswordPage() {
       author: "PNNS",
     },
     {
-      text: "Boire suffisamment d’eau chaque jour est un acte simple pour une grande santé.",
+      text: "Boire suffisamment d'eau chaque jour est un acte simple pour une grande santé.",
       author: "OMS",
     },
     {
-      text: "Une bonne alimentation est le carburant d’un corps et d’un esprit performants.",
+      text: "Une bonne alimentation est le carburant d'un corps et d'un esprit performants.",
       author: "Auteur inconnu",
     },
     {
-      text: "Bien manger aujourd’hui, c’est investir dans votre santé de demain.",
+      text: "Bien manger aujourd'hui, c'est investir dans votre santé de demain.",
       author: "Diététiciens de France",
     },
     {
@@ -71,7 +71,6 @@ export default function ForgotPasswordPage() {
     const { email } = values
     const result = await verifyEmailAction(email)
     if (result.error) {
-
       toastAlert.error({
         title: "Erreur",
         description: result.error,
@@ -79,9 +78,8 @@ export default function ForgotPasswordPage() {
       })
       setIsLoading(false)
       return
-
     }
-    const loadingToastId =     toastAlert.loading({
+    const loadingToastId = toastAlert.loading({
       title: "Envoi de l'email...",
       description: "Nous vous enverrons un email pour réinitialiser votre mot de passe.",
       duration: Infinity,
@@ -92,7 +90,6 @@ export default function ForgotPasswordPage() {
       redirectTo: "/reset-password",
     },{
       onRequest: async () => {
-
 
       },
       onSuccess: () => {
@@ -112,7 +109,7 @@ export default function ForgotPasswordPage() {
         })
       },
     });
-      setIsLoading(false)
+    setIsLoading(false)
   }
 
   return (

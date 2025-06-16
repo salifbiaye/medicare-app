@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DataForm } from "@/components/data-form"
 import { toastAlert } from "@/components/ui/sonner-v2"
 import { appointmentSchema } from "@/schemas/appointment.schema"
@@ -22,7 +22,9 @@ interface AppointmentNewProps {
 
 export default function AppointmentNew({ patients }: AppointmentNewProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = React.useState(false)
+  const selectedPatientId = searchParams.get("patientId")
 
   const handleCreateAppointment = async (values: any) => {
     setIsLoading(true)
@@ -55,7 +57,10 @@ export default function AppointmentNew({ patients }: AppointmentNewProps) {
       options: patients.map(patient => ({
         value: patient.id,
         label: patient.user.name
-      }))
+      })),
+      defaultValue: selectedPatientId || undefined,
+      disabled: !!selectedPatientId,
+      helpText: selectedPatientId ? "Patient pré-sélectionné" : "Sélectionnez un patient"
     },
     {
       type: "date-time" as const,

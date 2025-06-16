@@ -6,7 +6,7 @@ export const patientBasicInfoSchema = z.object({
     name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
     email: z.string().email("Veuillez saisir un email valide"),
     gender: z.enum(["MALE", "FEMALE"]),
-    birthDate: z.date().optional(),
+    birthDate: z.string().transform((str) => str ? new Date(str) : undefined).optional(),
     phone: z.string().optional(),
 });
 

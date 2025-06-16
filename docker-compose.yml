@@ -1,37 +1,63 @@
 version: '3.8'
+
 services:
+  app:
+    image: gdxebec/medicare
+    container_name: medicare-app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://medicare_user:medicare_password@db:5432/medicare_db?schema=public
+      - BETTER_AUTH_SECRET=a1ekDYzDJwaZWhfZlb4iqaqZufAgQa6U
+      - BETTER_AUTH_URL=http://localhost:3000
+      - RESEND_API_KEY=re_j8JpVYG9_Evg8aBuzHDatyvvkwTexrbJS
+      - GITHUB_CLIENT_ID=902d3568b6acb7b55d4b
+      - GITHUB_CLIENT_SECRET=50cbfa1a818cf79b246145881f84b12fb4a32db3
+      - GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/callback/github
+      - GOOGLE_CLIENT_ID=1065653669609-i5rdeqgv427b9snuc2ut1hjbbsse7upf.apps.googleusercontent.com
+      - GOOGLE_CLIENT_SECRET=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
+      - GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/callback/google
+      - EDGE_STORE_ACCESS_KEY=mIMQNxKyBk4aqgImCIl2vn8Mo41oCB3X
+      - EDGE_STORE_SECRET_KEY=ObgwonNj0FBWpELQjrEezuPKNEMiROxhaF0Fn02TW8gjY32B
+      - URL_ORTHANC=http://localhost:8042
+    restart: unless-stopped
+    networks:
+      - medicare-network
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm start"
+
   db:
-    image: postgres:16
+    image: postgres:15-alpine
+    container_name: medicare-db
     environment:
       - POSTGRES_USER=medicare_user
       - POSTGRES_PASSWORD=medicare_password
       - POSTGRES_DB=medicare_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - db-data:/var/lib/postgresql/data
     networks:
-      - app-network
+      - medicare-network
+    restart: unless-stopped
 
-  pgadmin:
-    image: dpage/pgadmin4:8
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=admin
-      - PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION=False
+  adminer:
+    image: adminer
+    container_name: medicare-adminer
+    restart: unless-stopped
     ports:
-      - "5050:80"
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+      - ADMINER_DESIGN=dracula
+    networks:
+      - medicare-network
     depends_on:
       - db
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    networks:
-      - app-network
 
 networks:
-  app-network:
+  medicare-network:
     driver: bridge
 
 volumes:
-  db-data:
+  postgres_data:
   pgadmin-data:

@@ -53,8 +53,14 @@ export class AuthService {
                 return { success: false, error: "Utilisateur non authentifié" }
             }
 
+            // Get user to check role
+            const user = await UserRepository.getUserById(session.user.id)
+            if (!user) {
+                return { success: false, error: "Utilisateur non trouvé" }
+            }
+
             const result = await UserRepository.updateUser(session.user.id, {
-                profileCompleted: true,
+                profileCompleted: user.role !== "PATIENT", // Only complete profile for non-patients
                 gender: gender === "male" ? Gender.MALE : Gender.FEMALE
             })
 

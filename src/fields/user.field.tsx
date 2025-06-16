@@ -50,16 +50,29 @@ export const baseUserFields = [
         label: "Profil complété",
         icon: <CheckCircle2Icon className="h-4 w-4" />,
     },
+    {
+        type: "select",
+        name: "role",
+        label: "Rôle",
+        hidden: true,
+        options: [
+            { value: "PATIENT", label: "Patient" },
+            { value: "ADMIN", label: "Administrateur" },
+            { value: "DIRECTOR", label: "Directeur" },
+            { value: "DOCTOR", label: "Médecin" },
+            { value: "SECRETARY", label: "Secrétaire" },
+            { value: "CHIEF_DOCTOR", label: "Chef de service" },
+        ],
+       
+        icon: <ShieldIcon className="h-4 w-4" />,
+    },
 ]
+
+
 
 // Patient specific fields
 export const patientFields = [
     ...baseUserFields,
-    {
-        type: "hidden",
-        name: "role",
-        defaultValue: "PATIENT",
-    },
     {
         type: "text",
         name: "socialSecurityNumber",
@@ -95,17 +108,6 @@ export const patientFields = [
 // Doctor specific fields
 export const doctorFields = [
     ...baseUserFields,
-    {
-        type: "select",
-        name: "role",
-        label: "Type de médecin",
-        options: [
-            { value: "DOCTOR", label: "Médecin" },
-            { value: "CHIEF_DOCTOR", label: "Médecin en chef" },
-        ],
-        required: true,
-        icon: <Stethoscope className="h-4 w-4" />,
-    },
     {
         type: "select",
         name: "specialty",
@@ -184,17 +186,11 @@ export const doctorFields = [
             }
         }
     },
- 
 ]
 
 // Secretary specific fields
 export const secretaryFields = [
     ...baseUserFields,
-    {
-        type: "hidden",
-        name: "role",
-        defaultValue: "SECRETARY",
-    },
     {
         type: "select",
         name: "hospitalId",
@@ -250,11 +246,6 @@ export const secretaryFields = [
 export const directorFields = [
     ...baseUserFields,
     {
-        type: "hidden",
-        name: "role",
-        defaultValue: "DIRECTOR",
-    },
-    {
         type: "select",
         name: "hospitalId",
         label: "Hôpital",
@@ -282,11 +273,6 @@ export const directorFields = [
 // Admin specific fields
 export const adminFields = [
     ...baseUserFields,
-    {
-        type: "hidden",
-        name: "role",
-        defaultValue: "ADMIN",
-    },
 ]
 
 // Original user fields for backward compatibility

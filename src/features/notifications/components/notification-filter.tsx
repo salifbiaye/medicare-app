@@ -26,12 +26,19 @@ export function NotificationFilter({
   clearFilters,
   hasFilters,
 }: NotificationFilterProps) {
-  // Options de filtre
+
   const typeOptions = [
+    { value: "INFO", label: "Info" },
+    { value: "WARNING", label: "Alerte" },
+    { value: "SUCCESS", label: "Succès" },
+    { value: "ERROR", label: "Erreur" },
     { value: "MESSAGE", label: "Message" },
-    { value: "TASK", label: "Tâche" },
-    { value: "ALERT", label: "Alerte" },
-    { value: "REMINDER", label: "Rappel" },
+    { value: "APPOINTMENT", label: "Rendez-vous" },
+    { value: "DOCUMENT", label: "Document" },
+    { value: "SYSTEM", label: "Système" },
+    { value: "PRESCRIPTION", label: "Prescription" },
+    { value: "LAB", label: "Laboratoire" },
+    { value: "VITAL", label: "Vital" },
   ]
 
   const priorityOptions = [
@@ -96,35 +103,27 @@ export function NotificationFilter({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {/* Filtre de type */}<Select
+        {/* Filtre de type */}
+        <Select
           value={typeFilter.length > 0 ? typeFilter[0] : "all"}
-          onValueChange={(value) => {
-            if (value === "all") {
-              onTypeFilterChange([]);
-            } else {
-              // Basculer la sélection
-              const newTypes = typeFilter.includes(value)
-                  ? typeFilter.filter((t) => t !== value)
-                  : [...typeFilter, value];
-              onTypeFilterChange(newTypes);
-            }
-          }}
-      >
-        <SelectTrigger className="h-9 w-auto bg-gray-700 text-white">
-          <SelectValue placeholder="Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value="all">Tous les types</SelectItem>
-            {typeOptions.map((option) => (
+          onValueChange={(value) =>
+            onTypeFilterChange(value === "all" ? [] : [value])
+          }
+        >
+          <SelectTrigger className="h-9 w-auto bg-gray-700 text-white">
+            <SelectValue placeholder="Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">Tous les types</SelectItem>
+              {typeOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
-                  {typeFilter.includes(option.value) && " ✓"}
                 </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         {/* Filtre de priorité */}
         <Select

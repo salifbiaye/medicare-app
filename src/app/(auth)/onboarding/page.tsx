@@ -15,7 +15,7 @@ import { patientOnboardingFields } from "@/fields/patient-onboarding.field";
 import { patientOnboardingGroups } from "@/groups/patient-onboarding.groups";
 import { createPatientFromExistingUserAction } from "@/actions/patient.action";
 import { getCurrentUserAction } from "@/actions/user.action";
-import { User as UserType } from "@prisma/client";
+import { User as UserType, Role } from "@prisma/client";
 
 // Define user interface with optional fields for safety
 interface UserWithOptionalFields extends Partial<UserType> {
@@ -24,6 +24,7 @@ interface UserWithOptionalFields extends Partial<UserType> {
     email?: string;
     gender?: "MALE" | "FEMALE";
     profileCompleted?: boolean;
+    role?: Role;
 }
 
 export default function OnboardingPage() {
@@ -76,7 +77,7 @@ export default function OnboardingPage() {
         }
     }
 
-    // Handle gender selection completion and proceed to patient form
+    // Handle gender selection completion and proceed to patient form or finish onboarding
     const handleCompleteGender = async () => {
         setIsLoading(true)
         const result = await completeProfileAction(gender)
@@ -91,14 +92,25 @@ export default function OnboardingPage() {
             return
         }
         
-        // Update user in state with gender
         setCurrentUser((prev: UserWithOptionalFields | null) => ({
             ...prev,
             gender: gender === "male" ? "MALE" : "FEMALE",
-            profileCompleted: true
+            // Only mark as completed for non-patient users
+            profileCompleted: prev?.role !== "PATIENT" ? true : false
         }))
+
+        // If user is not a patient, redirect to dashboard
+        if (currentUser?.role !== "PATIENT") {
+            toastAlert.success({
+                title: "Succès",
+                description: "Votre profil a été complété avec succès",
+                duration: 2000,
+            });
+            router.push("/account")
+            return
+        }
         
-        // Show patient form
+        // Show patient form only for patients
         setCurrentStep(2)
     }
 
@@ -106,8 +118,14 @@ export default function OnboardingPage() {
     const handleSubmitPatientData = async (values: PatientOnboardingFormValues) => {
         setIsLoading(true)
         try {
+            // Set profileCompleted to true only when creating the patient
+            const valuesWithCompletedProfile = {
+                ...values,
+                profileCompleted: true // This is the only place where we set profileCompleted to true for patients
+            }
+            
             // Utiliser la nouvelle action pour les utilisateurs existants
-            const result = await createPatientFromExistingUserAction(values)
+            const result = await createPatientFromExistingUserAction(valuesWithCompletedProfile)
             
             if (result.error) {
                 toastAlert.error({
@@ -126,7 +144,7 @@ export default function OnboardingPage() {
             });
             
             // Redirect to dashboard
-            router.push("/dashboard")
+            router.push("/account")
         } catch (error) {
             console.error("Error during patient creation:", error)
             toastAlert.error({
@@ -169,7 +187,7 @@ export default function OnboardingPage() {
             gender: currentUser.gender || (gender === "male" ? "MALE" as const : "FEMALE" as const),
             role: "PATIENT" as const,
             emailVerified: true,
-            profileCompleted: true
+            profileCompleted: false // Start with false for patients
         }
     }
 

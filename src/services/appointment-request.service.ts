@@ -30,16 +30,13 @@ export class AppointmentRequestService {
       
       // Créer une notification pour le service concerné
       if (request.serviceId) {
-        // Ici, il faudrait idéalement récupérer les secrétaires du service
-        // et créer une notification pour chacun d'eux
-        // Pour simplifier, nous allons créer une notification pour l'utilisateur connecté
         await NotificationService.createNotification({
           title: "Nouvelle demande de rendez-vous",
           message: `${request.patient.name} a fait une demande de rendez-vous.`,
           type: "WARNING" as NotificationType,
           priority: "MEDIUM",
           category: "ADMINISTRATIVE",
-          recipientId: session.user.id, // À remplacer par les IDs des secrétaires du service
+          recipientId: session.user.id,
           actionRequired: true
         })
       }
@@ -56,114 +53,100 @@ export class AppointmentRequestService {
       }
     }
   }
-  
-  static async updateAppointmentRequestStatus(requestId: string, status: RequestStatus, data?: {
-    doctorId?: string
-    note?: string
-    serviceId?: string
-  }) {
-    try {
-      const session = await this.getSession()
 
-      if (!session?.user) {
-        return { success: false, error: "Utilisateur non authentifié" }
-      }
+  static async updateAppointmentRequestStatus(patientId: string, status: RequestStatus) {
+    const session = await this.getSession()
+    if (!session?.user?.id) {
+      throw new Error("Non autorisé")
+    }
 
-      const userId = session.user.id;
-      const request = await AppointmentRequestRepository.getAppointmentRequestById(requestId);
-      
-      if (!request) {
-        return { success: false, error: "Demande non trouvée" }
-      }
+    // Récupérer le doctorId de l'utilisateur connecté
+    const doctor = await AppointmentRequestRepository.getDoctorByUserId(session.user.id)
+    if (!doctor) {
+      throw new Error("Utilisateur non autorisé (doit être un médecin)")
+    }
 
-      let updatedRequest;
-      
-      // Si un doctorId spécifique est fourni, utiliser celui-là
-      if (data?.doctorId) {
-        updatedRequest = await AppointmentRequestRepository.updateStatusWithDoctor(
-          requestId, 
-          status, 
-          data.doctorId
-        );
-      } 
-      // Si un serviceId spécifique est fourni pour un transfert
-      else if (status === "TRANSFERRED" && data?.serviceId) {
-        updatedRequest = await AppointmentRequestRepository.updateStatusWithTransfer(
-          requestId,
-          status,
-          data.serviceId
-        );
-      }
-      // Sinon, chercher le rôle de l'utilisateur connecté
-      else {
-        // Vérifier si l'utilisateur est un médecin
-        const doctor = await AppointmentRequestRepository.getDoctorByUserId(userId);
-        
-        if (doctor) {
-          updatedRequest = await AppointmentRequestRepository.updateStatusWithDoctor(
-            requestId,
-            status,
-            doctor.id
-          );
-        } else {
-          // Vérifier si l'utilisateur est un secrétaire
-          const secretary = await AppointmentRequestRepository.getSecretaryByUserId(userId);
-          
-          if (secretary) {
-            updatedRequest = await AppointmentRequestRepository.updateStatusWithSecretary(
-              requestId,
-              status,
-              secretary.id
-            );
-          } else {
-            return { 
-              success: false, 
-              error: "Utilisateur non autorisé (ni médecin, ni secrétaire)" 
-            };
-          }
-        }
-      }
-      
-      // Créer une notification pour le patient
+    const result = await AppointmentRequestRepository.updatePatientAppointmentRequestsStatus(
+      patientId,
+      doctor.id,
+      status
+    )
+
+    if (!result) {
+      throw new Error("Échec de la mise à jour du statut")
+    }
+
+    if (status === RequestStatus.COMPLETED) {
       await NotificationService.createNotification({
-        title: `Mise à jour de votre demande de rendez-vous`,
-        message: this.getStatusUpdateMessage(status, data?.note),
+        recipientId: patientId,
+        title: "Demandes de rendez-vous complétées",
+        message: "Vos demandes de rendez-vous ont été marquées comme complétées par le médecin.",
         type: "INFO" as NotificationType,
         priority: "MEDIUM",
         category: "ADMINISTRATIVE",
-        recipientId: request.patientId,
         senderId: session.user.id
       })
-      
-      return {
-        success: true,
-        data: updatedRequest
-      }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour de la demande de rendez-vous:", error)
-      return {
-        success: false,
-        error: "Échec de la mise à jour de la demande de rendez-vous"
+    }
+
+    return result
+  }
+
+  static async updateMultipleAppointmentRequestsStatus(patientIds: string[], status: RequestStatus) {
+    const session = await this.getSession()
+    if (!session?.user?.id) {
+      throw new Error("Non autorisé")
+    }
+
+    // Récupérer le doctorId de l'utilisateur connecté
+    const doctor = await AppointmentRequestRepository.getDoctorByUserId(session.user.id)
+    if (!doctor) {
+      throw new Error("Utilisateur non autorisé (doit être un médecin)")
+    }
+
+    const results = await AppointmentRequestRepository.updateMultiplePatientAppointmentRequestsStatus(
+      patientIds,
+      doctor.id,
+      status
+    )
+    
+    if (!results) {
+      throw new Error("Échec de la mise à jour des statuts")
+    }
+
+    if (status === RequestStatus.COMPLETED) {
+      await Promise.all(
+        patientIds.map(patientId =>
+          NotificationService.createNotification({
+            recipientId: patientId,
+            title: "Demandes de rendez-vous complétées",
+            message: "Vos demandes de rendez-vous ont été marquées comme complétées par le médecin.",
+            type: "INFO" as NotificationType,
+            priority: "MEDIUM",
+            category: "ADMINISTRATIVE",
+            senderId: session.user.id
+          })
+        )
+      )
+    }
+
+    return results
+  }
+
+  static async getAppointmentRequestsWithPagination(params: {
+    page: number
+    perPage: number
+    sort?: string
+    search?: string
+    filters?: {
+      status?: RequestStatus[]
+      serviceId?: string
+      hospitalId?: string[]
+      dateRange?: {
+        from?: Date
+        to?: Date
       }
     }
-  }
-  
-  private static getStatusUpdateMessage(status: RequestStatus, note?: string): string {
-    switch (status) {
-      case "ACCEPTED":
-        return `Votre demande de rendez-vous a été acceptée. ${note ? `Note: ${note}` : ''}`;
-      case "REJECTED":
-        return `Votre demande de rendez-vous a été rejetée. ${note ? `Raison: ${note}` : ''}`;
-      case "TRANSFERRED":
-        return `Votre demande de rendez-vous a été transférée à un autre service. ${note ? `Raison: ${note}` : ''}`;
-      case "COMPLETED":
-        return `Votre rendez-vous a été complété. ${note ? `Note: ${note}` : ''}`;
-      default:
-        return `Le statut de votre demande de rendez-vous a été mis à jour. ${note ? `Note: ${note}` : ''}`;
-    }
-  }
-  
-  static async getAppointmentRequestsWithPagination(params: ParamsSchemaFormValues & { serviceId?: string }) {
+  }) {
     try {
       const session = await this.getSession()
 
@@ -174,16 +157,9 @@ export class AppointmentRequestService {
       // Récupérer l'ID de l'utilisateur courant
       const userId = session.user.id
 
-      // Ajouter le serviceId au filtre si spécifié
-      const filters = {...(params.filters || {})} as any;
-      if (params.serviceId) {
-        filters.serviceId = params.serviceId;
-      }
-
       // Passer l'ID de l'utilisateur au repository pour filtrer les demandes
       const result = await AppointmentRequestRepository.getAppointmentRequestsWithPagination({
         ...params,
-        filters,
         userId
       })
 
@@ -199,7 +175,7 @@ export class AppointmentRequestService {
       }
     }
   }
-  
+
   static async getRequestStats() {
     try {
       const session = await this.getSession()
@@ -211,8 +187,8 @@ export class AppointmentRequestService {
       // Récupérer l'ID de l'utilisateur courant
       const userId = session.user.id
 
-      // Utiliser l'ID de l'utilisateur et éventuellement serviceId
-      const stats = await AppointmentRequestRepository.getRequestStats( userId)
+      // Utiliser l'ID de l'utilisateur
+      const stats = await AppointmentRequestRepository.getRequestStats(userId)
 
       return {
         success: true,

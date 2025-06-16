@@ -89,7 +89,7 @@ export function AuthForm<T extends ZodType<any, any, any>>({
     const signInProvider = async (provider: 'google' | 'github') => {
         await authClient.signIn.social({
             provider,
-            callbackURL: `/dashboard`,
+            callbackURL: `/account`,
         });
     }
     return (

@@ -108,7 +108,7 @@ export const navigationConfig: NavItem[] = [
                 subNav: [
                     {
                         id: "appointments-new",
-                        title: "creer rendez-vous",
+                        title: "Gestion des rendez-vous",
                         href: "/doctor/appointment",
                         icon: <Calendar className="w-5 h-5" />,
                         roles: [Role.DOCTOR, Role.CHIEF_DOCTOR]

@@ -102,10 +102,9 @@ export function ResetPasswordContent() {
         setIsLoading(true);
         const { password } = values;
 
-        // Simulate an API call to reset the password
         await authClient.resetPassword({
             newPassword: password,
-            token: token, // Replace with the actual token from the URL or context
+            token: token,
         }, {
             onRequest: () => {
 

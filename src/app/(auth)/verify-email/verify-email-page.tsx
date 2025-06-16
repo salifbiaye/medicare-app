@@ -152,7 +152,7 @@ export function VerifyEmailContent() {
                     description: "Un nouveau code a été envoyé à votre adresse email.",
                     duration: 5000,
                 })
-                redirect("/verify-email?email=" + email + "&type=email-verification" + "&message=Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception." + "&error=" + "Un nouveau code a été envoyé à votre adresse email." + "&success=" + "Un nouveau code a été envoyé à votre adresse email." + "&info=" + "Un nouveau code a été envoyé à votre adresse email." + "&warning=" + "Un nouveau code a été envoyé à votre adresse email." + "&alert=" + "Un nouveau code a été envoyé à votre adresse email." + "&notification=" + "Un nouveau code a été envoyé à votre adresse email." + "&toast=" + "Un nouveau code a été envoyé à votre adresse email.");
+                redirect("/verify-email?email=" + email + "&type=email-verification" + "&message=Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception.");
             },
             onError: (ctx) => {
                 toast.dismiss(loadingToastId)

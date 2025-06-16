@@ -36,15 +36,15 @@ export default function LoginPage() {
       author: "PNNS",
     },
     {
-      text: "Boire suffisamment d’eau chaque jour est un acte simple pour une grande santé.",
+      text: "Boire suffisamment d'eau chaque jour est un acte simple pour une grande santé.",
       author: "OMS",
     },
     {
-      text: "Une bonne alimentation est le carburant d’un corps et d’un esprit performants.",
+      text: "Une bonne alimentation est le carburant d'un corps et d'un esprit performants.",
       author: "Auteur inconnu",
     },
     {
-      text: "Bien manger aujourd’hui, c’est investir dans votre santé de demain.",
+      text: "Bien manger aujourd'hui, c'est investir dans votre santé de demain.",
       author: "Diététiciens de France",
     },
     {
@@ -93,15 +93,15 @@ export default function LoginPage() {
 
     // Affiche le toast de chargement
     const loadingToastId = toastAlert.loading({
-      title: "Logging in...",
-      description: "Please wait while we verify your credentials.",
+      title: "Connexion en cours...",
+      description: "Veuillez patienter pendant que nous vérifions vos identifiants.",
       duration: Infinity,
     });
     const result = await verifyEmailAction(email)
     if (result.error) {
       toast.dismiss(loadingToastId)
       toastAlert.error({
-        title: "Verification error",
+        title: "Erreur de vérification",
         description: result.error,
         duration: 5000,
       })
@@ -119,15 +119,14 @@ export default function LoginPage() {
     }, {
       onRequest: () => {
         // Ne pas supprimer le toast de chargement ici
-        // Retirer cette ligne: toast.dismiss(loadingToastId);
       },
       onSuccess: async () => {
         // Supprimer le toast de chargement à la réussite
         toast.dismiss(loadingToastId);
 
         toastAlert.success({
-          title: "Login successful",
-          description: "You are now logged into your patient.",
+          title: "Connexion réussie",
+          description: "Vous êtes maintenant connecté à votre compte.",
           duration: 4000,
         });
         redirect("/account");
@@ -139,15 +138,15 @@ export default function LoginPage() {
 
         if(ctx.error.message === "Invalid email or password") {
           toastAlert.error({
-            title: "Login error",
-            description: "Incorrect email or password.",
+            title: "Erreur de connexion",
+            description: "Email ou mot de passe incorrect.",
             duration: 3000,
           });
         } else {
           toast.dismiss(loadingToastId)
           toastAlert.error({
-            title: "Login error",
-            description: "An error occurred during login. Please try again.",
+            title: "Erreur de connexion",
+            description: "Une erreur s'est produite lors de la connexion. Veuillez réessayer.",
             duration: 3000,
           });
         }

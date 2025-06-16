@@ -47,9 +47,8 @@ export default async function middleware(request: NextRequest) {
             const response = await fetch(`${request.nextUrl.origin}/api/session?token=${session.split(".")[0]}`);
             if (response.ok) {
                 const existingSession = await response.json();
-                const user = existingSession.session?.user as User;
-                const dashboardPath = getDashboardByRole(user.role);
-                return NextResponse.redirect(new URL(dashboardPath, request.url));
+                
+                return NextResponse.redirect(new URL('/account', request.url));
             }
         }
         // Permettre l'accès aux pages d'authentification si pas de session

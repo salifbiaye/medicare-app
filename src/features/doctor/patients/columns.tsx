@@ -13,13 +13,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, User, FileText, FilePlus2, CalendarDays } from "lucide-react"
+import { MoreHorizontal, User, FileText, FilePlus2, CalendarDays, CalendarPlus, CheckCircle2 } from "lucide-react"
 import { DataTableColumnHeader } from "@/components/datatable/data-table-column-header"
 import { useState } from "react"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { toastAlert } from "@/components/ui/sonner-v2"
 import { fr } from "date-fns/locale"
 import { useRouter } from "next/navigation"
+import { updateAppointmentRequestStatusAction } from "@/actions/appointment-request.action"
 
 export type PatientWithUser = {
   id: string
@@ -147,6 +148,32 @@ export const columns: ColumnDef<PatientWithUser>[] = [
         }
       }
 
+      const handleCreateAppointment = () => {
+        router.push(`/doctor/appointment/new?patientId=${patient.id}`)
+      }
+
+      const handleMarkAsCompleted = async () => {
+        try {
+          const result = await updateAppointmentRequestStatusAction(patient.userId, "COMPLETED")
+          if (result.success) {
+            toastAlert.success({
+              title: "Demandes complétées",
+              description: "Toutes les demandes de rendez-vous du patient ont été marquées comme complétées."
+            })
+          } else {
+            toastAlert.error({
+              title: "Erreur",
+              description: "Impossible de marquer les demandes comme complétées."
+            })
+          }
+        } catch (error) {
+          toastAlert.error({
+            title: "Erreur",
+            description: "Une erreur est survenue."
+          })
+        }
+      }
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -173,6 +200,14 @@ export const columns: ColumnDef<PatientWithUser>[] = [
                   Créer un dossier médical
                 </>
               )}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCreateAppointment}>
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Créer un rendez-vous
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleMarkAsCompleted}>
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              Marquer comme complété
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

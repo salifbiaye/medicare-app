@@ -18,18 +18,26 @@ export async function createAppointmentRequestAction(data: {
   return result
 }
 
-export async function updateAppointmentRequestStatusAction(
-  requestId: string,
-  status: RequestStatus,
-  data?: {
-    doctorId?: string
-    note?: string
-    serviceId?: string
+export async function updateAppointmentRequestStatusAction(patientId: string, status: RequestStatus) {
+  try {
+    const result = await AppointmentRequestService.updateAppointmentRequestStatus(patientId, status)
+    revalidatePath("/doctor/appointment-requests")
+    return { success: true, data: result }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut:", error)
+    return { success: false, error: "Échec de la mise à jour du statut" }
   }
-) {
-  const result = await AppointmentRequestService.updateAppointmentRequestStatus(requestId, status, data)
-  revalidatePath("/secretary/appointment-requests")
-  return result
+}
+
+export async function updateMultipleAppointmentRequestsStatusAction(patientIds: string[], status: RequestStatus) {
+  try {
+    const result = await AppointmentRequestService.updateMultipleAppointmentRequestsStatus(patientIds, status)
+    revalidatePath("/doctor/appointment-requests")
+    return { success: true, data: result }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour des statuts:", error)
+    return { success: false, error: "Échec de la mise à jour des statuts" }
+  }
 }
 
 export async function getAppointmentRequestsWithPaginationAction(params: ParamsSchemaFormValues) {

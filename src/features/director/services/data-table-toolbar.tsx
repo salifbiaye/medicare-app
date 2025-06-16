@@ -58,7 +58,7 @@ function DataTableToolbarContent<TData>({
   // Debounce de la valeur de recherche
   const [debouncedSearchValue] = useDebounce(localSearchValue, debounceDelay)
 
-  // Get all the unique filter values from the URL
+  // STABILISER filterValues avec useMemo
   const filterValues = React.useMemo(() => {
     const values: Record<string, string[]> = {}
 
@@ -83,41 +83,57 @@ function DataTableToolbarContent<TData>({
   const selectedRows = table.getFilteredSelectedRowModel().rows
   const hasSelectedRows = selectedRows.length > 0
 
-  // Effet pour gérer la recherche debounced
+  // STABILISER l'effet de recherche avec useCallback
+  const handleSearchChange = React.useCallback(
+    (searchValue: string) => {
+      console.log("🔍 handleSearchChange:", searchValue)
+
+      // UTILISER createQueryString au lieu de manipuler directement les searchParams
+      const newUrl = `${pathname}?${createQueryString({
+        search: searchValue || null,
+        page: 1, // Reset à la page 1 lors de la recherche
+      })}`
+
+      console.log("🚀 Search navigation:", newUrl)
+      router.push(newUrl)
+    },
+    [pathname, createQueryString, router],
+  )
+
+  // Effet pour gérer la recherche debounced - STABILISÉ
   React.useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString())
+    const currentSearch = searchParams?.get("search") || ""
 
-    if (debouncedSearchValue) {
-      newSearchParams.set("search", debouncedSearchValue)
-    } else {
-      newSearchParams.delete("search")
+    // Éviter les appels inutiles
+    if (debouncedSearchValue !== currentSearch) {
+      handleSearchChange(debouncedSearchValue)
     }
+  }, [debouncedSearchValue, handleSearchChange, searchParams])
 
-    // Reset to the first page when searching
-    newSearchParams.set("page", "1")
-
-    router.push(`${pathname}?${newSearchParams.toString()}`)
-  }, [debouncedSearchValue, router, pathname, searchParams])
-
-  // Handle reset filters
+  // STABILISER handleResetFilters avec useCallback
   const handleResetFilters = React.useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString())
-
-    for (const key of Object.keys(filterValues)) {
-      newSearchParams.delete(key)
-    }
+    console.log("🔄 handleResetFilters")
 
     // Reset search input
     setLocalSearchValue("")
-    newSearchParams.delete("search")
 
-    // Reset to the first page when clearing filters
-    newSearchParams.set("page", "1")
+    // UTILISER createQueryString pour reset tous les filtres
+    const paramsToReset: Record<string, string | number | null> = {
+      search: null,
+      page: 1, // Reset à la page 1
+    }
 
-    router.push(`${pathname}?${newSearchParams.toString()}`)
-  }, [searchParams, filterValues, router, pathname])
+    // Ajouter tous les filtres actifs à reset
+    Object.keys(filterValues).forEach((key) => {
+      paramsToReset[key] = null
+    })
 
-  // Handle delete selected rows
+    const newUrl = `${pathname}?${createQueryString(paramsToReset)}`
+    console.log("🚀 Reset navigation:", newUrl)
+    router.push(newUrl)
+  }, [filterValues, pathname, createQueryString, router])
+
+  // STABILISER handleDeleteSelected avec useCallback
   const handleDeleteSelected = React.useCallback(async () => {
     if (!onDeleteSelected) return
 
@@ -188,7 +204,6 @@ function DataTableToolbarContent<TData>({
           Ajouter
         </Button>
 
-        {/* Menu d'export */}
         <ExportMenu
           data={table.getFilteredRowModel().rows.map((row) => row.original)}
           columns={table.getAllColumns().map((column) => column.columnDef)}

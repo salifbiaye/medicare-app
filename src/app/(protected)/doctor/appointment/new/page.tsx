@@ -3,6 +3,7 @@ import { getPatientsAction } from "@/actions/appointment.action"
 import { CalendarPlus } from "lucide-react"
 import { AnimatedHeader, AnimatedLayout } from "@/components/animations/animated-layout"
 import { ParticlesBackground } from "@/components/animations/particles-background"
+import { getPatientsDoctorWithPaginationAction } from "@/actions/patient.action"
 
 export default async function NewAppointmentPage() {
   const patientsResult = await getPatientsAction()
@@ -11,7 +12,7 @@ export default async function NewAppointmentPage() {
     throw new Error("Failed to load patients data")
   }
 
-  const patients = patientsResult.data.map(patient => ({
+  const patients = patientsResult.data.map((patient: { id: string; user: { name: string } }) => ({
     id: patient.id,
     user: {
       name: patient.user.name

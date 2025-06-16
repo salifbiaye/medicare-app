@@ -42,15 +42,7 @@ export default async function AppointmentPage() {
 
         <div className="mt-8">
           <div className="container mx-auto">
-            <div className="flex justify-end mb-6">
-              <Link
-                href="/doctor/appointment/new"
-                className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors dark:bg-primary/90 dark:text-primary-foreground/90 dark:hover:bg-primary/80"
-              >
-                <Plus size={16} />
-                Nouveau Rendez-vous
-              </Link>
-            </div>
+           
             <AppointmentList appointments={appointments} />
           </div>
         </div>

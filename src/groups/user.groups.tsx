@@ -1,3 +1,4 @@
+import { role } from "better-auth/plugins/access"
 import {
     UserIcon,
     CheckCircle2Icon,
@@ -20,7 +21,7 @@ const baseUserGroups = [
     {
         title: "Profil et permissions",
         description: "Paramètres additionnels du compte",
-        fields: ["emailVerified", "profileCompleted"],
+        fields: ["emailVerified"],
         icon: <CheckCircle2Icon className="h-5 w-5" />,
     },
 ]
@@ -42,7 +43,7 @@ export const doctorGroups = [
     {
         title: "Informations professionnelles",
         description: "Informations professionnelles du médecin",
-        fields: ["role", "specialty", "registrationNumber", "isChief"],
+        fields: ["specialty", "registrationNumber", "isChief"],
         icon: <Stethoscope className="h-5 w-5" />,
     },
     {
@@ -59,7 +60,7 @@ export const secretaryGroups = [
     {
         title: "Affectation",
         description: "Hôpital et service d'affectation",
-        fields: ["hospitalId", "serviceId"],
+        fields: ["role", "hospitalId", "serviceId"],
         icon: <ClipboardList className="h-5 w-5" />,
     },
 ]

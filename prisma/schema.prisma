@@ -404,7 +404,7 @@ model Account {
   createdAt             DateTime
   updatedAt             DateTime
 
-  @@map("patient")
+  @@map("account")
 }
 
 model Verification {

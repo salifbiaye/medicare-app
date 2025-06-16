@@ -621,4 +621,38 @@ export class AppointmentRequestRepository {
       }
     });
   }
+
+  static async updatePatientAppointmentRequestsStatus(patientId: string, doctorId: string, status: RequestStatus) {
+    return await prisma.appointmentRequest.updateMany({
+      where: {
+        patientId: patientId,
+        doctorId: doctorId,
+        status: {
+          not: "COMPLETED"
+        }
+      },
+      data: {
+        status: status
+      }
+    })
+  }
+
+  static async updateMultiplePatientAppointmentRequestsStatus(patientIds: string[], doctorId: string, status: RequestStatus) {
+    return await Promise.all(
+      patientIds.map(patientId =>
+        prisma.appointmentRequest.updateMany({
+          where: {
+            patientId: patientId,
+            doctorId: doctorId,
+            status: {
+              not: "COMPLETED"
+            }
+          },
+          data: {
+            status: status
+          }
+        })
+      )
+    )
+  }
 } 

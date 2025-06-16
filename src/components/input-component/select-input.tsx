@@ -43,6 +43,7 @@ export function CustomFormSelect<T extends FieldValues>({
 
     // Charger les options dynamiquement si loadOptions est fourni
     useEffect(() => {
+    
         const fetchOptions = async () => {
             if (loadOptions) {
                 try {

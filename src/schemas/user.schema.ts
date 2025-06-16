@@ -7,12 +7,12 @@ const baseUserSchema = z.object({
     email: z.string().email("Veuillez saisir un email valide"),
     gender: z.enum(["MALE", "FEMALE"]),
     emailVerified: z.preprocess((val) => val === "true" || val === true, z.boolean()),
-    profileCompleted: z.preprocess((val) => val === "true" || val === true, z.boolean()),
+    profileCompleted: z.any().transform(() => true),
 })
 
 // Patient specific schema
 export const createPatientSchema = baseUserSchema.extend({
-    role: z.literal("PATIENT"),
+    role:  z.any().transform(() => "PATIENT"),
     socialSecurityNumber: z.string().optional(),
     bloodGroup: z.string().optional(),
     allergies: z.string().optional(),
@@ -20,7 +20,7 @@ export const createPatientSchema = baseUserSchema.extend({
 
 // Doctor specific schema
 export const createDoctorSchema = baseUserSchema.extend({
-    role: z.enum(["DOCTOR", "CHIEF_DOCTOR"]),
+    role: z.any().transform(() => "DOCTOR"),
     specialty: z.enum([
         "GENERAL_PRACTICE",
         "OPHTHALMOLOGY",
@@ -42,20 +42,20 @@ export const createDoctorSchema = baseUserSchema.extend({
 
 // Secretary specific schema
 export const createSecretarySchema = baseUserSchema.extend({
-    role: z.literal("SECRETARY"),
+    role: z.any().transform(() => "SECRETARY"),
     hospitalId: z.string().min(1, "L'hôpital est requis"),
     serviceId: z.string().min(1, "Le service est requis"),
 })
 
 // Director specific schema
 export const createDirectorSchema = baseUserSchema.extend({
-    role: z.literal("DIRECTOR"),
+    role: z.any().transform(() => "DIRECTOR"),
     hospitalId: z.string().min(1, "L'hôpital est requis"),
 })
 
 // Admin specific schema
 export const createAdminSchema = baseUserSchema.extend({
-    role: z.literal("ADMIN"),
+    role: z.any().transform(() => "ADMIN"),
 })
 
 

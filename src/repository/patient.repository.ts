@@ -46,19 +46,28 @@ export class PatientRepository {
     }
 
     static async createPatientForExistingUser(userId: string, data: PatientOnboardingFormValues) {
-        return await prisma.patient.create({
-            data: {
-                user: {
-                    connect: { id: userId }
+        return await prisma.$transaction(async (tx) => {
+            // Update user's profileCompleted status
+            await tx.user.update({
+                where: { id: userId },
+                data: { profileCompleted: true }
+            });
+
+            // Create patient
+            return await tx.patient.create({
+                data: {
+                    user: {
+                        connect: { id: userId }
+                    },
+                    socialSecurityNumber: data.socialSecurityNumber,
+                    bloodGroup: data.bloodGroup,
+                    allergies: data.allergies,
                 },
-                socialSecurityNumber: data.socialSecurityNumber,
-                bloodGroup: data.bloodGroup,
-                allergies: data.allergies,
-            },
-            include: {
-                user: true
-            }
-        })
+                include: {
+                    user: true
+                }
+            });
+        });
     }
 
     static async getAllPatients() {

@@ -19,59 +19,6 @@ type ProfileHeaderProps = {
 }
 
 export function ProfileHeader({ user }: ProfileHeaderProps) {
-  const [isUploading, setIsUploading] = useState(false)
-  const [coverIsUploading, setCoverIsUploading] = useState(false)
-  const { toast } = useToast()
-
-  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    try {
-      setIsUploading(true)
-
-      // This would be replaced with your actual image upload logic
-      // For example, uploading to a storage service and getting a URL back
-      const formData = new FormData()
-      formData.append("image", file)
-
-      // Simulate upload delay
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Update account with new image URL
-      // In a real implementation, you would get the URL from your upload response
-      const imageUrl = URL.createObjectURL(file)
-
-
-
-      toast({
-        title: "Image mise à jour",
-        description: "Votre photo de profil a été mise à jour avec succès.",
-        variant: "success",
-      })
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour de votre photo.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUploading(false)
-    }
-  }
-
-  const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Similar implementation as account image change
-    setCoverIsUploading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setCoverIsUploading(false)
-
-    toast({
-      title: "Image de couverture mise à jour",
-      description: "Votre image de couverture a été mise à jour avec succès.",
-      variant: "success",
-    })
-  }
 
   return (
     <Card className="overflow-hidden bg-background">
@@ -95,20 +42,9 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
                 </AvatarFallback>
               </Avatar>
 
-              <label
-                htmlFor="profile-upload"
-                className="absolute bottom-0 right-0 flex h-8 w-8 z-30 cursor-pointer items-center justify-center rounded-full bg-background dark:text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
-              >
-                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-              </label>
 
-              <input
-                type="file"
-                id="profile-upload"
-                className="hidden"
-                accept="image/*"
-                onChange={handleProfileImageChange}
-              />
+
+
             </div>
 
             <div className="mt-4 sm:mt-0">

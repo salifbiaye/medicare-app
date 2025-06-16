@@ -2,8 +2,16 @@ import { User, Calendar, Clock, FileText, MessageSquare } from "lucide-react";
 import { FieldConfig } from "@/components/data-form"
 import { format } from "date-fns"
 import { getPatientsAction } from "@/actions/appointment.action";
+import { useSearchParams } from "next/navigation";
 
-export const appointmentFields: FieldConfig[] = [
+interface Patient {
+  id: string
+  user: {
+    name: string
+  }
+}
+
+export const appointmentFields: FieldConfig<Patient>[] = [
   {
     id: "patientId",
     name: "patientId",
@@ -20,14 +28,29 @@ export const appointmentFields: FieldConfig[] = [
     options: [],
     async loadOptions() {
       try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const selectedPatientId = searchParams.get("patientId");
     
         const response = await getPatientsAction();
         
         if (response.success && response.data) {
-          return response.data.map(patient => ({
+          const options = response.data.map(patient => ({
             value: patient.id,
-            label: `${patient.firstName} ${patient.lastName}`
+            label: patient.user.name
           }));
+
+          if (selectedPatientId) {
+            const selectedPatient = response.data.find(p => p.id === selectedPatientId);
+            if (selectedPatient) {
+              return {
+                options,
+                defaultValue: selectedPatientId,
+                disabled: true
+              };
+            }
+          }
+
+          return options;
         }
         return [];
       } catch (error) {
