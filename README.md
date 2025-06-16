@@ -39,12 +39,7 @@ Medicare est une plateforme médicale complète qui révolutionne la gestion des
 - 📊 Rapports d'analyses
 - 🔒 Signature électronique sécurisée
 
-### Services Spécialisés
-- 👥 Gestion multi-services (cardiologie, radiologie, etc.)
-- 🔬 Suivi des examens de laboratoire
-- 💊 Gestion de la pharmacie
-- 🚑 Gestion des urgences
-- 📈 Statistiques et rapports d'activité
+
 
 ### Sécurité et Conformité
 - 🔒 Authentification forte
@@ -71,7 +66,7 @@ cd medicare
 ```bash
 cp .env.example .env
 ```
-Modifiez le fichier `.env` avec vos propres configurations.
+
 
 3. **Lancement avec Docker**
 ```bash
