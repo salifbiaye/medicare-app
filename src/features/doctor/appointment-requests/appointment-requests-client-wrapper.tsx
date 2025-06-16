@@ -4,12 +4,13 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { RequestStatus } from "@prisma/client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Pagination } from "@/components/ui/pagination"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { AppointmentRequestsList } from "./appointment-requests-list"
-import { AppointmentRequestsFilters } from "./appointment-requests-filters"
-import { updateAppointmentRequestStatusAction } from "@/actions/appointment-request.action"
+import {
+  updateAppointmentRequestSecretaryStatusAction, updateAppointmentRequestsStatusAction,
+  updateAppointmentRequestStatusAction
+} from "@/actions/appointment-request.action"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout";
 import {ParticlesBackground} from "@/components/animations/particles-background";
 import {Clock, Users} from "lucide-react";
@@ -157,7 +158,7 @@ export function AppointmentRequestsClientWrapper({
     setIsSubmitting(true)
 
     try {
-      await updateAppointmentRequestStatusAction(requestId, newStatus, data)
+      await updateAppointmentRequestsStatusAction(requestId, newStatus)
       router.refresh()
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error)

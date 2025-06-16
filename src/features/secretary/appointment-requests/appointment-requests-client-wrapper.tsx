@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Pagination } from "@/components/ui/pagination"
 import { AppointmentRequestsList } from "./appointment-requests-list"
 import {
-  updateAppointmentRequestSecretaryStatusAction,
+  updateAppointmentRequestsStatusAction,
   updateAppointmentRequestStatusAction
 } from "@/actions/appointment-request.action"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout";
@@ -172,7 +172,7 @@ export function AppointmentRequestsClientWrapper({
     setIsSubmitting(true)
 
     try {
-      await updateAppointmentRequestSecretaryStatusAction(requestId, newStatus)
+      await updateAppointmentRequestsStatusAction(requestId, newStatus)
       router.refresh()
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error)

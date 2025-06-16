@@ -29,7 +29,7 @@ export async function updateAppointmentRequestStatusAction(patientId: string, st
   }
 }
 
-export async function updateAppointmentRequestSecretaryStatusAction(requestId: string, status: RequestStatus) {
+export async function updateAppointmentRequestsStatusAction(requestId: string, status: RequestStatus) {
   try {
 
     const result = await AppointmentRequestService.updateAppointmentRequestSecretaryStatus(requestId, status)
