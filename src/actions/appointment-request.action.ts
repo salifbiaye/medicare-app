@@ -29,6 +29,18 @@ export async function updateAppointmentRequestStatusAction(patientId: string, st
   }
 }
 
+export async function updateAppointmentRequestSecretaryStatusAction(requestId: string, status: RequestStatus) {
+  try {
+
+    const result = await AppointmentRequestService.updateAppointmentRequestSecretaryStatus(requestId, status)
+    revalidatePath("/doctor/appointment-requests")
+    return { success: true, data: result }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut:", error)
+    return { success: false, error: "Échec de la mise à jour du statut" }
+  }
+}
+
 export async function updateMultipleAppointmentRequestsStatusAction(patientIds: string[], status: RequestStatus) {
   try {
     const result = await AppointmentRequestService.updateMultipleAppointmentRequestsStatus(patientIds, status)
@@ -46,4 +58,4 @@ export async function getAppointmentRequestsWithPaginationAction(params: ParamsS
 
 export async function getRequestStatsAction() {
   return await AppointmentRequestService.getRequestStats()
-} 
+}

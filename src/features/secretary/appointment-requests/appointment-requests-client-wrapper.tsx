@@ -7,7 +7,10 @@ import { RequestStatus } from "@prisma/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Pagination } from "@/components/ui/pagination"
 import { AppointmentRequestsList } from "./appointment-requests-list"
-import { updateAppointmentRequestStatusAction } from "@/actions/appointment-request.action"
+import {
+  updateAppointmentRequestSecretaryStatusAction,
+  updateAppointmentRequestStatusAction
+} from "@/actions/appointment-request.action"
 import {AnimatedHeader, AnimatedLayout} from "@/components/animations/animated-layout";
 import {ParticlesBackground} from "@/components/animations/particles-background";
 import {Clock, Users, CheckCircle2, XCircle, ArrowRightLeft, Building, Stethoscope} from "lucide-react";
@@ -165,15 +168,11 @@ export function AppointmentRequestsClientWrapper({
   }
 
   // Fonction pour mettre à jour le statut d'une demande
-  const handleStatusUpdate = async (requestId: string, newStatus: RequestStatus, data?: {
-    doctorId?: string
-    note?: string
-    serviceId?: string
-  }) => {
+  const handleStatusUpdate = async (requestId: string, newStatus: RequestStatus) => {
     setIsSubmitting(true)
 
     try {
-      await updateAppointmentRequestStatusAction(requestId, newStatus, data)
+      await updateAppointmentRequestSecretaryStatusAction(requestId, newStatus)
       router.refresh()
     } catch (error) {
       console.error("Erreur lors de la mise à jour du statut:", error)

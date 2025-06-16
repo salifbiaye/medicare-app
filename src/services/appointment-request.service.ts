@@ -62,20 +62,18 @@ export class AppointmentRequestService {
 
     // Récupérer le doctorId de l'utilisateur connecté
     const doctor = await AppointmentRequestRepository.getDoctorByUserId(session.user.id)
-    if (!doctor) {
-      throw new Error("Utilisateur non autorisé (doit être un médecin)")
+    if(!doctor) {
+        throw new Error("Utilisateur non autorisé (doit être un médecin)")
     }
 
     const result = await AppointmentRequestRepository.updatePatientAppointmentRequestsStatus(
-      patientId,
-      doctor.id,
-      status
+        patientId,
+        doctor.id,
+        status
     )
-
     if (!result) {
       throw new Error("Échec de la mise à jour du statut")
     }
-
     if (status === RequestStatus.COMPLETED) {
       await NotificationService.createNotification({
         recipientId: patientId,
@@ -87,6 +85,24 @@ export class AppointmentRequestService {
         senderId: session.user.id
       })
     }
+    return result
+
+
+
+
+  }
+  static async updateAppointmentRequestSecretaryStatus(requestId: string, status: RequestStatus) {
+
+    const session = await this.getSession()
+    if (!session?.user?.id) {
+      throw new Error("Non autorisé")
+    }
+
+    const result = await AppointmentRequestRepository.updatePatientAppointmentRequestsSecretaryStatus(
+        requestId,
+        status
+    )
+
 
     return result
   }

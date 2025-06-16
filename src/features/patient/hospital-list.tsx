@@ -99,8 +99,8 @@ export function HospitalList({ initialHospitals }: HospitalListProps) {
                 <CardHeader className="pb-2">
                   <CardTitle className="line-clamp-1">{hospital.name}</CardTitle>
                   <CardDescription className="flex items-center text-sm">
-                    <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                    <span className="line-clamp-1">{hospital.address}</span>
+                    <MapPin className="h-3.5 w-3.5 mr-1 text-foreground flex-shrink-0" />
+                    <span className="line-clamp-1 text-foreground">{hospital.address}</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-4">

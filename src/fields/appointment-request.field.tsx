@@ -23,6 +23,8 @@ export const appointmentRequestFields = [
   {
     type: "hidden" as const,
     name: "hospitalId",
+    disabled: true,
+    hidden: true,
   },
   {
     type: "select" as const,
