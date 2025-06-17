@@ -78,10 +78,21 @@ export class ServiceService {
         }
 
         try {
+            // Récupérer l'hôpital du directeur
+            const director = await ServiceRepository.getDirectorByUserId(session.user.id)
+            if (!director?.hospitalId) {
+                return { success: false, error: "Aucun hôpital associé au directeur" }
+            }
+
+            // Ajouter l'hospitalId aux filtres
+            const filters = {
+                ...(params.filters as ServiceFilterSchema || {}),
+                hospitalId: [director.hospitalId]
+            }
 
             const result = await ServiceRepository.getServicesWithPagination({
                 ...params,
-                filters: params.filters as ServiceFilterSchema
+                filters
             })
 
             return {
@@ -136,6 +147,23 @@ export class ServiceService {
                 return {
                     success: false,
                     error: "Aucun service à supprimer"
+                }
+            }
+
+            // Récupérer l'hôpital du directeur
+            const director = await ServiceRepository.getDirectorByUserId(session.user.id)
+            if (!director?.hospitalId) {
+                return { success: false, error: "Aucun hôpital associé au directeur" }
+            }
+
+            // Vérifier que tous les services appartiennent à l'hôpital du directeur
+            const services = await ServiceRepository.getServicesByIds(serviceIds)
+            const unauthorizedServices = services.filter((service: Service) => service.hospitalId !== director.hospitalId)
+            
+            if (unauthorizedServices.length > 0) {
+                return {
+                    success: false,
+                    error: "Certains services n'appartiennent pas à votre hôpital"
                 }
             }
 
@@ -205,7 +233,13 @@ export class ServiceService {
                 return { success: false, error: "Non autorisé" }
             }
 
-            const stats = await ServiceRepository.getServiceStats()
+            // Récupérer l'hôpital du directeur
+            const director = await ServiceRepository.getDirectorByUserId(session.user.id)
+            if (!director?.hospitalId) {
+                return { success: false, error: "Aucun hôpital associé au directeur" }
+            }
+
+            const stats = await ServiceRepository.getServiceStats(director.hospitalId)
             return {
                 success: true,
                 data: stats
@@ -232,7 +266,13 @@ export class ServiceService {
                 return { success: false, error: "Non autorisé" }
             }
 
-            const services = await ServiceRepository.getLatestServices(limit)
+            // Récupérer l'hôpital du directeur
+            const director = await ServiceRepository.getDirectorByUserId(session.user.id)
+            if (!director?.hospitalId) {
+                return { success: false, error: "Aucun hôpital associé au directeur" }
+            }
+
+            const services = await ServiceRepository.getLatestServices(limit, director.hospitalId)
             return {
                 success: true,
                 data: services
@@ -262,7 +302,16 @@ export class ServiceService {
                 return { success: false, error: "Non autorisé" }
             }
 
-            const services = await ServiceRepository.getServicesByDateRange(params)
+            // Récupérer l'hôpital du directeur
+            const director = await ServiceRepository.getDirectorByUserId(session.user.id)
+            if (!director?.hospitalId) {
+                return { success: false, error: "Aucun hôpital associé au directeur" }
+            }
+
+            const services = await ServiceRepository.getServicesByDateRange({
+                ...params,
+                hospitalId: director.hospitalId
+            })
             return {
                 success: true,
                 data: services

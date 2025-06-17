@@ -141,7 +141,7 @@ export class ServiceRepository {
             },
         })
 
-        // Ajoute le nom de l’hôpital et supprime l’objet hospital
+        // Ajoute le nom de l'hôpital et supprime l'objet hospital
         const servicesWithHospitalName = services.map(service => ({
             ...service,
             hospitalName: service.hospital.name,
@@ -164,10 +164,17 @@ export class ServiceRepository {
         })
     }
 
-    static async getServiceStats() {
-        const totalServices = await prisma.service.count();
+    static async getServiceStats(hospitalId: string) {
+        const totalServices = await prisma.service.count({
+            where: {
+                hospitalId: hospitalId
+            }
+        });
         const servicesByType = await prisma.service.groupBy({
             by: ['type'],
+            where: {
+                hospitalId: hospitalId
+            },
             _count: {
                 type: true
             }
@@ -182,8 +189,11 @@ export class ServiceRepository {
         };
     }
 
-    static async getLatestServices(limit: number = 5) {
+    static async getLatestServices(limit: number = 5, hospitalId: string) {
         return await prisma.service.findMany({
+            where: {
+                hospitalId: hospitalId
+            },
             orderBy: {
                 createdAt: 'desc'
             },
@@ -199,34 +209,50 @@ export class ServiceRepository {
                         name: true,
                     },
                 },
-                createdAt: true,
-                updatedAt: true,
+                createdAt: true
             }
-        });
+        })
     }
 
     static async getServicesByDateRange(params: {
         startDate: Date;
         endDate: Date;
+        hospitalId: string;
     }) {
-        const { startDate, endDate } = params;
-
-        const services = await prisma.service.findMany({
+        return await prisma.service.findMany({
             where: {
+                hospitalId: params.hospitalId,
                 createdAt: {
-                    gte: startDate,
-                    lte: endDate
+                    gte: params.startDate,
+                    lte: params.endDate
                 }
             },
             orderBy: {
-                createdAt: 'asc'
+                createdAt: 'desc'
             },
             select: {
                 id: true,
+                type: true,
+                name: true,
+                description: true,
+                hospitalId: true,
                 createdAt: true,
+                hospital: {
+                    select: {
+                        name: true
+                    }
+                }
             }
         });
+    }
 
-        return services;
+    static async getServicesByIds(ids: string[]) {
+        return await prisma.service.findMany({
+            where: {
+                id: {
+                    in: ids
+                }
+            }
+        })
     }
 } 
