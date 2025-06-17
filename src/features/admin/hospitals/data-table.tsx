@@ -116,14 +116,6 @@ function DataTableContent<TData, TValue>({
     router.push(`${pathname}?${createQueryString({ view: mode })}`)
   }
 
-  // en haut de DataTableContent
-  const initialPage = page ; // table travaille en zero-based
-  const [pagination, setPagination] = React.useState({
-    pageIndex: initialPage,
-    pageSize: pageSize,
-  });
-
-
   // Initialize table
   const table = useReactTable({
     data,
@@ -133,14 +125,25 @@ function DataTableContent<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination,
+      pagination: {
+        pageIndex: page - 1, // Convertir l'index de page 1-based en 0-based
+        pageSize: pageSize,
+      },
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange:setPagination,
+    onPaginationChange: (updater) => {
+      const newPagination = typeof updater === "function" ? updater({ pageIndex: page - 1, pageSize }) : updater
+      router.push(
+        `${pathname}?${createQueryString({
+          page: newPagination.pageIndex + 1,
+          per_page: newPagination.pageSize,
+        })}`,
+      )
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -158,11 +161,11 @@ function DataTableContent<TData, TValue>({
         filterableColumns={filterableColumns}
         searchableColumns={searchableColumns}
         createQueryString={createQueryString}
-        onDeleteSelected={onDeleteSelected || handleDeleteSelected}
+        onDeleteSelected={handleDeleteSelected}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
       />
-      <div className="rounded-md ">
+      <div className="rounded-[10px]">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -170,7 +173,6 @@ function DataTableContent<TData, TValue>({
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} colSpan={header.colSpan} className="whitespace-nowrap text-background dark:text-foreground">
-
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )
@@ -201,8 +203,8 @@ function DataTableContent<TData, TValue>({
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length > 0 && (
             <p>
-              {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-              selected.
+              {table.getFilteredSelectedRowModel().rows.length} sur {table.getFilteredRowModel().rows.length} hôpital(aux)
+              sélectionné(s)
             </p>
           )}
         </div>

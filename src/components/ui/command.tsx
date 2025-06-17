@@ -30,8 +30,8 @@ function Command({
 }
 
 function CommandDialog({
-  title = "Command Palette",
-  description = "Search for a command to run...",
+  title = "Palette de commandes",
+  description = "Rechercher une commande à exécuter...",
   children,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
@@ -55,6 +55,7 @@ function CommandDialog({
 
 function CommandInput({
   className,
+  placeholder = "Rechercher...",
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
@@ -69,6 +70,7 @@ function CommandInput({
           "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
+        placeholder={placeholder}
         {...props}
       />
     </div>
@@ -92,14 +94,18 @@ function CommandList({
 }
 
 function CommandEmpty({
+  className,
+  children = "Aucun résultat trouvé.",
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      className="py-6 text-center text-sm"
+      className={cn("py-6 text-center text-sm", className)}
       {...props}
-    />
+    >
+      {children}
+    </CommandPrimitive.Empty>
   )
 }
 

@@ -1,11 +1,9 @@
-import { ContextNav } from '@/components/navbar/context-nav';
-import { MainNav } from '@/components/navbar/main-nav';
 import { auth } from '@/lib/auth';
 import { UserRepository } from '@/repository/user.repository';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { ReactNode } from 'react';
-import {Building, Stethoscope} from "lucide-react";
+import {Building} from "lucide-react";
 import {DirectorService} from "@/services/director.service";
 
 type LayoutProps = {

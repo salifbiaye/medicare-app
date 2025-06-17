@@ -92,12 +92,12 @@ async function UsersTable({ searchParams }: UsersPageProps) {
   const filterableColumns = [
     {
       id: "role",
-      title: "Role",
+      title: "Rôle",
       options: [
         { label: "Administrateur", value: "ADMIN" },
         { label: "Patient", value: "PATIENT" },
         { label: "Médecin", value: "DOCTOR" },
-        { label: "Secretaire", value: "SECRETARY" },
+        { label: "Secrétaire", value: "SECRETARY" },
         { label: "Directeur", value: "DIRECTOR" },
       ],
     },
@@ -105,16 +105,16 @@ async function UsersTable({ searchParams }: UsersPageProps) {
       id: "gender",
       title: "Genre",
       options: [
-        { label: "Male", value: "MALE" },
-        { label: "Female", value: "FEMALE" },
+        { label: "Homme", value: "MALE" },
+        { label: "Femme", value: "FEMALE" },
       ],
     },
     {
       id: "profileCompleted",
-      title: "etat du profil",
+      title: "État du profil",
       options: [
-        { label: "Completed", value: "true" },
-        { label: "Incomplete", value: "false" },
+        { label: "Complet", value: "true" },
+        { label: "Incomplet", value: "false" },
       ],
     },
   ]

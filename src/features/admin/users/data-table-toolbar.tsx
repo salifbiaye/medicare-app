@@ -6,6 +6,7 @@ import type { Table } from "@tanstack/react-table"
 import { PlusIcon, Trash2, X } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useDebounce } from "use-debounce"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -164,18 +165,10 @@ function DataTableToolbarContent<TData>({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-1 items-center space-x-2">
-        {/* Bouton de suppression des sélections */}
-        {hasSelectedRows && onDeleteSelected && (
-          <Button variant="destructive" size="sm" onClick={() => setIsDeleteDialogOpen(true)} className="h-8">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Supprimer {selectedRows.length} élément{selectedRows.length > 1 ? "s" : ""}
-          </Button>
-        )}
-
         {searchableColumns.length > 0 && (
           <div className="flex flex-1 items-center space-x-2">
             <Input
-              placeholder="Chercher..."
+              placeholder="Rechercher un utilisateur..."
               value={localSearchValue}
               onChange={(event) => setLocalSearchValue(event.target.value)}
               className="h-8 w-[150px] bg-muted dark:bg-background lg:w-[250px]"
@@ -199,36 +192,34 @@ function DataTableToolbarContent<TData>({
           </Button>
         )}
 
-        <Button variant="default" onClick={() => router.push("/admin/users/new")} className="h-8 px-2 lg:px-3">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Ajouter
-        </Button>
+        {hasSelectedRows && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDeleteSelected}
+            className="h-8 px-2 lg:px-3"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Supprimer ({selectedRows.length})
+          </Button>
+        )}
 
         <ExportMenu
           data={table.getFilteredRowModel().rows.map((row) => row.original)}
           columns={table.getAllColumns().map((column) => column.columnDef)}
           filename="utilisateurs"
         />
-
-        <Button variant="special" onClick={() => router.push("/admin/users/import")} className="h-8 px-2 lg:px-3">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Importer
-        </Button>
       </div>
 
       <div className="flex items-center space-x-2">
+        <Link href="/admin/users/new">
+          <Button variant="outline" size="sm" className="h-8">
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Ajouter un utilisateur
+          </Button>
+        </Link>
         <DataTableViewOptions table={table} />
       </div>
-
-      {/* Dialog de confirmation de suppression */}
-      <ConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleDeleteSelected}
-        title="Supprimer les éléments sélectionnés"
-        description={`Êtes-vous sûr de vouloir supprimer ${selectedRows.length} élément${selectedRows.length > 1 ? "s" : ""} ? Cette action est irréversible.`}
-        confirmText="Supprimer"
-      />
     </div>
   )
 }

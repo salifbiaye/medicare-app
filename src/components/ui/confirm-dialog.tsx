@@ -29,7 +29,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmText = "Confirmer",
-  cancelText = "annuler",
+  cancelText = "Annuler",
 }: ConfirmDialogProps) {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -41,8 +41,8 @@ export function ConfirmDialog({
     } catch (error) {
       console.error(error)
       toastAlert.error({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
+        title: "Erreur",
+        description: error instanceof Error ? error.message : "Une erreur est survenue",
       })
     } finally {
       setIsLoading(false)
@@ -66,7 +66,7 @@ export function ConfirmDialog({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Please wait...
+                Veuillez patienter...
               </>
             ) : (
               confirmText

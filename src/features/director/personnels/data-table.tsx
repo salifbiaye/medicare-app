@@ -217,8 +217,8 @@ function DataTableContent<TData, TValue>({
           <div className="flex-1 text-sm text-muted-foreground">
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
                 <p>
-                  {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-                  selected.
+                  {table.getFilteredSelectedRowModel().rows.length} sur {table.getFilteredRowModel().rows.length} membre(s) du personnel
+                  sélectionné(s).
                 </p>
             )}
           </div>

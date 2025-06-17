@@ -46,7 +46,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="secondary" size="sm" className="h-8  dark:text-white border  border-dashed">
+        <Button variant="secondary" size="sm" className="h-8 dark:text-white border border-dashed">
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (
@@ -58,7 +58,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
               <div className="hidden space-x-1 lg:flex">
                 {selectedValues.size > 2 ? (
                   <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {selectedValues.size} selected
+                    {selectedValues.size} sélectionné{selectedValues.size > 1 ? "s" : ""}
                   </Badge>
                 ) : (
                   options
@@ -76,9 +76,9 @@ function DataTableFacetedFilterContent<TData, TValue>({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
         <Command>
-          <CommandInput placeholder={title} />
+          <CommandInput placeholder={`Rechercher ${title?.toLowerCase()}`} />
           <CommandList>
-            <CommandEmpty>Aucun résultat.</CommandEmpty>
+            <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
             <CommandGroup>
               {options.map((option) => {
                 const isSelected = selectedValues.has(option.value)
@@ -89,7 +89,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
                       const newSearchParams = new URLSearchParams(searchParams?.toString())
 
                       if (isSelected) {
-                        // Remove this value
+                        // Supprimer cette valeur
                         const values = newSearchParams.getAll(column?.id as string)
                         newSearchParams.delete(column?.id as string)
 
@@ -99,11 +99,11 @@ function DataTableFacetedFilterContent<TData, TValue>({
                           }
                         }
                       } else {
-                        // Add this value
+                        // Ajouter cette valeur
                         newSearchParams.append(column?.id as string, option.value)
                       }
 
-                      // Reset to the first page when filtering
+                      // Retourner à la première page lors du filtrage
                       newSearchParams.set("page", "1")
 
                       router.push(`${pathname}?${newSearchParams.toString()}`)
@@ -117,7 +117,9 @@ function DataTableFacetedFilterContent<TData, TValue>({
                     >
                       <Check className={cn("h-4 w-4")} />
                     </div>
-                    {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
+                    {option.icon && (
+                      <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    )}
                     <span>{option.label}</span>
                   </CommandItem>
                 )
@@ -136,7 +138,7 @@ function DataTableFacetedFilterContent<TData, TValue>({
                     }}
                     className="justify-center text-center"
                   >
-                    effacer tous les filtres
+                    Effacer les filtres
                   </CommandItem>
                 </CommandGroup>
               </>
