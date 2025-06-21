@@ -17,24 +17,139 @@
 ### 1.2 Structure du Projet
 ```
 medicare-app/
-├── src/
-│   ├── actions/         # Server Actions
-│   │   ├── appointment.action.ts
-│   │   ├── auth.action.ts
-│   │   ├── dicom.action.ts
-│   │   ├── doctor.action.ts
-│   │   ├── hospital.action.ts
-│   │   ├── notification.action.ts
-│   │   ├── patient.action.ts
-│   │   └── user.action.ts
-│   ├── app/            # Pages et Layouts
-│   │   ├── (auth)
-│   │   ├── (landing)
-│   │   └── (protected)
-│   ├── components/     # Composants Réutilisables
-│   ├── features/       # Fonctionnalités par Module
-│   ├── lib/           # Utilitaires
-│   └── types/         # Types TypeScript
+├───src/
+    ├───actions
+    ├───app
+    │   ├───(auth)
+    │   │   ├───forgot-password
+    │   │   ├───login
+    │   │   ├───onboarding
+    │   │   ├───register
+    │   │   ├───reset-password
+    │   │   └───verify-email
+    │   ├───(landing)
+    │   ├───(protected)
+    │   │   ├───account
+    │   │   ├───admin
+    │   │   │   ├───dashboard
+    │   │   │   │   ├───@hospitals
+    │   │   │   │   └───@users
+    │   │   │   ├───hospitals
+    │   │   │   │   ├───import
+    │   │   │   │   ├───new
+    │   │   │   │   └───[id]
+    │   │   │   │       └───edit
+    │   │   │   └───users
+    │   │   │       ├───import
+    │   │   │       ├───new
+    │   │   │       └───[id]
+    │   │   │           └───edit
+    │   │   ├───director
+    │   │   │   ├───dashboard
+    │   │   │   │   ├───@personnels
+    │   │   │   │   └───@services
+    │   │   │   ├───services
+    │   │   │   │   ├───import
+    │   │   │   │   ├───new
+    │   │   │   │   └───[id]
+    │   │   │   │       └───edit
+    │   │   │   └───staff
+    │   │   │       ├───import
+    │   │   │       ├───new
+    │   │   │       └───[id]
+    │   │   │           └───edit
+    │   │   ├───doctor
+    │   │   │   ├───appointment
+    │   │   │   │   ├───new
+    │   │   │   │   └───[id]
+    │   │   │   │       └───edit
+    │   │   │   ├───calendar
+    │   │   │   ├───dashboard
+    │   │   │   ├───dicom-viewer
+    │   │   │   │   └───shared
+    │   │   │   ├───patients
+    │   │   │   │   ├───new
+    │   │   │   │   └───[id]
+    │   │   │   │       └───edit
+    │   │   │   ├───prescriptions
+    │   │   │   │   └───[id]
+    │   │   │   ├───reports
+    │   │   │   │   └───[id]
+    │   │   │   └───treatments
+    │   │   ├───notifications
+    │   │   ├───patient
+    │   │   │   ├───calendar
+    │   │   │   ├───medical-record
+    │   │   │   ├───prescriptions
+    │   │   │   │   └───[id]
+    │   │   │   └───requests
+    │   │   │       └───[id]
+    │   │   └───secretary
+    │   │       └───dashboard
+    │   └───api
+    │       ├───auth
+    │       │   └───[...all]
+    │       ├───orthanc
+    │       │   └───instances
+    │       │       └───[id]
+    │       ├───patients
+    │       │   └───[id]
+    │       │       ├───dicoms
+    │       │       ├───medical-reports
+    │       │       └───prescriptions
+    │       └───session
+    ├───components
+    │   ├───admin
+    │   ├───animations
+    │   ├───datatable
+    │   ├───email-template
+    │   ├───input-component
+    │   ├───layouts
+    │   ├───navbar
+    │   └───ui
+    ├───features
+    │   ├───account
+    │   ├───admin
+    │   │   ├───dashboard
+    │   │   │   ├───hospitals
+    │   │   │   └───users
+    │   │   ├───hospitals
+    │   │   └───users
+    │   ├───auth
+    │   │   └───onboarding
+    │   ├───director
+    │   │   ├───dashboard
+    │   │   │   ├───personnels
+    │   │   │   └───services
+    │   │   ├───personnels
+    │   │   └───services
+    │   ├───doctor
+    │   │   ├───appointment-requests
+    │   │   ├───calendar
+    │   │   ├───dicom-viewer
+    │   │   ├───dicomviewer
+    │   │   │   └───components
+    │   │   ├───patients
+    │   │   ├───prescriptions
+    │   │   └───reports
+    │   ├───landing
+    │   ├───notifications
+    │   │   ├───components
+    │   │   └───lib
+    │   ├───patient
+    │   │   ├───calendar
+    │   │   ├───medical-record
+    │   │   └───prescriptions
+    │   └───secretary
+    │       └───appointment-requests
+    ├───fields
+    ├───groups
+    ├───hooks
+    ├───lib
+    ├───repository
+    ├───schemas
+    ├───services
+    └───types
 ```
 
 ## 2. Fonctionnalités Implémentées

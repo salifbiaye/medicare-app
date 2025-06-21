@@ -124,6 +124,7 @@ export default function AddMedicalDocumentPage({
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [orthancResponse, setOrthancResponse] = useState<OrthancResponse | null>(null)
+  const [description, setDescription] = useState("")
 
   // Get the appropriate title, icon, and schema based on document type
   const getDocumentTypeInfo = () => {
@@ -339,7 +340,7 @@ export default function AddMedicalDocumentPage({
         const result = await createDicomImageAction({
           type: "dicom",
           orthanc_id: response.ID,
-          description: `Image DICOM pour ${patient.user.name}`,
+          description: description.trim() || `Image DICOM pour ${patient.user.name}`,
           medicalRecordId: medicalRecord.id
         });
 
@@ -418,6 +419,19 @@ export default function AddMedicalDocumentPage({
                         : "Format accepté: .dcm, .dicom"}
                   </p>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="description" className="text-sm font-medium">
+                  Description de l'image
+                </label>
+                <textarea
+                  id="description"
+                  className="w-full min-h-[100px] px-3 py-2 rounded-md border border-input bg-background text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  placeholder="Ajoutez une description pour cette image DICOM..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
               </div>
 
               {uploadProgress > 0 && uploadProgress < 100 && (

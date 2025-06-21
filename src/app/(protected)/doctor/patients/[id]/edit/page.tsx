@@ -1,6 +1,7 @@
 import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { PatientRepository } from "@/repository/patient.repository"
+import AddMedicalDocumentPage from "@/features/doctor/patients/add-medical-document"
 
 export const metadata: Metadata = {
   title: "Ajouter un document médical",

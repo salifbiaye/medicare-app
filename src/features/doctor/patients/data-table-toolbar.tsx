@@ -15,7 +15,7 @@ import { DataTableViewOptions } from "@/components/datatable/data-table-view-opt
 import { DataTableFacetedFilter } from "@/components/datatable/data-table-faceted-filter"
 import { ExportMenu } from "@/components/datatable/export-menu"
 import { updateMultipleAppointmentRequestsStatusAction } from "@/actions/appointment-request.action"
-import { Link } from "next/navigation"
+import Link from "next/link"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -57,7 +57,7 @@ function DataTableToolbarContent<TData>({
   // Debounce de la valeur de recherche
   const [debouncedSearchValue] = useDebounce(localSearchValue, debounceDelay)
 
-  // Get all the unique filter values from the URL
+  // Get all the unique filter values from the URL - STABILISÉ avec useMemo
   const filterValues = React.useMemo(() => {
     const values: Record<string, string[]> = {}
 
@@ -82,41 +82,48 @@ function DataTableToolbarContent<TData>({
   const selectedRows = table.getFilteredSelectedRowModel().rows
   const hasSelectedRows = selectedRows.length > 0
 
-  // Effet pour gérer la recherche debounced
+  // STABILISER handleSearchChange avec useCallback
+  const handleSearchChange = React.useCallback(
+    (searchValue: string) => {
+      const newUrl = `${pathname}?${createQueryString({
+        search: searchValue || null,
+        page: 1, // Reset à la page 1 lors de la recherche
+      })}`
+      router.push(newUrl)
+    },
+    [pathname, createQueryString, router],
+  )
+
+  // Effet pour gérer la recherche debounced - STABILISÉ
   React.useEffect(() => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString())
-
-    if (debouncedSearchValue) {
-      newSearchParams.set("search", debouncedSearchValue)
-    } else {
-      newSearchParams.delete("search")
+    const currentSearch = searchParams?.get("search") || ""
+    if (debouncedSearchValue !== currentSearch) {
+      handleSearchChange(debouncedSearchValue)
     }
+  }, [debouncedSearchValue, handleSearchChange, searchParams])
 
-    // Reset to the first page when searching
-    newSearchParams.set("page", "1")
-
-    router.push(`${pathname}?${newSearchParams.toString()}`)
-  }, [debouncedSearchValue, router, pathname, searchParams])
-
-  // Handle reset filters
+  // STABILISER handleResetFilters avec useCallback
   const handleResetFilters = React.useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams?.toString())
-
-    for (const key of Object.keys(filterValues)) {
-      newSearchParams.delete(key)
-    }
-
     // Reset search input
     setLocalSearchValue("")
-    newSearchParams.delete("search")
 
-    // Reset to the first page when clearing filters
-    newSearchParams.set("page", "1")
+    // UTILISER createQueryString pour reset tous les filtres
+    const paramsToReset: Record<string, string | number | null> = {
+      search: null,
+      page: 1, // Reset à la page 1
+    }
 
-    router.push(`${pathname}?${newSearchParams.toString()}`)
-  }, [searchParams, filterValues, router, pathname])
+    // Ajouter tous les filtres actifs à reset
+    Object.keys(filterValues).forEach((key) => {
+      paramsToReset[key] = null
+    })
 
-  const handleMarkSelectedAsCompleted = async () => {
+    const newUrl = `${pathname}?${createQueryString(paramsToReset)}`
+    router.push(newUrl)
+  }, [filterValues, pathname, createQueryString, router])
+
+  // STABILISER handleMarkSelectedAsCompleted avec useCallback
+  const handleMarkSelectedAsCompleted = React.useCallback(async () => {
     try {
       const selectedPatientIds = selectedRows.map(row => (row.original as PatientWithUser).userId)
       const result = await updateMultipleAppointmentRequestsStatusAction(selectedPatientIds, "COMPLETED")
@@ -139,7 +146,7 @@ function DataTableToolbarContent<TData>({
         description: "Une erreur est survenue."
       })
     }
-  }
+  }, [selectedRows, table])
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
