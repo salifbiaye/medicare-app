@@ -198,12 +198,7 @@ function DataTableToolbarContent<TData>({
       </div>
 
       <div className="flex items-center space-x-2">
-        <Link href="/doctor/patients/new">
-          <Button variant="outline" size="sm" className="h-8">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Ajouter un patient
-          </Button>
-        </Link>
+        
         <DataTableViewOptions table={table} />
       </div>
     </div>

@@ -15,10 +15,8 @@ export type CreateMedicalReportFormValues = z.infer<typeof createMedicalReportSc
 // Schema for creating a prescription
 export const createPrescriptionSchema = z.object({
   content: z.string().min(1, "Le contenu de la prescription est requis"),
-  startDate: z.date({
-    required_error: "La date de début est requise",
-  }),
-  endDate: z.date().optional(),
+  startDate: z.string().transform((str) => new Date(str)),
+  endDate: z.string().optional().transform((str) => str ? new Date(str) : undefined),
   status: z.enum(["ACTIVE", "COMPLETED", "CANCELLED"]).default("ACTIVE"),
   medicalRecordId: z.string().optional(), // Optional here because it will be added programmatically
   patientId: z.string().optional(), // Optional here because it will be added programmatically
