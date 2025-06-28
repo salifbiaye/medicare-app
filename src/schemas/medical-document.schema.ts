@@ -29,6 +29,7 @@ export type CreatePrescriptionFormValues = z.infer<typeof createPrescriptionSche
 // Schema for creating a DICOM image
 export const createDicomImageSchema = z.object({
   orthanc_id: z.string().min(1, "L'ID Orthanc de l'image est requis"),
+  orthanc_url: z.string().default(""),
   type: z.string().min(1, "Le type d'image est requis"),
   description: z.string().optional(),
   medicalRecordId: z.string().optional(), // Optional here because it will be added programmatically

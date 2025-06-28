@@ -21,6 +21,7 @@ export async function GET(
     const isFileRequest = url.searchParams.get('file') === 'true';
     
     // Récupérer l'URL Orthanc appropriée
+    console.log(session?.user?.id, id)
     const orthancUrl = await OrthancConfig.getOrthancUrl(session?.user?.id, id)
     
     // Vérifier d'abord que le serveur Orthanc est disponible

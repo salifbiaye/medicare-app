@@ -11,7 +11,6 @@ import {
 } from "@/schemas/medical-document.schema"
 import { PatientOnboardingFormValues } from "@/schemas/patient-onboarding.schema"
 
-
 export class PatientService {
     static async getSession() {
         const headersValue = await headers()
@@ -182,13 +181,21 @@ export class PatientService {
                 return { success: false, message: "Utilisateur non authentifié !" }
             }
 
+            // Obtenir l'ID du docteur à partir de l'ID de l'utilisateur via le repository
+            const doctor = await PatientRepository.getDoctorByUserId(session.user.id)
+
+            if (!doctor) {
+                return { success: false, message: "Docteur non trouvé !" }
+            }
+
             const { page, perPage, sort, search, filters } = params
             const result = await PatientRepository.getPatientsAppointmentsRequestWithPagination({
                 page,
                 perPage,
                 sort,
                 search,
-                filters
+                filters,
+                doctorId: doctor.id
             })
 
             return {

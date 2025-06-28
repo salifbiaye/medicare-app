@@ -42,6 +42,7 @@ interface AddMedicalDocumentPageProps {
   medicalRecord: MedicalRecord
   documentType: "medicalreport" | "prescription" | "dicomimage"
   patientId: string
+  orthancUrl: string
 }
 
 // Interface pour la réponse d'Orthanc
@@ -54,15 +55,13 @@ interface OrthancResponse {
   Status: string
 }
 
-// URL de l'API
-const API_URL = '/api/orthanc';
-
 export default function AddMedicalDocumentPage({
-                                                 patient,
-                                                 medicalRecord,
-                                                 documentType,
-                                                 patientId
-                                               }: AddMedicalDocumentPageProps) {
+  patient,
+  medicalRecord,
+  documentType,
+  patientId,
+  orthancUrl
+}: AddMedicalDocumentPageProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = React.useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -262,30 +261,7 @@ export default function AddMedicalDocumentPage({
     setUploadProgress(0)
 
     try {
-      // Vérifier d'abord si le serveur Orthanc est disponible via notre API
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // Timeout après 5 secondes
-
-        const checkResponse = await fetch(`${API_URL}`, {
-          signal: controller.signal,
-          method: 'GET'
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!checkResponse.ok) {
-          throw new Error(`Le serveur Orthanc a répondu avec une erreur: ${checkResponse.statusText}`);
-        }
-      } catch (serverErr) {
-        if (serverErr instanceof Error && serverErr.name === 'AbortError') {
-          throw new Error("Le serveur Orthanc ne répond pas (délai d'attente dépassé). Vérifiez que le serveur est en cours d'exécution.");
-        } else {
-          throw new Error(`Impossible de se connecter au serveur Orthanc: ${serverErr instanceof Error ? serverErr.message : String(serverErr)}`);
-        }
-      }
-
-      // Créer un FormData pour l'upload via l'API
+      // Créer un FormData pour l'upload
       const formData = new FormData();
       formData.append('file', selectedFile);
 
@@ -316,7 +292,6 @@ export default function AddMedicalDocumentPage({
           }
         };
 
-        // Gérer les erreurs réseau
         xhr.onerror = () => {
           reject(new Error("Erreur réseau lors de la communication avec le serveur. Vérifiez votre connexion."));
         };
@@ -326,13 +301,12 @@ export default function AddMedicalDocumentPage({
         };
       });
 
-      // Configurer et envoyer la requête via notre API
-      xhr.open('POST', `${API_URL}/instances`, true);
+      // On envoie à notre API qui gère la communication avec Orthanc
+      xhr.open('POST', '/api/orthanc/instances', true);
       xhr.timeout = 30000; // 30 secondes de timeout
       xhr.send(formData);
 
       try {
-        // Attendre la réponse
         const response = await uploadPromise;
         setOrthancResponse(response);
 
@@ -340,6 +314,7 @@ export default function AddMedicalDocumentPage({
         const result = await createDicomImageAction({
           type: "dicom",
           orthanc_id: response.ID,
+          orthanc_url: orthancUrl, // On stocke l'URL de base d'Orthanc
           description: description.trim() || `Image DICOM pour ${patient.user.name}`,
           medicalRecordId: medicalRecord.id
         });
@@ -362,8 +337,8 @@ export default function AddMedicalDocumentPage({
       toastAlert.error({
         title: "Erreur lors du téléchargement de l'image DICOM",
         description: error instanceof Error
-            ? error.message
-            : "Une erreur s'est produite lors du téléchargement de l'image DICOM. Veuillez réessayer.",
+          ? error.message
+          : "Une erreur s'est produite lors du téléchargement de l'image DICOM. Veuillez réessayer.",
       });
       console.error(error);
     } finally {

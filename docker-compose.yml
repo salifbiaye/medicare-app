@@ -10,7 +10,7 @@ services:
       - DATABASE_URL=postgresql://medicare_user:medicare_password@db:5432/medicare_db?schema=public
       - BETTER_AUTH_SECRET=a1ekDYzDJwaZWhfZlb4iqaqZufAgQa6U
       - BETTER_AUTH_URL=http://localhost:3000
-      - RESEND_API_KEY=re_j8JpVYG9_Evg8aBuzHDatyvvkwTexrbJS
+      - RESEND_API_KEY=re_VWQVAgXD_6RCD6oEK8XUHq6AeWSoNoqJV
       - GITHUB_CLIENT_ID=902d3568b6acb7b55d4b
       - GITHUB_CLIENT_SECRET=50cbfa1a818cf79b246145881f84b12fb4a32db3
       - GITHUB_REDIRECT_URI=http://localhost:3000/api/auth/callback/github

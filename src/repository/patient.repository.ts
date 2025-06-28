@@ -8,6 +8,8 @@ import {
 } from "@/schemas/medical-document.schema"
 import { Prisma } from "@prisma/client"
 import { PatientOnboardingFormValues } from "@/schemas/patient-onboarding.schema"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 
 export class PatientRepository {
     static async getPatientByUserId(userId: string) {
@@ -131,15 +133,31 @@ export class PatientRepository {
     }
 
     static async getPatientWithUserById(patientId: string) {
+        const session = await auth.api.getSession({ headers: await headers() });
+        if (!session?.user?.id) return null;
+
+        // Obtenir d'abord le médecin connecté avec son hôpital
+        const doctor = await prisma.doctor.findUnique({
+            where: { userId: session.user.id },
+            include: { hospital: true }
+        });
+
+        if (!doctor) return null;
+
         return await prisma.patient.findUnique({
             where: {
                 id: patientId
             },
             include: {
                 user: true,
-                medicalRecord: true
+                medicalRecord: true,
+                appointments: {
+                    where: {
+                        doctorId: doctor.id
+                    }
+                }
             }
-        })
+        });
     }
     static async getPatientPrescriptions(id:string){
         return await prisma.prescription.findMany({
@@ -300,16 +318,15 @@ export class PatientRepository {
         sort?: string;
         search?: string;
         filters?: Record<string, string[]>;
-        doctorId?: string;
+        doctorId: string;
     }) {
         // Construire les options de tri
         const orderBy: Prisma.PatientOrderByWithRelationInput[] = []
-
+        
         if (sort) {
             const [field, direction] = sort.split('.')
             const isDesc = direction === 'desc'
-
-            // Vérifier si le champ de tri appartient à user
+            
             if (field.startsWith('user.')) {
                 const userField = field.replace('user.', '')
                 orderBy.push({
@@ -323,7 +340,6 @@ export class PatientRepository {
                 })
             }
         } else {
-            // Tri par défaut
             orderBy.push({
                 user: {
                     name: 'asc'
@@ -331,79 +347,84 @@ export class PatientRepository {
             })
         }
 
-        // Construire les options de filtrage
-        const where: Prisma.PatientWhereInput = {
-            // Filtrer les patients dont l'utilisateur a des demandes de rendez-vous transférées
-            // et assignées au docteur spécifié
-            user: {
-                sentRequests: {
-                    some: {
-                        status: "TRANSFERRED",
-                        ...(doctorId ? { doctorId } : {})
-                    }
+        // Construire les options de filtrage de base
+        const baseWhere: Prisma.PatientWhereInput = {
+            appointments: {
+                some: {
+                    doctorId
                 }
             }
         }
 
-        // Recherche textuelle
+        // Ajouter la recherche textuelle si nécessaire
+        let where = baseWhere
         if (search) {
-            where.OR = [
-                {
-                    user: {
-                        name: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
+            where = {
+                AND: [
+                    baseWhere,
+                    {
+                        OR: [
+                            {
+                                user: {
+                                    name: {
+                                        contains: search,
+                                        mode: 'insensitive'
+                                    }
+                                }
+                            },
+                            {
+                                user: {
+                                    email: {
+                                        contains: search,
+                                        mode: 'insensitive'
+                                    }
+                                }
+                            },
+                            {
+                                socialSecurityNumber: {
+                                    contains: search,
+                                    mode: 'insensitive'
+                                }
+                            }
+                        ]
                     }
-                },
-                {
-                    user: {
-                        email: {
-                            contains: search,
-                            mode: 'insensitive'
-                        }
-                    }
-                },
-                {
-                    socialSecurityNumber: {
-                        contains: search,
-                        mode: 'insensitive'
-                    }
-                }
-            ]
+                ]
+            }
         }
 
-        // Filtres additionnels
+        // Ajouter les filtres additionnels si nécessaire
         if (filters) {
+            const filterConditions: Prisma.PatientWhereInput[] = []
+            
             Object.entries(filters).forEach(([key, values]) => {
                 if (values.length === 0) return
 
                 if (key.startsWith('user.')) {
                     const userField = key.replace('user.', '')
-                    where.user = {
-                        ...where.user,
-                        [userField]: {
+                    filterConditions.push({
+                        user: {
+                            [userField]: {
+                                in: values
+                            }
+                        }
+                    })
+                } else if (key === 'socialSecurityNumber' || key === 'bloodGroup' || key === 'allergies') {
+                    filterConditions.push({
+                        [key]: {
                             in: values
                         }
-                    }
-                } else {
-                    // Utiliser des valeurs connues pour les champs qui existent réellement dans le modèle Patient
-                    if (key === 'socialSecurityNumber') {
-                        where.socialSecurityNumber = {
-                            in: values
-                        }
-                    } else if (key === 'bloodGroup') {
-                        where.bloodGroup = {
-                            in: values
-                        }
-                    } else if (key === 'allergies') {
-                        where.allergies = {
-                            in: values
-                        }
-                    }
-                    // Il faudrait ajouter tous les autres champs possibles du modèle Patient
+                    })
                 }
             })
+
+            if (filterConditions.length > 0) {
+                where = {
+                    AND: [
+                        where,
+                        ...filterConditions
+                    ]
+                }
+            }
         }
 
         // Exécuter la requête avec pagination
@@ -414,26 +435,20 @@ export class PatientRepository {
                 skip: (page - 1) * perPage,
                 take: perPage,
                 include: {
-                    user: {
+                    user: true,
+                    medicalRecord: true,
+                    appointments: {
+                        where: {
+                            doctorId
+                        },
                         include: {
-                            sentRequests: {
-                                where: {
-                                    status: "TRANSFERRED",
-                                    ...(doctorId ? { doctorId } : {})
-                                },
+                            doctor: {
                                 include: {
-                                    hospital: true,
-                                    service: true,
-                                    doctor: {
-                                        include: {
-                                            user: true
-                                        }
-                                    }
+                                    user: true
                                 }
                             }
                         }
-                    },
-                    medicalRecord: true
+                    }
                 }
             }),
             prisma.patient.count({ where })
@@ -538,17 +553,35 @@ export class PatientRepository {
     }
 
     static async createDicomImage(data: CreateDicomImageFormValues) {
-        const { orthanc_id, type, description, medicalRecordId } = data
-        
+        const { orthanc_id, type, description, medicalRecordId, orthanc_url } = data;
+
+        // Vérifier si le dossier médical existe
+        const medicalRecord = await prisma.medicalRecord.findUnique({
+            where: { id: medicalRecordId },
+            include: { dicomImages: true }
+        });
+
+        if (!medicalRecord) {
+            throw new Error("Dossier médical non trouvé");
+        }
+
         return await prisma.dicomImage.create({
             data: {
                 orthanc_id,
                 type,
                 description,
-                medicalRecordId: medicalRecordId as string,
-                uploadDate: new Date()
+                orthanc_url: orthanc_url || "",
+                uploadDate: new Date(),
+                medicalRecord: {
+                    connect: {
+                        id: medicalRecordId
+                    }
+                }
+            },
+            include: {
+                medicalRecord: true
             }
-        })
+        });
     }
 
     static async getMedicalReportsByMedicalRecordId(medicalRecordId: string) {
@@ -641,6 +674,14 @@ export class PatientRepository {
                     }
                 },
                 medicalRecord: true
+            }
+        })
+    }
+
+    static async getDoctorByUserId(userId: string) {
+        return await prisma.doctor.findUnique({
+            where: {
+                userId: userId
             }
         })
     }

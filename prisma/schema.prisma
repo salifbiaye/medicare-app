@@ -292,7 +292,7 @@ model Prescription {
 
 model DicomImage {
   id          String   @id @default(cuid())
-  orthanc_id  String   @unique // ID of the image on Orthanc server
+  orthanc_id  String   // ID of the image on Orthanc server
   orthanc_url String   @default("")
   type        String
   description String?

@@ -2,6 +2,11 @@ import { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { PatientRepository } from "@/repository/patient.repository"
 import AddMedicalDocumentPage from "@/features/doctor/patients/add-medical-document"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { PrismaClient } from "@prisma/client"
+
+const prisma = new PrismaClient()
 
 export const metadata: Metadata = {
   title: "Ajouter un document médical",
@@ -21,12 +26,29 @@ export default async function EditMedicalRecordPage({
   params, 
   searchParams 
 }: EditMedicalRecordPageProps) {
-  const { id } = params
-  const { type } = searchParams
+  // Attendre les paramètres dynamiques
+  const { id } = await params
+  const { type } = await searchParams
 
   // Validate document type
   if (!type || !["medicalreport", "prescription", "dicomimage"].includes(type)) {
     redirect(`/doctor/patients/${id}`)
+  }
+
+  // Get the current session
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  // Get the doctor and their hospital
+  const doctor = await prisma.doctor.findUnique({
+    where: { userId: session.user.id },
+    include: { hospital: true }
+  });
+
+  if (!doctor || !doctor.hospital) {
+    notFound();
   }
   
   // Get patient information with medical record
@@ -55,6 +77,7 @@ export default async function EditMedicalRecordPage({
       medicalRecord={medicalRecord}
       documentType={type}
       patientId={id}
+      orthancUrl={doctor.hospital.urlOrthanc}
     />
   )
 } 
